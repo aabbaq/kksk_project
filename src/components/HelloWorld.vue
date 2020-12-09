@@ -33,7 +33,7 @@
                         <v-col><div>{{ peekText.author }}</div></v-col>
                         <!-- <v-spacer></v-spacer> -->
                         <v-col>
-                          <v-btn rounded color='#8CD2BC' absolute right bottom>
+                          <v-btn rounded color='#8CD2BC' absolute right bottom @click='editText(peekText)'>
                             <v-icon color='white'>mdi-lead-pencil</v-icon>
                           </v-btn>
                         </v-col>
@@ -106,6 +106,14 @@ export default {
           id: info.id,
           picture: info.picture,
           number: idx + 1
+        }
+      })
+    },
+    editText: function (info) {
+      this.$router.push({
+        name: 'post',
+        params: {
+          id: info.id
         }
       })
     }

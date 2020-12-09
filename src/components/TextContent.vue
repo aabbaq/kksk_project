@@ -54,8 +54,6 @@ export default {
     MarkdownPreview
   },
   beforeCreate: function () {
-    console.log(this.$route.params.id)
-    console.log(this.$route.params.number)
     this.pictureNumber = this.$route.params.number
     this.$axios.get('http://localhost:3000/api/getOneText', {
       params: {
@@ -63,14 +61,15 @@ export default {
       }
     }).then((res) => {
       if (res.data.status === 200) {
-        this.$refs.mdp.html = res.data.docs[0].htmlContent
-        this.title = res.data.docs[0].title
-        this.fullDate = res.data.docs[0].dateInString
-        this.date = res.data.docs[0].dateInString.split(' ')[0]
-        this.author = res.data.docs[0].author
-        this.id = res.data.docs[0]._id
-        if (res.data.docs[0].picture) {
-          this.picture = res.data.docs[0].picture
+        const docs = res.data.docs[0]
+        this.$refs.mdp.html = docs.htmlContent
+        this.title = docs.title
+        this.fullDate = docs.dateInString
+        this.date = docs.dateInString.split(' ')[0]
+        this.author = docs.author
+        this.id = docs._id
+        if (docs.picture) {
+          this.picture = docs.picture
         }
       }
     })

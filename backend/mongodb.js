@@ -8,6 +8,7 @@ const dbConnection = mongoose.connection
 const Schema = mongoose.Schema
 
 mongoose.connect(mongodbUrl, { useUnifiedTopology: true, useNewUrlParser: true })
+mongoose.set('useFindAndModify', false)
 dbConnection.on('error', console.error.bind(console, 'connection failed:'))
 dbConnection.once('open', function () {
   console.log('Database connected!')
@@ -22,12 +23,16 @@ const blogTextInfoSchema = new Schema({
   author: String,
   date: Date,
   dateInString: String,
+  lastDate: Date,
+  lastDateInString: String,
   title: String,
   subtitle: String,
   tag: String,
   picture: String,
   content: String,
-  htmlContent: String
+  htmlContent: String,
+  secretLevel: Number,
+  protected: Boolean
 })
 
 const UserInfo = mongoose.model('user', userInfoSchema)
@@ -100,23 +105,59 @@ function upLoadBlog (req, res) {
   BlogTextInfo.create({
     author: req.body.blogauthor,
     date: timeNow,
+    lastDate: timeNow,
     dateInString: methods.dateToString(timeNow, true),
+    lastDateInString: methods.dateToString(timeNow, true),
     title: req.body.blogtitle,
     subtitle: req.body.blogsubtitle,
     tag: req.body.blogtag,
     picture: req.body.blogpic,
     content: req.body.blogcontent,
-    htmlContent: req.body.blogcontenthtml
+    htmlContent: req.body.blogcontenthtml,
+    secretLevel: req.body.blogsecretlevel,
+    protected: req.body.blogprotected
   }, function (err) {
     if (err) {
       res.send({
         status: 500,
-        msg: 'Error'
+        msg: 'Upload Error'
       })
     } else {
       res.send({
         status: 200,
         msg: 'Upload Success'
+      })
+    }
+  })
+}
+
+function updateBlog (req, res) {
+  const timeNow = new Date()
+  BlogTextInfo.findOneAndUpdate({
+    _id: req.body.blogid
+  }, {
+    lastDate: timeNow,
+    lastDateInString: methods.dateToString(timeNow, true),
+    title: req.body.blogtitle,
+    subtitle: req.body.blogsubtitle,
+    tag: req.body.blogtag,
+    picture: req.body.blogpic,
+    content: req.body.blogcontent,
+    htmlContent: req.body.blogcontenthtml,
+    secretLevel: req.body.blogsecretlevel,
+    protected: req.body.blogprotected
+  }, {
+    upsert: true
+  }, function (err) {
+    if (err) {
+      res.send({
+        status: 500,
+        msg: 'Update Error'
+      })
+    } else {
+      res.send({
+        status: 200,
+        msg: 'Update Success'
       })
     }
   })
@@ -199,5 +240,6 @@ module.exports = {
   upLoadBlog: upLoadBlog,
   getBlogTexts: getBlogTexts,
   getOneText: getOneText,
-  deleteText: deleteText
+  deleteText: deleteText,
+  updateBlog: updateBlog
 }

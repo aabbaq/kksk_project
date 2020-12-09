@@ -103,7 +103,7 @@
   </v-row>
   <v-row class="mx-8 px-8">
     <v-col>
-      <v-btn block @click='uploadBlog'>test</v-btn>
+      <v-btn block @click='uploadBlog'>{{ btnName }}</v-btn>
     </v-col>
   </v-row>
   </v-container>
@@ -114,6 +114,30 @@ import { MarkdownPro } from 'vue-meditor'
 
 export default {
   name: 'PostEdit',
+  beforeRouteEnter (to, from, next) {
+    if (from.path === '/') {
+      next(vm => {
+        vm.$axios.get('http://localhost:3000/api/getOneText', {
+          params: {
+            id: to.params.id
+          }
+        }).then((res) => {
+          if (res.data.status === 200) {
+            const docs = res.data.docs[0]
+            vm.blogId = to.params.id
+            vm.content = docs.content
+            vm.blogTitle = docs.title
+            vm.blogSubtitle = docs.subtitle
+            vm.blogPic = docs.picture
+            vm.blogTag = docs.tag
+            vm.secretLevel = docs.secretLevel
+            vm.protectedMode = docs.protected
+            vm.isUpdate = true
+          }
+        })
+      })
+    }
+  },
   components: {
     MarkdownPro
   },
@@ -122,16 +146,18 @@ export default {
     secretLabels: [
       'N', 'S', 'D'
     ],
-    content: '',
     logined: 'No',
     toolbars: {
       save: true
     },
+    content: '',
     blogTitle: '',
     blogSubtitle: '',
     blogTag: '',
     blogPic: 'default',
-    protectedMode: false
+    protectedMode: false,
+    isUpdate: false,
+    blogId: ''
   }),
   methods: {
     uploadBlog: function () {
@@ -145,7 +171,11 @@ export default {
         blogtag: this.blogTag,
         blogpic: this.blogPic,
         blogcontenthtml: this.$refs.md.html,
-        blogcontent: this.content
+        blogcontent: this.content,
+        blogsecretlevel: this.secretLevel,
+        blogprotected: this.protectedMode,
+        blogupdate: this.isUpdate,
+        blogid: this.blogId
       }).then(res => {
         if (res.data.status === 200) {
           console.log('Success!')
@@ -158,11 +188,10 @@ export default {
   },
   computed: {
     lockIcon: function () {
-      if (this.secretLevel === 1) {
-        return 'mdi-lock-open-outline'
-      } else {
-        return 'mdi-lock-outline'
-      }
+      return this.secretLevel === 1 ? 'mdi-lock-open-outline' : 'mdi-lock-outline'
+    },
+    btnName: function () {
+      return this.isUpdate === true ? 'Update' : 'Upload'
     }
   },
   watch: {
