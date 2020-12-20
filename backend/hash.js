@@ -7,4 +7,6 @@ function passwordHash (password) {
   return mongoPassword
 }
 
+// console.log(passwordHash('caonima123'))
+
 module.exports = passwordHash

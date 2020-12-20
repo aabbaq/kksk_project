@@ -1,5 +1,6 @@
 <template>
   <div>
+    <top-bar></top-bar>
     <v-parallax height="350" :src="require('../../static/'+ this.$route.params.picture +'.jpg')">
       <v-container>
         <v-row>

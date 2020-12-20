@@ -1,9 +1,6 @@
 <template>
   <v-app dark>
-    <top-bar></top-bar>
-    <div>
-      <router-view></router-view>
-    </div>
+    <router-view></router-view>
   </v-app>
 </template>
 

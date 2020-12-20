@@ -47,7 +47,6 @@ rapp.post('/api/tokenCheck', (req, res) => {
 })
 
 rapp.post('/api/upLoadBlog', (req, res) => {
-  console.log(req.body.blogupdate)
   if (!req.body.blogupdate) {
     db.upLoadBlog(req, res)
   } else {
@@ -55,7 +54,7 @@ rapp.post('/api/upLoadBlog', (req, res) => {
   }
 })
 
-rapp.get('/api/getBlogTexts', (req, res) => {
+rapp.post('/api/getBlogTexts', (req, res) => {
   db.getBlogTexts(req, res)
 })
 

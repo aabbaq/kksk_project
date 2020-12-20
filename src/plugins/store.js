@@ -5,16 +5,24 @@ Vue.use(Vuex)
 
 const state = {
   Authorization: '',
-  UserName: '',
+  UserInfo: {
+    UserName: '',
+    Role: ''
+  },
   HaveCheckUserToken: false
 }
 
 const mutations = {
   changeLogin (state, userLoginInformation) {
     state.Authorization = userLoginInformation.token
-    state.UserName = userLoginInformation.userid
+    state.UserInfo.UserName = userLoginInformation.username
+    state.UserInfo.Role = userLoginInformation.userrole
+    const user = {
+      name: userLoginInformation.username,
+      role: userLoginInformation.userrole
+    }
     sessionStorage.setItem('session_authorization', state.Authorization)
-    sessionStorage.setItem('session_username', userLoginInformation.userid)
+    sessionStorage.setItem('session_user', JSON.stringify(user))
   },
   haveCheckUserToken (state) {
     state.HaveCheckUserToken = true

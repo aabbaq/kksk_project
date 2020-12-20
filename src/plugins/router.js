@@ -6,6 +6,7 @@ import Login from '../components/Login'
 import HelloWorld from '../components/HelloWorld'
 import PostEdit from '../components/PostEdit'
 import TextContent from '../components/TextContent'
+import UserHome from '../components/UserHome'
 
 Vue.use(Router)
 const router = new Router({
@@ -42,6 +43,14 @@ const router = new Router({
       component: TextContent,
       meta: {
         title: 'TextContent'
+      }
+    },
+    {
+      path: '/user',
+      name: 'user',
+      component: UserHome,
+      meta: {
+        title: 'UserHome'
       }
     }
   ]

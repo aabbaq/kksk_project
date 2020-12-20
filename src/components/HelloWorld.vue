@@ -1,5 +1,6 @@
 <template>
   <div>
+    <top-bar></top-bar>
     <main-picture></main-picture>
     <v-container class='px-10'>
       <v-row v-for='(peekText, index) in peekTexts' v-bind:key='peekText.id' class='py-4' justify='center'>
@@ -75,16 +76,25 @@
 </template>
 
 <script>
-// import axios from 'axios'
 export default {
   name: 'HelloWorld',
-  mounted: function () {
-    this.$axios.get('http://localhost:3000/api/getBlogTexts').then((res) => {
-      if (res.data.status === 200) {
-        this.textCount = res.data.textsInfo.textsCount
-        this.peekTexts = res.data.textsInfo.peekTexts
+  beforeMount: function () {
+    let userInfo = {}
+    if (sessionStorage.getItem('session_user') === null) {
+      userInfo.user = {
+        name: 'guest',
+        role: 0
       }
-    })
+      userInfo.token = sessionStorage.getItem('session_authorization')
+    } else {
+      userInfo = {
+        isLogin: this.$store.state.HaveCheckUserToken,
+        user: JSON.parse(sessionStorage.getItem('session_user')),
+        token: sessionStorage.getItem('session_authorization')
+      }
+    }
+    console.log(userInfo)
+    this.getBlogTextsInMainPage(userInfo)
   },
   data: () => ({
     logined: 'No',
@@ -115,6 +125,23 @@ export default {
         params: {
           id: info.id
         }
+      })
+    },
+    getBlogTextsInMainPage: function (userInfo) {
+      this.$axios.post('http://localhost:3000/api/getBlogTexts', {
+        isLogin: userInfo.isLogin,
+        userName: userInfo.user.name,
+        userRole: userInfo.user.role,
+        userToken: userInfo.token
+      }).then(res => {
+        if (res.data.status === 200) {
+          this.textCount = res.data.textsInfo.textsCount
+          this.peekTexts = res.data.textsInfo.peekTexts
+        } else {
+          console.log('getBlogTextsInMainPage Error!')
+        }
+      }).catch(err => {
+        console.log(err)
       })
     }
   }

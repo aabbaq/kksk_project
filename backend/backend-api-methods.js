@@ -12,6 +12,23 @@ function dateToString (date, needTime = false, connector = '/') {
   return dateString
 }
 
+function getPeekTextsList (docs) {
+  const peekTexts = []
+  docs.forEach(function (each, inx, array) {
+    const peekText = {
+      title: each.title,
+      subtitle: each.subtitle,
+      id: each._id,
+      author: each.author,
+      date: dateToString(each.date),
+      picture: each.picture
+    }
+    peekTexts.push(peekText)
+  })
+  return peekTexts
+}
+
 module.exports = {
-  dateToString: dateToString
+  dateToString: dateToString,
+  getPeekTextsList: getPeekTextsList
 }

@@ -16,7 +16,8 @@ dbConnection.once('open', function () {
 
 const userInfoSchema = new Schema({
   username: String,
-  password: String
+  password: String,
+  userrole: Number
 })
 
 const blogTextInfoSchema = new Schema({
@@ -32,7 +33,9 @@ const blogTextInfoSchema = new Schema({
   content: String,
   htmlContent: String,
   secretLevel: Number,
-  protected: Boolean
+  protected: Boolean,
+  protectedPassword: String,
+  hidden: Boolean
 })
 
 const UserInfo = mongoose.model('user', userInfoSchema)
@@ -40,8 +43,8 @@ const UserInfo = mongoose.model('user', userInfoSchema)
 const BlogTextInfo = mongoose.model('text', blogTextInfoSchema)
 
 function userLogin (req, res) {
-  console.log('User Information: ' + req.body)
-  const hashPassword = hash(req.body.username)
+  const hashPassword = hash(req.body.password)
+  console.log('User Information: ' + req.body.username + ' ' + req.body.password + ' ' + hashPassword)
   UserInfo.findOne({
     username: req.body.username,
     password: hashPassword
@@ -54,15 +57,16 @@ function userLogin (req, res) {
     } else {
       if (docs === null) {
         res.send({
-          status: 400,
-          msg: 'Fail'
+          status: 514,
+          msg: 'Not Find User'
         })
       } else {
         const token = Token.encrypt(docs.id)
         res.send({
           status: 200,
           msg: 'Success',
-          userid: docs.username,
+          username: docs.username,
+          userrole: docs.userrole,
           token: token
         })
       }
@@ -74,7 +78,7 @@ function tokenCheck (req, res) {
   console.log('User Token: ' + req.body.usertoken)
   const userToken = req.body.usertoken
   const userIdInfo = Token.decrypt(userToken)
-  console.log('User id info: ' + userIdInfo)
+  console.log('User id info: ' + userIdInfo.id)
   UserInfo.findOne({
     // mongo里的id是 “_id ”
     _id: userIdInfo.id
@@ -115,7 +119,9 @@ function upLoadBlog (req, res) {
     content: req.body.blogcontent,
     htmlContent: req.body.blogcontenthtml,
     secretLevel: req.body.blogsecretlevel,
-    protected: req.body.blogprotected
+    protected: req.body.blogprotected,
+    protectedPassword: req.body.blogprotectedpassword,
+    hidden: req.body.bloghidden
   }, function (err) {
     if (err) {
       res.send({
@@ -145,7 +151,9 @@ function updateBlog (req, res) {
     content: req.body.blogcontent,
     htmlContent: req.body.blogcontenthtml,
     secretLevel: req.body.blogsecretlevel,
-    protected: req.body.blogprotected
+    protected: req.body.blogprotected,
+    protectedPassword: req.body.blogprotectedpassword,
+    hidden: req.body.bloghidden
   }, {
     upsert: true
   }, function (err) {
@@ -164,35 +172,80 @@ function updateBlog (req, res) {
 }
 
 function getBlogTexts (req, res) {
-  BlogTextInfo.find({}, (err, docs) => {
-    if (err) {
-      res.send({
-        status: 500,
-        msg: 'Get Texts Error'
-      })
+  let flag = 0
+  let peekTexts = []
+  if (!req.body.isLogin) {
+    BlogTextInfo.find({
+      protected: false,
+      secretLevel: 1
+    }, (err, docs) => {
+      if (err) {
+        flag = 100
+      } else {
+        peekTexts = methods.getPeekTextsList(docs)
+        flag = 200
+        console.log('flag: ' + flag + ' guest login!')
+        res.send({
+          status: flag,
+          msg: 'CheckCode: ' + flag,
+          textsInfo: {
+            textsCount: peekTexts.length,
+            peekTexts: peekTexts
+          }
+        })
+      }
+    })
+  } else {
+    const userToken = req.body.userToken
+    const userIdInfo = Token.decrypt(userToken)
+    if (!userIdInfo.token) {
+      flag = 101
     } else {
-      const peekTexts = []
-      docs.forEach(function (each, inx, array) {
-        const peekText = {
-          title: each.title,
-          subtitle: each.subtitle,
-          id: each._id,
-          author: each.author,
-          date: methods.dateToString(each.date),
-          picture: each.picture
-        }
-        peekTexts.push(peekText)
-      })
-      res.send({
-        status: 200,
-        msg: 'Get Texts Success',
-        textsInfo: {
-          textsCount: docs.length,
-          peekTexts: peekTexts
+      UserInfo.findOne({
+        _id: userIdInfo.id,
+        userrole: req.body.userRole
+      }, (err, docs) => {
+        if (err) {
+          flag = 102
+          console.log('UserInfo Error: ' + flag)
+        } else {
+          if (docs === null) {
+            flag = 103
+            console.log('UserInfo Null: ' + flag)
+          } else {
+            BlogTextInfo.find({
+              $or: [
+                { author: req.body.userName },
+                { hidden: false, secretLevel: { $lte: req.body.userRole } }
+              ]
+            }, (err, docs) => {
+              if (err) {
+                flag = 104
+                console.log('BlogTextInfo Error: ' + flag)
+              } else {
+                if (docs === null) {
+                  flag = 105
+                  console.log('BlogTextInfo Null: ' + flag)
+                } else {
+                  peekTexts = methods.getPeekTextsList(docs)
+                  flag = 200
+                  console.log('flag: ' + flag + ' user login!')
+                  res.send({
+                    status: flag,
+                    msg: 'CheckCode: ' + flag,
+                    textsInfo: {
+                      textsCount: peekTexts.length,
+                      peekTexts: peekTexts
+                    }
+                  })
+                }
+              }
+            })
+          }
         }
       })
     }
-  })
+  }
 }
 
 function getOneText (req, res) {
