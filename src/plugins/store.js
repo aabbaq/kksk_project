@@ -19,13 +19,20 @@ const mutations = {
     state.UserInfo.Role = userLoginInformation.userrole
     const user = {
       name: userLoginInformation.username,
-      role: userLoginInformation.userrole
+      role: userLoginInformation.userrole,
+      isLogin: true
     }
     sessionStorage.setItem('session_authorization', state.Authorization)
     sessionStorage.setItem('session_user', JSON.stringify(user))
   },
   haveCheckUserToken (state) {
     state.HaveCheckUserToken = true
+  },
+  changeLogout (state) {
+    state.HaveCheckUserToken = false
+    state.Authorization = ''
+    state.UserInfo.UserName = ''
+    state.UserInfo.Role = ''
   }
 }
 

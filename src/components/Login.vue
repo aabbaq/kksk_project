@@ -58,7 +58,7 @@ export default {
         if (res.data.status === 200) {
           this.$store.commit('changeLogin', res.data)
           this.$store.commit('haveCheckUserToken')
-          this.$router.push('/')
+          this.$router.push('/').catch(err => console.log(err))
         } else {
           this.inputError = true
           // document.getElementById('inputAlert').focus()

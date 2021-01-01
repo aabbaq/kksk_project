@@ -31,13 +31,47 @@
                     </v-card-subtitle>
                     <v-card-text class='pt-3'>
                       <v-row>
-                        <v-col><div>{{ peekText.author }}</div></v-col>
-                        <!-- <v-spacer></v-spacer> -->
-                        <v-col>
-                          <v-btn rounded color='#8CD2BC' absolute right bottom @click='editText(peekText)'>
+                        <div class='pl-3'>{{ peekText.author }}</div>
+                        <v-spacer></v-spacer>
+                        <div class="pr-2" v-if='haveAuthorization'>
+                          <v-btn rounded color='#8CD2BC' @click='editText(peekText)'>
                             <v-icon color='white'>mdi-lead-pencil</v-icon>
                           </v-btn>
-                        </v-col>
+                        </div>
+                        <v-dialog width="500" v-model="dialog">
+                          <template v-slot:activator="{ on, attrs }">
+                            <div class="pr-2" v-if='haveAuthorization'>
+                              <v-btn rounded color='#FF5234' v-bind="attrs" v-on="on">
+                                <v-icon color='white'>mdi-trash-can-outline</v-icon>
+                              </v-btn>
+                            </div>
+                          </template>
+                          <v-card>
+                            <v-card-title>
+                              Delete The Text
+                            </v-card-title>
+                            <v-card-text>
+                              Be Sure Nothing Wrong!
+                            </v-card-text>
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn
+                                color="red darken-1"
+                                text
+                                @click='dialog = false'
+                              >
+                                等等.
+                              </v-btn>
+                              <v-btn
+                                color="blue darken-2"
+                                text
+                                @click='deleteText(peekText)'
+                              >
+                                Yes, I AM!
+                              </v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-dialog>
                       </v-row>
                     </v-card-text>
                   </div>
@@ -47,48 +81,35 @@
           </v-hover>
         </v-col>
       </v-row>
-      <v-row class="text-center">
-        <v-col class="mb-4">
-          <div justify="center" align="center">
-            <v-card class="ma-10" max-width="450">
-              <v-card-title>
-                <div class="text-h6">
-                  Main Page
-                </div>
-              </v-card-title>
-              <v-text-field v-model="logined" class="mx-10" label="Do I Login in?" clearable>
-              </v-text-field>
-              <v-card-actions class="mx-5">
-                <!-- <router-link :to="{ name: 'login' }"> -->
-                <v-btn block @click="goToLoginPage"> GO Sign In</v-btn>
-                <!-- </router-link> -->
-              </v-card-actions>
-              <v-card-actions class="mx-5">
-              <v-btn block @click="goToPostPage"> Post A Blog</v-btn>
-              </v-card-actions>
-            </v-card>
-          </div>
-        </v-col>
-      </v-row>
     </v-container>
     <foot-bar></foot-bar>
   </div>
 </template>
 
 <script>
+import { sendTokenToBackend } from '../plugins/api-methods'
 export default {
   name: 'HelloWorld',
-  beforeMount: function () {
+  mounted: async function () {
+    const token = sessionStorage.getItem('session_authorization')
+    if (token) {
+      // await等待的Promise对象会返回其解析值
+      var checkCode = await sendTokenToBackend(token)
+      if (checkCode === 114) {
+        this.$store.commit('haveCheckUserToken')
+      }
+    }
     let userInfo = {}
     if (sessionStorage.getItem('session_user') === null) {
       userInfo.user = {
         name: 'guest',
-        role: 0
+        role: 0,
+        isLogin: false
       }
       userInfo.token = sessionStorage.getItem('session_authorization')
     } else {
       userInfo = {
-        isLogin: this.$store.state.HaveCheckUserToken,
+        isLogin: true,
         user: JSON.parse(sessionStorage.getItem('session_user')),
         token: sessionStorage.getItem('session_authorization')
       }
@@ -97,17 +118,17 @@ export default {
     this.getBlogTextsInMainPage(userInfo)
   },
   data: () => ({
+    dialog: false,
     logined: 'No',
     textCount: 0,
     peekTexts: []
   }),
-
   methods: {
     goToLoginPage: function (event) {
       this.$router.push({ name: 'login' })
     },
     goToPostPage: function (event) {
-      this.$router.push({ name: 'post' })
+      this.$router.push({ name: 'post' }).catch(err => console.log(err))
     },
     seeMore: function (info, idx) {
       this.$router.push({
@@ -127,6 +148,20 @@ export default {
         }
       })
     },
+    deleteText: function (info) {
+      this.dialog = false
+      console.log('Delete this text: ' + info.id)
+      this.$axios.post('http://localhost:3000/api/deleteText', {
+        id: info.id
+      }).then(res => {
+        if (res.data.status === 200) {
+          console.log('Success Delete!')
+          this.$router.push('/')
+        } else {
+          console.log('Error Delete!')
+        }
+      })
+    },
     getBlogTextsInMainPage: function (userInfo) {
       this.$axios.post('http://localhost:3000/api/getBlogTexts', {
         isLogin: userInfo.isLogin,
@@ -143,6 +178,15 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    }
+  },
+  computed: {
+    haveAuthorization () {
+      if (this.$store.state.HaveCheckUserToken) {
+        return true
+      } else {
+        return false
+      }
     }
   }
 }

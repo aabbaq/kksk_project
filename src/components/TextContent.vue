@@ -20,16 +20,18 @@
           <v-row>
             <v-col>
               <v-card min-width='320' elevation='0' rounded>
-                <MarkdownPreview ref='mdp'/>
+                <div v-html='content' class="markdown-body"></div>
+                <!-- <MarkdownPreview  id='mkdp' ref='mdp'/> -->
               </v-card>
             </v-col>
           </v-row>
         </v-col>
-        <v-col>
+        <!-- <v-col>
           <v-row>
             <v-col>
               <div>
                 <v-btn
+                  v-if='haveAuthorization'
                   color='#FF5234'
                   fab bottom right fixed
                   class='mb-4 mr-6'
@@ -40,19 +42,19 @@
               </div>
             </v-col>
           </v-row>
-        </v-col>
+        </v-col> -->
       </v-row>
     </v-container>
   </div>
 </template>
 
 <script>
-import { MarkdownPreview } from 'vue-meditor'
+// import MarkdownPreview from './markdown/preview'
 
 export default {
   name: 'TextContent',
   components: {
-    MarkdownPreview
+    // MarkdownPreview
   },
   beforeCreate: function () {
     this.pictureNumber = this.$route.params.number
@@ -63,7 +65,7 @@ export default {
     }).then((res) => {
       if (res.data.status === 200) {
         const docs = res.data.docs[0]
-        this.$refs.mdp.html = docs.htmlContent
+        this.content = docs.htmlContent
         this.title = docs.title
         this.fullDate = docs.dateInString
         this.date = docs.dateInString.split(' ')[0]
@@ -82,7 +84,8 @@ export default {
     date: '',
     author: '',
     id: '',
-    picture: 'default'
+    picture: 'default',
+    content: ''
   }),
   methods: {
     deleteText: function () {
@@ -103,5 +106,8 @@ export default {
 </script>
 
 <style lang="css">
-
+  #mkdp {
+    font-family: unquote("Roboto");
+    font-size: 96;
+}
 </style>

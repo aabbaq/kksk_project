@@ -7,6 +7,10 @@ import HelloWorld from '../components/HelloWorld'
 import PostEdit from '../components/PostEdit'
 import TextContent from '../components/TextContent'
 import UserHome from '../components/UserHome'
+import UserSelf from '../components/usercomponents/UserSelf.vue'
+import UserTexts from '../components/usercomponents/UserTexts.vue'
+import UserOthers from '../components/usercomponents/UserOthers.vue'
+import UserNews from '../components/usercomponents/UserNews.vue'
 
 Vue.use(Router)
 const router = new Router({
@@ -50,8 +54,48 @@ const router = new Router({
       name: 'user',
       component: UserHome,
       meta: {
-        title: 'UserHome'
-      }
+        title: 'UserHome',
+        needAuthorization: true
+      },
+      children: [
+        {
+          path: '',
+          name: 'userdefault',
+          component: UserSelf
+        },
+        {
+          path: 'myself',
+          name: 'userself',
+          component: UserSelf,
+          meta: {
+            title: 'UserSelf'
+          }
+        },
+        {
+          path: 'texts',
+          name: 'usertexts',
+          component: UserTexts,
+          meta: {
+            title: 'UserTexts'
+          }
+        },
+        {
+          path: 'others',
+          name: 'userothers',
+          component: UserOthers,
+          meta: {
+            title: 'UserOthers'
+          }
+        },
+        {
+          path: 'news',
+          name: 'usernews',
+          component: UserNews,
+          meta: {
+            title: 'UserNews'
+          }
+        }
+      ]
     }
   ]
 })

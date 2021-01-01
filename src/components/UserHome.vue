@@ -7,11 +7,10 @@
         </template> -->
         <template #changeUserTab='slotProps'>
           <v-tabs-items v-model="slotProps.tabProp">
-            <v-tab-item v-for="item in slotProps.tabsName" :key="item">
-              <v-card flat>
-                <v-card-text v-text="text"></v-card-text>
-              </v-card>
+            <v-tab-item v-for="item in slotProps.tabsInfo" :key="item.name" value="item">
+              <!-- BUG -->
             </v-tab-item>
+            <router-view></router-view>
          </v-tabs-items>
         </template>
       </top-bar>
@@ -23,19 +22,9 @@
 export default {
   name: 'UserHome',
   data: () => ({
-    tab: null,
-    items: [
-      'web', 'shopping', 'videos', 'images', 'news'
-    ],
-    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+    tab: null
   }),
   methods: {
-    changeNavbar: function () {
-      this.drawer = !this.drawer
-    },
-    isThereUserHome () {
-      return this.$route.name === 'user'
-    }
   },
   computed: {
   }

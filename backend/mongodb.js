@@ -176,7 +176,7 @@ function getBlogTexts (req, res) {
   let peekTexts = []
   if (!req.body.isLogin) {
     BlogTextInfo.find({
-      protected: false,
+      hidden: false,
       secretLevel: 1
     }, (err, docs) => {
       if (err) {
@@ -248,6 +248,63 @@ function getBlogTexts (req, res) {
   }
 }
 
+function getBlogTextsV (req, res) {
+  let peekTexts = []
+  if (!req.body.isLogin) {
+    res.send({
+      status: 999,
+      msg: 'Someone Not Login Want To Falsify Imformation Of Master!'
+    })
+  } else {
+    const userToken = req.body.userToken
+    const userIdInfo = Token.decrypt(userToken)
+    if (!userIdInfo.token) {
+      res.send({
+        status: 998,
+        msg: 'Someone Want To Falsify Imformation Of Master!'
+      })
+    } else {
+      UserInfo.findOne({
+        _id: userIdInfo.id,
+        userrole: req.body.userRole
+      }, (err, docs) => {
+        if (err) {
+          res.send({
+            status: 997,
+            msg: 'Someone In Low Level Want To Falsify Imformation Of Master!'
+          })
+        } else {
+          if (docs === null) {
+            res.send({
+              status: 996,
+              msg: 'Someone Not In Database Want To Falsify Imformation Of Master!'
+            })
+          } else {
+            BlogTextInfo.find({}, (err, docs) => {
+              if (err) {
+                res.send({
+                  status: 514,
+                  msg: 'Master Get Texts Error'
+                })
+              } else {
+                peekTexts = methods.getPeekTextsList(docs)
+                res.send({
+                  status: 200,
+                  msg: 'Master Get All Texts',
+                  textsInfo: {
+                    textsCount: peekTexts.length,
+                    peekTexts: peekTexts
+                  }
+                })
+              }
+            })
+          }
+        }
+      })
+    }
+  }
+}
+
 function getOneText (req, res) {
   // console.log(req.query.id)
   BlogTextInfo.find({
@@ -292,6 +349,7 @@ module.exports = {
   tokenCheck: tokenCheck,
   upLoadBlog: upLoadBlog,
   getBlogTexts: getBlogTexts,
+  getBlogTextsV: getBlogTextsV,
   getOneText: getOneText,
   deleteText: deleteText,
   updateBlog: updateBlog

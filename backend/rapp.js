@@ -55,7 +55,11 @@ rapp.post('/api/upLoadBlog', (req, res) => {
 })
 
 rapp.post('/api/getBlogTexts', (req, res) => {
-  db.getBlogTexts(req, res)
+  if (req.body.userRole === 7) {
+    db.getBlogTextsV(req, res)
+  } else {
+    db.getBlogTexts(req, res)
+  }
 })
 
 rapp.get('/api/getOneText', (req, res) => {

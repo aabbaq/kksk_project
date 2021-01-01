@@ -109,10 +109,12 @@
       <v-row class="mx-8 px-8">
         <v-col>
           <div class="markdown">
-            <MarkdownPro
+            <vue-simplemde
               ref='md'
               v-model='blogTextInfo.content'
               :toolbars='toolbars'
+              :highlight='needHighlight'
+              preview-class="markdown-body"
             />
           </div>
       </v-col>
@@ -160,9 +162,14 @@
 </template>
 
 <script>
-import { MarkdownPro } from 'vue-meditor'
+// import hljs from 'highlight.js/lib/core'
+// import javascript from 'highlight.js/lib/languages/javascript'
+import marked from 'marked'
+import hljs from 'highlight.js'
+import VueSimplemde from 'vue-simplemde'
 import { postOfUploadBlogTextToBackend, getTextInfoBeforePostPage } from '../plugins/api-methods'
-
+window.hljs = hljs
+// hljs.registerLanguage('javascript', javascript)
 export default {
   name: 'PostEdit',
   beforeRouteEnter (to, from, next) {
@@ -175,13 +182,14 @@ export default {
     }
   },
   components: {
-    MarkdownPro
+    VueSimplemde
   },
   data: () => ({
     secretLabels: [
       'N', 'S', 'D'
     ],
     logined: 'No',
+    needHighlight: true,
     toolbars: {
       save: true
     },
@@ -203,11 +211,11 @@ export default {
   methods: {
     uploadBlog: async function () {
       this.dialog = false
-      if (!this.blogPic) {
+      if (!this.blogTextInfo.picture) {
         this.blogTextInfo.picture = 'default'
       }
       const extraInfo = {
-        contentInHtml: this.$refs.md.html,
+        contentInHtml: marked(this.blogTextInfo.content),
         isUpdate: this.isUpdate
       }
       const checkCode = await postOfUploadBlogTextToBackend(this.blogTextInfo, extraInfo)
@@ -243,7 +251,7 @@ export default {
   }
 }
 </script>
-<style media="screen">
+<style>
   a {
     text-decoration: none;
   }
@@ -253,4 +261,8 @@ export default {
   .fade-enter, .fade-leave-to {
     opacity: 0;
   }
+  @import "~simplemde/dist/simplemde.min.css";
+  /* @import "./markdown/onigiri.css"; */
+  @import '~github-markdown-css';
+  @import "~highlight.js/styles/darcula.css";
 </style>

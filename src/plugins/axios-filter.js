@@ -4,7 +4,7 @@ axios.interceptors.request.use(
   config => {
     var loginToken = sessionStorage.getItem('session_authorization')
     if (loginToken) {
-      console.log('Axios Check: Have Logined')
+      // console.log('Axios Check: Have Logined')
       config.headers.Authorization = loginToken
     }
     return config
