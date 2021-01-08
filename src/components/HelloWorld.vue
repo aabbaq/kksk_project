@@ -65,7 +65,7 @@
                               <v-btn
                                 color="blue darken-2"
                                 text
-                                @click='deleteText(peekText)'
+                                @click='deleteText(peekText, index)'
                               >
                                 Yes, I AM!
                               </v-btn>
@@ -135,6 +135,7 @@ export default {
         name: 'content',
         params: {
           id: info.id,
+          textTitle: info.title,
           picture: info.picture,
           number: idx + 1
         }
@@ -148,15 +149,15 @@ export default {
         }
       })
     },
-    deleteText: function (info) {
+    deleteText: function (info, index) {
       this.dialog = false
-      console.log('Delete this text: ' + info.id)
+      console.log('Delete this text: ' + info.id + ' No:' + index)
       this.$axios.post('http://localhost:3000/api/deleteText', {
         id: info.id
       }).then(res => {
         if (res.data.status === 200) {
           console.log('Success Delete!')
-          this.$router.push('/')
+          this.$router.replace({ name: 'refresh' })
         } else {
           console.log('Error Delete!')
         }

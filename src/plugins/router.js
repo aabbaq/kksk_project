@@ -11,6 +11,7 @@ import UserSelf from '../components/usercomponents/UserSelf.vue'
 import UserTexts from '../components/usercomponents/UserTexts.vue'
 import UserOthers from '../components/usercomponents/UserOthers.vue'
 import UserNews from '../components/usercomponents/UserNews.vue'
+import Refresh from '../components/Refresh'
 
 Vue.use(Router)
 const router = new Router({
@@ -33,7 +34,7 @@ const router = new Router({
       }
     },
     {
-      path: '/post',
+      path: '/post/:textNumber',
       name: 'post',
       component: PostEdit,
       meta: {
@@ -42,11 +43,19 @@ const router = new Router({
       }
     },
     {
-      path: '/content',
+      path: '/content/:textTitle',
       name: 'content',
       component: TextContent,
       meta: {
         title: 'TextContent'
+      }
+    },
+    {
+      path: '/refresh',
+      name: 'refresh',
+      component: Refresh,
+      meta: {
+        title: 'Refresh'
       }
     },
     {

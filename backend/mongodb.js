@@ -21,6 +21,7 @@ const userInfoSchema = new Schema({
 })
 
 const blogTextInfoSchema = new Schema({
+  number: Number,
   author: String,
   date: Date,
   dateInString: String,
@@ -38,13 +39,13 @@ const blogTextInfoSchema = new Schema({
   hidden: Boolean
 })
 
-const UserInfo = mongoose.model('user', userInfoSchema)
 // mongoDB的表必须带s 模型名为user=>数据库collection名为users
+const UserInfo = mongoose.model('user', userInfoSchema)
 const BlogTextInfo = mongoose.model('text', blogTextInfoSchema)
+const getNumberOfDatabase = BlogTextInfo.countDocuments({})
 
 function userLogin (req, res) {
   const hashPassword = hash(req.body.password)
-  console.log('User Information: ' + req.body.username + ' ' + req.body.password + ' ' + hashPassword)
   UserInfo.findOne({
     username: req.body.username,
     password: hashPassword
@@ -106,34 +107,37 @@ function tokenCheck (req, res) {
 
 function upLoadBlog (req, res) {
   const timeNow = new Date()
-  BlogTextInfo.create({
-    author: req.body.blogauthor,
-    date: timeNow,
-    lastDate: timeNow,
-    dateInString: methods.dateToString(timeNow, true),
-    lastDateInString: methods.dateToString(timeNow, true),
-    title: req.body.blogtitle,
-    subtitle: req.body.blogsubtitle,
-    tag: req.body.blogtag,
-    picture: req.body.blogpic,
-    content: req.body.blogcontent,
-    htmlContent: req.body.blogcontenthtml,
-    secretLevel: req.body.blogsecretlevel,
-    protected: req.body.blogprotected,
-    protectedPassword: req.body.blogprotectedpassword,
-    hidden: req.body.bloghidden
-  }, function (err) {
-    if (err) {
-      res.send({
-        status: 500,
-        msg: 'Upload Error'
-      })
-    } else {
-      res.send({
-        status: 200,
-        msg: 'Upload Success'
-      })
-    }
+  getNumberOfDatabase.exec((execErr, count) => {
+    BlogTextInfo.create({
+      author: req.body.blogauthor,
+      number: count + 1,
+      date: timeNow,
+      lastDate: timeNow,
+      dateInString: methods.dateToString(timeNow, true),
+      lastDateInString: methods.dateToString(timeNow, true),
+      title: req.body.blogtitle,
+      subtitle: req.body.blogsubtitle,
+      tag: req.body.blogtag,
+      picture: req.body.blogpic,
+      content: req.body.blogcontent,
+      htmlContent: req.body.blogcontenthtml,
+      secretLevel: req.body.blogsecretlevel,
+      protected: req.body.blogprotected,
+      protectedPassword: req.body.blogprotectedpassword,
+      hidden: req.body.bloghidden
+    }, function (err) {
+      if (err) {
+        res.send({
+          status: 500,
+          msg: 'Upload Error'
+        })
+      } else {
+        res.send({
+          status: 200,
+          msg: 'Upload Success'
+        })
+      }
+    })
   })
 }
 
@@ -306,23 +310,41 @@ function getBlogTextsV (req, res) {
 }
 
 function getOneText (req, res) {
-  // console.log(req.query.id)
-  BlogTextInfo.find({
-    _id: req.query.id
-  }, (err, docs) => {
-    if (err) {
-      res.send({
-        status: 500,
-        msg: 'Get Texts Error'
-      })
-    } else {
-      res.send({
-        status: 200,
-        msg: 'Text Get Daze!',
-        docs: docs
-      })
-    }
-  })
+  if (req.query.id) {
+    BlogTextInfo.find({
+      _id: req.query.id
+    }, (err, docs) => {
+      if (err) {
+        res.send({
+          status: 500,
+          msg: 'Get Texts Error'
+        })
+      } else {
+        res.send({
+          status: 200,
+          msg: 'Text Get Daze!',
+          docs: docs
+        })
+      }
+    })
+  } else {
+    BlogTextInfo.find({
+      title: req.query.title
+    }, (err, docs) => {
+      if (err) {
+        res.send({
+          status: 500,
+          msg: 'Get Texts Error'
+        })
+      } else {
+        res.send({
+          status: 200,
+          msg: 'Text Get Daze!',
+          docs: docs
+        })
+      }
+    })
+  }
 }
 
 function deleteText (req, res) {
