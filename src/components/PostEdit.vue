@@ -173,13 +173,8 @@ window.hljs = hljs
 export default {
   name: 'PostEdit',
   beforeRouteEnter (to, from, next) {
-    if (from.path === '/') {
-      next(vm => {
-        getTextInfoBeforePostPage(vm, to.params.id)
-      })
-    } else {
-      next()
-    }
+    if (from.path === '/') next(vm => getTextInfoBeforePostPage(vm, to.params.id))
+    else next()
   },
   components: {
     VueSimplemde
@@ -190,13 +185,11 @@ export default {
     ],
     logined: 'No',
     needHighlight: true,
-    toolbars: {
-      save: true
-    },
     isUpdate: false,
     dialog: false,
     blogTextInfo: {
       id: '',
+      number: undefined,
       title: '',
       subtitle: '',
       tag: '',
@@ -211,17 +204,13 @@ export default {
   methods: {
     uploadBlog: async function () {
       this.dialog = false
-      if (!this.blogTextInfo.picture) {
-        this.blogTextInfo.picture = 'default'
-      }
+      if (!this.blogTextInfo.picture) this.blogTextInfo.picture = 'default'
       const extraInfo = {
         contentInHtml: marked(this.blogTextInfo.content),
         isUpdate: this.isUpdate
       }
       const checkCode = await postOfUploadBlogTextToBackend(this.blogTextInfo, extraInfo)
-      if (checkCode === 200) {
-        this.$router.push('/')
-      }
+      if (checkCode === 200) this.$router.push('/')
     },
     textMode: function (modeName) {
       if (modeName === 'hiddenMode') {

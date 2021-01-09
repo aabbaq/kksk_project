@@ -36,8 +36,16 @@
 </template>
 
 <script>
+import { sendTokenToBackend } from '../plugins/api-methods'
 export default {
   name: 'TopBar',
+  beforeCreate: async function () {
+    const token = sessionStorage.getItem('session_authorization')
+    if (token) {
+      var checkCode = await sendTokenToBackend(token)
+      if (checkCode === 200) this.$store.commit('haveCheckUserToken')
+    }
+  },
   data: () => ({
     love: 'hi',
     tab: null,

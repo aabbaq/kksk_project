@@ -37,7 +37,6 @@ rapp.get('/', (req, res) => {
 })
 
 rapp.post('/api/login', (req, res) => {
-  // console.log(req.body)
   db.userLogin(req, res)
   // res.send('...') 多余的服务器响应不需要
 })
@@ -46,9 +45,9 @@ rapp.post('/api/tokenCheck', (req, res) => {
   db.tokenCheck(req, res)
 })
 
-rapp.post('/api/upLoadBlog', (req, res) => {
+rapp.post('/api/uploadBlog', (req, res) => {
   if (!req.body.blogupdate) {
-    db.upLoadBlog(req, res)
+    db.uploadBlog(req, res)
   } else {
     db.updateBlog(req, res)
   }

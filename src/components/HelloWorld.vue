@@ -34,7 +34,7 @@
                         <div class='pl-3'>{{ peekText.author }}</div>
                         <v-spacer></v-spacer>
                         <div class="pr-2" v-if='haveAuthorization'>
-                          <v-btn rounded color='#8CD2BC' @click='editText(peekText)'>
+                          <v-btn rounded color='#8CD2BC' @click='editText(peekText, index)'>
                             <v-icon color='white'>mdi-lead-pencil</v-icon>
                           </v-btn>
                         </div>
@@ -95,9 +95,7 @@ export default {
     if (token) {
       // await等待的Promise对象会返回其解析值
       var checkCode = await sendTokenToBackend(token)
-      if (checkCode === 114) {
-        this.$store.commit('haveCheckUserToken')
-      }
+      if (checkCode === 200) this.$store.commit('haveCheckUserToken')
     }
     let userInfo = {}
     if (sessionStorage.getItem('session_user') === null) {
@@ -125,7 +123,7 @@ export default {
   }),
   methods: {
     goToLoginPage: function (event) {
-      this.$router.push({ name: 'login' })
+      this.$router.push({ name: 'login' }).catch(err => console.log(err))
     },
     goToPostPage: function (event) {
       this.$router.push({ name: 'post' }).catch(err => console.log(err))
@@ -137,15 +135,16 @@ export default {
           id: info.id,
           textTitle: info.title,
           picture: info.picture,
-          number: idx + 1
+          number: info.number
         }
       })
     },
-    editText: function (info) {
+    editText: function (info, idx) {
       this.$router.push({
         name: 'post',
         params: {
-          id: info.id
+          id: info.id,
+          textNumber: info.number
         }
       })
     },
@@ -155,12 +154,8 @@ export default {
       this.$axios.post('http://localhost:3000/api/deleteText', {
         id: info.id
       }).then(res => {
-        if (res.data.status === 200) {
-          console.log('Success Delete!')
-          this.$router.replace({ name: 'refresh' })
-        } else {
-          console.log('Error Delete!')
-        }
+        if (res.data.status === 200) this.$router.replace({ name: 'refresh' })
+        else console.log('Error Delete!')
       })
     },
     getBlogTextsInMainPage: function (userInfo) {

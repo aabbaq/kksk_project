@@ -4,7 +4,7 @@ function sendTokenToBackend (token) {
   return axios.post('http://localhost:3000/api/tokenCheck', {
     usertoken: token
   }).then(res => {
-    if (res.data.status === 114) {
+    if (res.data.status === 200) {
       console.log('backend has checked the token')
       return Promise.resolve(res.data.status)
     } else {
@@ -18,7 +18,7 @@ function sendTokenToBackend (token) {
 }
 
 function postOfUploadBlogTextToBackend (text, info) {
-  return axios.post('http://localhost:3000/api/upLoadBlog', {
+  return axios.post('http://localhost:3000/api/uploadBlog', {
     blogid: text.id,
     blogtitle: text.title,
     blogsubtitle: text.subtitle,
@@ -55,6 +55,7 @@ function getTextInfoBeforePostPage (vm, textId) {
     if (res.data.status === 200) {
       const docs = res.data.docs[0]
       vm.blogTextInfo.id = textId
+      vm.blogTextInfo.number = docs.number
       vm.blogTextInfo.content = docs.content
       vm.blogTextInfo.title = docs.title
       vm.blogTextInfo.subtitle = docs.subtitle
