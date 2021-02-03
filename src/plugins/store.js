@@ -26,7 +26,14 @@ const mutations = {
     sessionStorage.setItem('session_user', JSON.stringify(user))
   },
   haveCheckUserToken (state) {
+    if (!state.Authorization) {
+      state.Authorization = sessionStorage.getItem('session_authorization')
+      const userInfo = JSON.parse(sessionStorage.getItem('session_user'))
+      state.UserInfo.UserName = userInfo.name
+      state.UserInfo.Role = userInfo.role
+    }
     state.HaveCheckUserToken = true
+    console.log(state.HaveCheckUserToken)
   },
   changeLogout (state) {
     state.HaveCheckUserToken = false

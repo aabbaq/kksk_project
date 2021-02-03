@@ -4,11 +4,12 @@ const path = require('path')
 const rapp = express()
 const port = 3000
 const bodyParser = require('body-parser')
+const ejs = require('ejs')
 
 // let public_url = path.join(__dirname, '..', 'public')
 rapp.use(bodyParser.urlencoded({ extended: false }))
 rapp.use(bodyParser.json())
-rapp.use(express.static(__dirname))
+rapp.use(express.static(path.join(__dirname, 'views')))
 
 rapp.all('*', function (req, res, next) {
   // 设置header后会先发送一次Options的请求，跳过该请求
@@ -27,13 +28,17 @@ rapp.all('*', function (req, res, next) {
 })
 
 // 新版本规定要使用绝对路径
+rapp.engine('html', ejs.renderFile)
+rapp.set('views', path.join(__dirname, 'views'))
+rapp.set('view engine', 'html')
 rapp.get('/', (req, res) => {
-  const url = path.join(__dirname, '..', 'dist', 'index.html')
+  // const url = path.join(__dirname, '..', 'dist', 'index.html')
+  const url = path.join(__dirname, 'views', 'index.html')
   console.log(url)
   // res.set('Content-Type', 'text/html')
   // res.type('html')
-  // res.render(url)
-  res.sendFile(url)
+  res.render(url)
+  // res.sendFile(url)
 })
 
 rapp.post('/api/login', (req, res) => {
@@ -43,6 +48,10 @@ rapp.post('/api/login', (req, res) => {
 
 rapp.post('/api/tokenCheck', (req, res) => {
   db.tokenCheck(req, res)
+})
+
+rapp.post('/api/getUserInfo', (req, res) => {
+  db.getUserInfo(req, res)
 })
 
 rapp.post('/api/uploadBlog', (req, res) => {

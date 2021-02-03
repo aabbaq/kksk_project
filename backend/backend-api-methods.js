@@ -12,7 +12,7 @@ function dateToString (date, needTime = false, connector = '/') {
   return dateString
 }
 
-function getPeekTextsList (docs) {
+function getPeekTextsList (docs, needCardsInfo = false) {
   const peekTexts = []
   docs.forEach(function (each, inx, array) {
     const peekText = {
@@ -23,6 +23,15 @@ function getPeekTextsList (docs) {
       author: each.author,
       date: dateToString(each.date),
       picture: each.picture
+    }
+    if (needCardsInfo) {
+      peekText.mode = {
+        needShow: false,
+        protected: each.protected,
+        protectedPassword: each.protectedPassword,
+        hidden: each.hidden,
+        secretLevel: each.secretLevel
+      }
     }
     peekTexts.push(peekText)
   })

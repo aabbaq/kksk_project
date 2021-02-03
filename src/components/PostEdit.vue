@@ -112,8 +112,7 @@
             <vue-simplemde
               ref='md'
               v-model='blogTextInfo.content'
-              :toolbars='toolbars'
-              :highlight='needHighlight'
+              :highlight='true'
               preview-class="markdown-body"
             />
           </div>
@@ -169,12 +168,15 @@ import hljs from 'highlight.js'
 import VueSimplemde from 'vue-simplemde'
 import { postOfUploadBlogTextToBackend, getTextInfoBeforePostPage } from '../plugins/api-methods'
 window.hljs = hljs
+// hljs.initHighlightingOnLoad()
 // hljs.registerLanguage('javascript', javascript)
 export default {
   name: 'PostEdit',
   beforeRouteEnter (to, from, next) {
-    if (from.path === '/') next(vm => getTextInfoBeforePostPage(vm, to.params.id))
-    else next()
+    console.log(from.path)
+    if (from.path === '/homepage') next(vm => getTextInfoBeforePostPage(vm, to.params.id))
+    else if (from.path === '/user/texts') next(vm => vm.getTextByNumber(vm))
+    else next(vm => vm.getTextByNumber(vm))
   },
   components: {
     VueSimplemde
@@ -184,7 +186,7 @@ export default {
       'N', 'S', 'D'
     ],
     logined: 'No',
-    needHighlight: true,
+    // needHighlight: true,
     isUpdate: false,
     dialog: false,
     blogTextInfo: {
@@ -220,6 +222,31 @@ export default {
       } else {
         return ''
       }
+    },
+    getTextByNumber: function (vm) {
+      console.log('Refresh')
+      vm.$axios.get('http://localhost:3000/api/getOneText', {
+        params: {
+          number: this.$route.params.textNumber
+        }
+      }).then(res => {
+        if (res.data.status === 200) {
+          const docs = res.data.docs[0]
+          vm.blogTextInfo.id = docs.id
+          vm.blogTextInfo.number = docs.number
+          vm.blogTextInfo.content = docs.content
+          vm.blogTextInfo.title = docs.title
+          vm.blogTextInfo.subtitle = docs.subtitle
+          vm.blogTextInfo.picture = docs.picture
+          vm.blogTextInfo.tag = docs.tag
+          vm.blogTextInfo.secretLevel = docs.secretLevel
+          vm.blogTextInfo.protectedMode = docs.protected
+          vm.blogTextInfo.protectedMode = docs.protected
+          vm.isUpdate = true
+        } else {
+          console.log('Get Text Err!')
+        }
+      }).catch(err => console.log(err))
     }
   },
   computed: {
@@ -252,6 +279,7 @@ export default {
   }
   @import "~simplemde/dist/simplemde.min.css";
   /* @import "./markdown/onigiri.css"; */
-  @import '~github-markdown-css';
-  @import "~highlight.js/styles/darcula.css";
+  /* @import '~github-markdown-css'; */
+  /* @import '/markdown/github-markdown-css'; */
+  /* @import "~highlight.js/styles/darcula.css"; */
 </style>

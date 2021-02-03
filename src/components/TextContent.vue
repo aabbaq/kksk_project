@@ -1,15 +1,15 @@
 <template>
   <div>
     <top-bar></top-bar>
-    <v-parallax height="350" :src="this.picPath" v-if='this.picture'>
+    <v-parallax height="400" :src="this.picPath" v-if='this.picture' id='textPic'>
       <v-container>
         <v-row>
           <v-col>
-            <div class='font-weight-thin text-h3 text-center'>{{ title }}</div>
+            <div class='font-weight-thin text-h3 text-center'>{{ textInfo.title }}</div>
           </v-col>
         </v-row>
-        <div class='text-subtitle-2 font-weight-regular font-italic text-center'>{{ date }}</div>
-        <div class='font-weight-light text-h6 text-center'>{{ author }}</div>
+        <div class='text-subtitle-2 font-weight-regular font-italic text-center'>{{ textInfo.dateInString }}</div>
+        <div class='font-weight-light text-h6 text-center'>{{ textInfo.author }}</div>
       </v-container>
     </v-parallax>
     <v-container class='mx-24 px-10'>
@@ -20,7 +20,7 @@
           <v-row>
             <v-col>
               <v-card min-width='320' elevation='0' rounded>
-                <div v-html='content' class="markdown-body"></div>
+                <div v-html='textInfo.htmlContent' class="markdown-body"></div>
                 <!-- <MarkdownPreview  id='mkdp' ref='mdp'/> -->
               </v-card>
             </v-col>
@@ -57,63 +57,28 @@ export default {
     // MarkdownPreview
   },
   beforeCreate: function () {
+    const tmpParams = {}
     if (this.$route.params.picture) {
-      // this.showTextFromIndex()
-      this.pictureNumber = this.$route.params.number
-      this.$axios.get('http://localhost:3000/api/getOneText', {
-        params: {
-          id: this.$route.params.id
-        }
-      }).then((res) => {
-        if (res.data.status === 200) {
-          const docs = res.data.docs[0]
-          this.content = docs.htmlContent
-          this.title = this.$route.params.textTitle = docs.title
-          this.fullDate = docs.dateInString
-          this.date = docs.dateInString.split(' ')[0]
-          this.author = docs.author
-          this.id = docs._id
-          if (docs.picture) {
-            this.picture = docs.picture
-          }
-        }
-      })
+      tmpParams.id = this.$route.params.id
     } else {
-      // this.showTextFromRoute()
-      this.$axios.get('http://localhost:3000/api/getOneText', {
-        params: {
-          title: this.$route.params.textTitle
-        }
-      }).then(res => {
-        if (res.data.status === 200) {
-          const docs = res.data.docs[0]
-          this.content = docs.htmlContent
-          this.title = docs.title
-          this.fullDate = docs.dateInString
-          this.date = docs.dateInString.split(' ')[0]
-          this.author = docs.author
-          this.id = docs._id
-          this.picture = docs.picture
-          this.$route.params.picture = docs.picture
-        }
-      })
+      tmpParams.title = this.$route.params.textTitle
     }
+    this.$axios.get('http://localhost:3000/api/getOneText', {
+      params: tmpParams
+    }).then((res) => {
+      if (res.data.status === 200) {
+        const docs = res.data.docs[0]
+        this.textInfo = docs
+        this.textInfo.dateInString = docs.dateInString.split(' ')[0]
+        if (docs.picture) this.picture = docs.picture
+      }
+    })
   },
   data: () => ({
-    pictureNumber: 1,
-    title: '',
-    fullDate: '',
-    date: '',
-    author: '',
-    id: '',
-    picture: '',
-    content: ''
+    textInfo: {},
+    picture: ''
   }),
   methods: {
-    showTextFromRoute: function () {
-    },
-    showTextFromIndex: function () {
-    },
     deleteText: function () {
       console.log('Delete this text: ' + this.id)
       this.$axios.post('http://localhost:3000/api/deleteText', {
@@ -137,8 +102,18 @@ export default {
 </script>
 
 <style lang="css">
-  #mkdp {
+  #textPic:not(:hover) > .v-parallax__image-container {
+    filter: blur(10px);
+    transition: filter 0.5s ease-in-out;
+  }
+  #textPic:hover > .v-parallax__image-container {
+    transition: filter 0.5s ease-in-out;
+  }
+/* #mkdp {
     font-family: unquote("Roboto");
     font-size: 96;
-}
+} */
+/* .markdown-body h1 {
+  font-size: 64px;
+} */
 </style>

@@ -1,6 +1,7 @@
 <template>
   <v-app dark>
     <router-view></router-view>
+    <function-button></function-button>
   </v-app>
 </template>
 

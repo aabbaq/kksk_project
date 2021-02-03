@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import { sendTokenToBackend } from './api-methods'
+import Store from './store.js'
 
 import Login from '../components/Login'
 import HelloWorld from '../components/HelloWorld'
@@ -19,6 +20,11 @@ const router = new Router({
   routes: [
     {
       path: '/',
+      name: 'home',
+      redirect: '/homepage'
+    },
+    {
+      path: '/homepage',
       name: 'helloworld',
       component: HelloWorld,
       meta: {
@@ -43,7 +49,7 @@ const router = new Router({
       }
     },
     {
-      path: '/content/:textTitle',
+      path: '/content/:textAuthor/:textTitle',
       name: 'content',
       component: TextContent,
       meta: {
@@ -111,7 +117,7 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   // let tmp_token = sessionStorage.getItem('session_authorization')
-  if (to.matched.some(record => record.meta.needAuthorization)) {
+  if (to.matched.some(record => record.meta.needAuthorization) && !Store.state.HaveCheckUserToken) {
     var token = sessionStorage.getItem('session_authorization')
     if (!token) {
       console.log('Not Login')
@@ -120,7 +126,7 @@ router.beforeEach((to, from, next) => {
         query: { redirect: to.fullPath }
       })
     } else {
-      sendTokenToBackend(token)
+      sendTokenToBackend(token, to.name)
       next()
     }
   } else {

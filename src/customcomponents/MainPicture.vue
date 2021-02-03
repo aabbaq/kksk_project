@@ -3,10 +3,10 @@
     <div  id="mainpic">
       <v-parallax height="350" :src="require('../../static/mainpage.jpg')">
          <h2 class="font-weight-light text-md-center text-sm-center headline" id='WelcomeText1'>
-              Oh,dear,Another dogged contender
+              Oh, dear, Another dogged contender
          </h2>
          <h2 class="font-weight-light text-md-center text-sm-center headline" id='WelcomeText2'>
-              Welcome.Unkindled One, purloiner of Cinders
+              Welcome. Unkindled One, purloiner of Cinders
          </h2>
       </v-parallax>
     </div>
@@ -19,7 +19,7 @@ export default {
 }
 </script>
 
-<style lang="css">
+<style>
 #mainpic {
   height: 100%;
   width: 101%;

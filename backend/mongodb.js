@@ -16,8 +16,14 @@ dbConnection.once('open', function () {
 
 const userInfoSchema = new Schema({
   username: String,
+  nickname: String,
   password: String,
-  userrole: Number
+  userrole: Number,
+  registerDate: Date,
+  registerDateInString: String,
+  lastLoginDate: Date,
+  lastLoginDateInString: String,
+  biography: String
 })
 
 const blogTextInfoSchema = new Schema({
@@ -83,6 +89,31 @@ function tokenCheck (req, res) {
         res.send({
           status: 200,
           msg: 'User Token Check Success'
+        })
+      }
+    }
+  })
+}
+
+function getUserInfo (req, res) {
+  const userToken = req.body.token
+  const userIdInfo = Token.decrypt(userToken)
+  UserInfo.findOne({
+    _id: userIdInfo.id
+  }, (err, docs) => {
+    if (err) res.send(Methods.generateMsg(500))
+    else {
+      if (docs === null) res.send(Methods.generateMsg(101))
+      else {
+        res.send({
+          status: 200,
+          userInfo: {
+            userrole: docs.userrole,
+            nickname: docs.nickname,
+            username: docs.username,
+            biography: docs.biography
+          },
+          msg: 'UserInfo GET Daze!'
         })
       }
     }
@@ -163,7 +194,7 @@ function getBlogTexts (req, res) {
     }, (err, docs) => {
       if (err) res.send(Methods.generateMsg(500))
       else {
-        peekTexts = Methods.getPeekTextsList(docs)
+        peekTexts = Methods.getPeekTextsList(docs, req.body.needCardsInfo)
         res.send({
           status: 200,
           msg: 'Guest View',
@@ -235,7 +266,7 @@ function getBlogTextsV (req, res) {
             BlogTextInfo.find({}, (err, docs) => {
               if (err) res.send(Methods.generateMsg(501))
               else {
-                peekTexts = Methods.getPeekTextsList(docs)
+                peekTexts = Methods.getPeekTextsList(docs, req.body.needCardsInfo)
                 res.send({
                   status: 200,
                   msg: 'Master Get All Texts',
@@ -267,9 +298,22 @@ function getOneText (req, res) {
         })
       }
     })
-  } else {
+  } else if (req.query.title) {
     BlogTextInfo.find({
       title: req.query.title
+    }, (err, docs) => {
+      if (err) res.send(Methods.generateMsg(500))
+      else {
+        res.send({
+          status: 200,
+          msg: 'Text Get Daze!',
+          docs: docs
+        })
+      }
+    })
+  } else {
+    BlogTextInfo.find({
+      number: req.query.number
     }, (err, docs) => {
       if (err) res.send(Methods.generateMsg(500))
       else {
@@ -301,6 +345,7 @@ function deleteText (req, res) {
 module.exports = {
   userLogin: userLogin,
   tokenCheck: tokenCheck,
+  getUserInfo: getUserInfo,
   uploadBlog: uploadBlog,
   getBlogTexts: getBlogTexts,
   getBlogTextsV: getBlogTextsV,

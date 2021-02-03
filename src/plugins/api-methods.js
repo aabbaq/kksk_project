@@ -1,11 +1,12 @@
 import axios from 'axios'
 
-function sendTokenToBackend (token) {
+// token检测
+function sendTokenToBackend (token, routeName = 'None') {
   return axios.post('http://localhost:3000/api/tokenCheck', {
     usertoken: token
   }).then(res => {
     if (res.data.status === 200) {
-      console.log('backend has checked the token')
+      console.log('backend has checked the token: ' + routeName)
       return Promise.resolve(res.data.status)
     } else {
       console.log('backend network error')
@@ -17,6 +18,7 @@ function sendTokenToBackend (token) {
   })
 }
 
+// 上传文章
 function postOfUploadBlogTextToBackend (text, info) {
   return axios.post('http://localhost:3000/api/uploadBlog', {
     blogid: text.id,
@@ -46,6 +48,7 @@ function postOfUploadBlogTextToBackend (text, info) {
   })
 }
 
+// 主页面进编辑页(使用ID检索)
 function getTextInfoBeforePostPage (vm, textId) {
   axios.get('http://localhost:3000/api/getOneText', {
     params: {

@@ -8,12 +8,14 @@ import router from './plugins/router'
 import TopBar from './customcomponents/TopBar'
 import FootBar from './customcomponents/FootBar'
 import MainPicture from './customcomponents/MainPicture'
+import FunctionButton from './customcomponents/FunctionButton'
 
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios
 Vue.component('top-bar', TopBar)
 Vue.component('foot-bar', FootBar)
 Vue.component('main-picture', MainPicture)
+Vue.component('function-button', FunctionButton)
 
 new Vue({
   vuetify,

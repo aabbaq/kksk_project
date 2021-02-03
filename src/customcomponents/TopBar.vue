@@ -12,10 +12,10 @@
       <v-tooltip bottom>
         <template v-slot:activator='{ on, attrs }'>
           <v-btn depressed v-bind='attrs' v-on='on'>
-            <router-link v-if="Logined" to='/user' id='Postbuttom' >
+            <router-link v-if="Logined" :to='toWhere' id='Postbuttom' >
               下北沢に着きました
             </router-link>
-            <router-link v-else to='/login' id='Loginbuttom' >
+            <router-link v-else :to='toWhere' id='Loginbuttom' >
               下北沢に向かう
             </router-link>
           </v-btn>
@@ -28,6 +28,7 @@
           <v-tab v-for="each in tabsInfo" :key="each.name" :to='each.to' id='Tabbuttom'>
             {{ each.name }}
           </v-tab>
+          <!-- <v-tab id='Managebuttom'>Manage</v-tab> -->
         </v-tabs>
       </template>
     </v-app-bar>
@@ -41,7 +42,7 @@ export default {
   name: 'TopBar',
   beforeCreate: async function () {
     const token = sessionStorage.getItem('session_authorization')
-    if (token) {
+    if (token && !this.$store.state.HaveCheckUserToken) {
       var checkCode = await sendTokenToBackend(token)
       if (checkCode === 200) this.$store.commit('haveCheckUserToken')
     }
@@ -59,6 +60,9 @@ export default {
   methods: {
   },
   computed: {
+    toWhere () {
+      return this.Logined ? '/user' : '/login'
+    },
     Logined () {
       return this.$store.state.HaveCheckUserToken
     },

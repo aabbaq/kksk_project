@@ -38,40 +38,11 @@
                             <v-icon color='white'>mdi-lead-pencil</v-icon>
                           </v-btn>
                         </div>
-                        <v-dialog width="500" v-model="dialog">
-                          <template v-slot:activator="{ on, attrs }">
-                            <div class="pr-2" v-if='haveAuthorization'>
-                              <v-btn rounded color='#FF5234' v-bind="attrs" v-on="on">
-                                <v-icon color='white'>mdi-trash-can-outline</v-icon>
-                              </v-btn>
-                            </div>
-                          </template>
-                          <v-card>
-                            <v-card-title>
-                              Delete The Text
-                            </v-card-title>
-                            <v-card-text>
-                              Be Sure Nothing Wrong!
-                            </v-card-text>
-                            <v-card-actions>
-                              <v-spacer></v-spacer>
-                              <v-btn
-                                color="red darken-1"
-                                text
-                                @click='dialog = false'
-                              >
-                                等等.
-                              </v-btn>
-                              <v-btn
-                                color="blue darken-2"
-                                text
-                                @click='deleteText(peekText, index)'
-                              >
-                                Yes, I AM!
-                              </v-btn>
-                            </v-card-actions>
-                          </v-card>
-                        </v-dialog>
+                        <div class="pr-2" v-if='haveAuthorization'>
+                          <v-btn rounded color='#FF5234' @click.stop='showDialog(peekText.id, index)'>
+                            <v-icon color='white'>mdi-trash-can-outline</v-icon>
+                          </v-btn>
+                        </div>
                       </v-row>
                     </v-card-text>
                   </div>
@@ -82,6 +53,21 @@
         </v-col>
       </v-row>
     </v-container>
+    <v-dialog width="500" v-model="dialog">
+      <v-card>
+        <v-card-title>
+          Delete The Text
+        </v-card-title>
+        <v-card-text>
+          Be Sure Nothing Wrong!
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red darken-1" text @click='dialog = false'>等等.</v-btn>
+          <v-btn color="blue darken-2" text @click='deleteText'>Yes, I AM!</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <foot-bar></foot-bar>
   </div>
 </template>
@@ -92,9 +78,9 @@ export default {
   name: 'HelloWorld',
   mounted: async function () {
     const token = sessionStorage.getItem('session_authorization')
-    if (token) {
+    if (token && !this.$store.state.HaveCheckUserToken) {
       // await等待的Promise对象会返回其解析值
-      var checkCode = await sendTokenToBackend(token)
+      var checkCode = await sendTokenToBackend(token, this.$route.name)
       if (checkCode === 200) this.$store.commit('haveCheckUserToken')
     }
     let userInfo = {}
@@ -117,15 +103,23 @@ export default {
   },
   data: () => ({
     dialog: false,
+    dealingId: '',
+    dealingNum: 0,
     logined: 'No',
     textCount: 0,
     peekTexts: []
   }),
   methods: {
-    goToLoginPage: function (event) {
+    showDialog: function (id, idx) {
+      this.dialog = true
+      this.dealingNum = idx
+      this.dealingId = id
+      console.log(this.dealingId, this.dealingNum)
+    },
+    goToLoginPage: function () {
       this.$router.push({ name: 'login' }).catch(err => console.log(err))
     },
-    goToPostPage: function (event) {
+    goToPostPage: function () {
       this.$router.push({ name: 'post' }).catch(err => console.log(err))
     },
     seeMore: function (info, idx) {
@@ -134,6 +128,7 @@ export default {
         params: {
           id: info.id,
           textTitle: info.title,
+          textAuthor: info.author,
           picture: info.picture,
           number: info.number
         }
@@ -148,11 +143,11 @@ export default {
         }
       })
     },
-    deleteText: function (info, index) {
+    deleteText: function () {
       this.dialog = false
-      console.log('Delete this text: ' + info.id + ' No:' + index)
+      console.log('Delete this text: ' + this.dealingId + ' No:' + this.dealingNum)
       this.$axios.post('http://localhost:3000/api/deleteText', {
-        id: info.id
+        id: this.dealingId
       }).then(res => {
         if (res.data.status === 200) this.$router.replace({ name: 'refresh' })
         else console.log('Error Delete!')
