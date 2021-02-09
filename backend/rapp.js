@@ -1,12 +1,12 @@
 const express = require('express')
-const db = require('./mongodb.js')
 const path = require('path')
 const rapp = express()
 const port = 3000
 const bodyParser = require('body-parser')
 const ejs = require('ejs')
+const userRouter = require('./routes/user.js')
+const textRouter = require('./routes/text.js')
 
-// let public_url = path.join(__dirname, '..', 'public')
 rapp.use(bodyParser.urlencoded({ extended: false }))
 rapp.use(bodyParser.json())
 rapp.use(express.static(path.join(__dirname, 'views')))
@@ -32,69 +32,13 @@ rapp.engine('html', ejs.renderFile)
 rapp.set('views', path.join(__dirname, 'views'))
 rapp.set('view engine', 'html')
 rapp.get('/', (req, res) => {
-  // const url = path.join(__dirname, '..', 'dist', 'index.html')
   const url = path.join(__dirname, 'views', 'index.html')
   console.log(url)
-  // res.set('Content-Type', 'text/html')
-  // res.type('html')
   res.render(url)
-  // res.sendFile(url)
 })
 
-rapp.post('/api/login', (req, res) => {
-  db.userLogin(req, res)
-  // res.send('...') 多余的服务器响应不需要
-})
-
-rapp.post('/api/tokenCheck', (req, res) => {
-  db.tokenCheck(req, res)
-})
-
-rapp.post('/api/getUserInfo', (req, res) => {
-  db.getUserInfo(req, res)
-})
-
-rapp.post('/api/uploadBlog', (req, res) => {
-  if (!req.body.blogupdate) {
-    db.uploadBlog(req, res)
-  } else {
-    db.updateBlog(req, res)
-  }
-})
-
-rapp.post('/api/getBlogTexts', (req, res) => {
-  if (req.body.userRole === 7) {
-    db.getBlogTextsV(req, res)
-  } else {
-    db.getBlogTexts(req, res)
-  }
-})
-
-rapp.get('/api/getOneText', (req, res) => {
-  db.getOneText(req, res)
-})
-
-rapp.post('/api/deleteText', (req, res) => {
-  db.deleteText(req, res)
-})
-
-rapp.get(/\.jpg$/, (req, res) => {
-  res.status(302)
-  res.setHeader('location', '//' + req.get('host').replace(':3000', ':8080') + req.path)
-  res.send()
-})
-
-rapp.get(/\.ttf$/, (req, res) => {
-  // res.status(302);
-  res.setHeader('location', '//' + req.get('host').replace(':3000', ':8080') + req.path)
-  res.send()
-})
-
-rapp.get(/\.woff2?$/, (req, res) => {
-  // res.status(302);
-  res.setHeader('location', '//' + req.get('host').replace(':3000', ':8080') + req.path)
-  res.send()
-})
+rapp.use('/api/user', userRouter)
+rapp.use('/api/text', textRouter)
 
 rapp.listen(port, () => {
   // const host = server.address().address

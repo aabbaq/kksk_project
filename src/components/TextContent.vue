@@ -63,10 +63,10 @@ export default {
     } else {
       tmpParams.title = this.$route.params.textTitle
     }
-    this.$axios.get('http://localhost:3000/api/getOneText', {
+    this.$axios.get('http://localhost:3000/api/text/getOneText', {
       params: tmpParams
     }).then((res) => {
-      if (res.data.status === 200) {
+      if (res.status === 200) {
         const docs = res.data.docs[0]
         this.textInfo = docs
         this.textInfo.dateInString = docs.dateInString.split(' ')[0]

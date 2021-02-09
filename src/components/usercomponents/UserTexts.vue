@@ -101,13 +101,8 @@
 export default {
   name: 'UserTexts',
   mounted: function () {
-    const User = JSON.parse(sessionStorage.getItem('session_user'))
     this.$axios.post('http://localhost:3000/api/getBlogTexts', {
-      needCardsInfo: true,
-      isLogin: User.isLogin,
-      userName: User.name,
-      userRole: User.role,
-      userToken: sessionStorage.getItem('session_authorization')
+      needCardsInfo: true
     }).then(res => {
       if (res.data.status === 200) {
         this.textCount = res.data.textsInfo.textsCount

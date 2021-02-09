@@ -154,15 +154,10 @@ export default {
       })
     },
     getBlogTextsInMainPage: function (userInfo) {
-      this.$axios.post('http://localhost:3000/api/getBlogTexts', {
-        isLogin: userInfo.isLogin,
-        userName: userInfo.user.name,
-        userRole: userInfo.user.role,
-        userToken: userInfo.token
-      }).then(res => {
-        if (res.data.status === 200) {
-          this.textCount = res.data.textsInfo.textsCount
-          this.peekTexts = res.data.textsInfo.peekTexts
+      this.$axios.post('http://localhost:3000/api/text/getBlogTexts').then(res => {
+        if (res.status === 200) {
+          this.textCount = res.data.textsCount
+          this.peekTexts = res.data.peekTexts
         } else {
           console.log('getBlogTextsInMainPage Error!')
         }

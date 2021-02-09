@@ -19,9 +19,28 @@
                   Login
                 </div>
               </v-card-title>
-              <v-text-field @click='refreshInput' v-model="user_name" class="mx-10" label="Name" @keydown="enterSignIn" clearable>
+              <v-text-field
+                color="purple darken-2"
+                v-model="userName"
+                :rules='rules.username'
+                class="mx-10"
+                label="Name"
+                @click='refreshInput'
+                @keydown="enterSignIn"
+                clearable
+              >
               </v-text-field>
-              <v-text-field @click='refreshInput' v-model="user_password" class="mx-10 pb-2" label="Password" type='password' @keydown="enterSignIn" clearable>
+              <v-text-field
+                color='teal'
+                v-model="userPassword"
+                :rules='rules.password'
+                class="mx-10 pb-2"
+                label="Password"
+                type='password'
+                @click='refreshInput'
+                @keydown="enterSignIn"
+                clearable
+              >
               </v-text-field>
               <div class="mx-10 mt-0">
                 <v-alert type='error' transition='scale-transition' dense dismissible :value='inputError' id='inputAlert'>
@@ -29,7 +48,10 @@
                 </v-alert>
               </div>
               <v-card-actions class="mx-5">
-                <v-btn block @click="userSignIn">Sign In</v-btn>
+                <v-btn type='submit' color='red lighten-2' block text :disabled='canSubmit' @click="userSignIn">
+                  <v-icon color='red lighten-2' left>mdi-campfire</v-icon>
+                  Light BonFire
+                </v-btn>
               </v-card-actions>
             </v-card>
           </div>
@@ -43,16 +65,20 @@
 export default {
   name: 'Login',
   data: () => ({
-    user_name: 'aabbaq',
-    user_password: 'caonima123',
-    inputError: false
+    userName: 'aabbaq',
+    userPassword: 'caonima123',
+    inputError: false,
+    rules: {
+      username: [v => !!v || 'NEED USER NAME!'],
+      password: [v => !!v || 'NEED PASSWORD!']
+    }
   }),
   methods: {
     userSignIn () {
       this.inputError = false
       this.$axios.post('http://localhost:3000/api/login', {
-        username: this.user_name,
-        password: this.user_password
+        username: this.userName,
+        password: this.userPassword
       }).then((res) => {
         console.log(res.data.status)
         if (res.data.status === 200) {
@@ -61,7 +87,6 @@ export default {
           this.$router.push('/').catch(err => console.log(err))
         } else {
           this.inputError = true
-          // document.getElementById('inputAlert').focus()
         }
       }).catch((err) => console.log(err))
     },
@@ -72,6 +97,11 @@ export default {
       if (e.keyCode === 13) {
         this.userSignIn()
       }
+    }
+  },
+  computed: {
+    canSubmit () {
+      return !this.userName || !this.userPassword
     }
   }
 }

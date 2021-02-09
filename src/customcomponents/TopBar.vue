@@ -12,7 +12,7 @@
       <v-tooltip bottom>
         <template v-slot:activator='{ on, attrs }'>
           <v-btn depressed v-bind='attrs' v-on='on'>
-            <router-link v-if="Logined" :to='toWhere' id='Postbuttom' >
+            <router-link v-if="logined" :to='toWhere' id='Postbuttom' >
               下北沢に着きました
             </router-link>
             <router-link v-else :to='toWhere' id='Loginbuttom' >
@@ -22,13 +22,12 @@
         </template>
         <span>{{ loginTip }}</span>
       </v-tooltip>
-      <template #extension v-if='isThereUserHome'>
+      <template #extension v-if='isUserHome'>
         <v-tabs v-model="tab">
           <v-tabs-slider color="yellow"></v-tabs-slider>
           <v-tab v-for="each in tabsInfo" :key="each.name" :to='each.to' id='Tabbuttom'>
             {{ each.name }}
           </v-tab>
-          <!-- <v-tab id='Managebuttom'>Manage</v-tab> -->
         </v-tabs>
       </template>
     </v-app-bar>
@@ -43,12 +42,12 @@ export default {
   beforeCreate: async function () {
     const token = sessionStorage.getItem('session_authorization')
     if (token && !this.$store.state.HaveCheckUserToken) {
-      var checkCode = await sendTokenToBackend(token)
+      console.log('Now check Topbar Token')
+      const checkCode = await sendTokenToBackend(token)
       if (checkCode === 200) this.$store.commit('haveCheckUserToken')
     }
   },
   data: () => ({
-    love: 'hi',
     tab: null,
     tabsInfo: [
       { name: 'myself', to: { name: 'userself' } },
@@ -61,15 +60,15 @@ export default {
   },
   computed: {
     toWhere () {
-      return this.Logined ? '/user' : '/login'
+      return this.logined ? '/user' : '/login'
     },
-    Logined () {
+    logined () {
       return this.$store.state.HaveCheckUserToken
     },
     loginTip () {
       return this.$store.state.HaveCheckUserToken ? '欢迎你！Homo！' : '你不属于这里！'
     },
-    isThereUserHome () {
+    isUserHome () {
       return /user/.test(this.$route.name)
     }
   }

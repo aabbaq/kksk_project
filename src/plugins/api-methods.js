@@ -2,12 +2,12 @@ import axios from 'axios'
 
 // token检测
 function sendTokenToBackend (token, routeName = 'None') {
-  return axios.post('http://localhost:3000/api/tokenCheck', {
+  return axios.post('http://localhost:3000/api/user/tokenCheck', {
     usertoken: token
   }).then(res => {
-    if (res.data.status === 200) {
+    if (res.status === 200) {
       console.log('backend has checked the token: ' + routeName)
-      return Promise.resolve(res.data.status)
+      return Promise.resolve(res.status)
     } else {
       console.log('backend network error')
       return Promise.resolve('network error')

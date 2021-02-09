@@ -68,11 +68,16 @@
         <v-col>
           <v-card class="mx-auto" max-width="434" tile>
             <!-- <v-parallax aspect-ratio='1.618' :src='require("../../../static/default.jpg")' class="white--text align-space-around"> -->
-            <v-img aspect-ratio='2.618' :src='require("../../../static/default.jpg")' class="white--text align-space-around" id='userBanner'>
+            <v-img aspect-ratio='2.618' :src='require("../../../static/pic1.jpg")' class="white--text align-space-around" id='UserBanner'>
               <v-avatar class="profile" color="grey" size="120" tile>
                 <v-img src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg"></v-img>
               </v-avatar>
-              <v-card-title>{{ userInfo.username }}@{{userInfo.nickname }}</v-card-title>
+              <v-card-title>
+                <span>{{ userInfo.nickname }}</span>
+                <span>{{ userInfo.emoji }}</span>
+                <span>{{ userInfo.alias }}</span>
+                <span id='UsernameInCard' class='pl-1'>@{{ userInfo.username }}</span>
+              </v-card-title>
             </v-img>
             <!-- </v-parallax> -->
             <v-card-subtitle class="pb-0">Number 10</v-card-subtitle>
@@ -174,12 +179,21 @@ export default {
 </script>
 
 <style>
-  #userBanner:not(:hover) > .v-image__image {
+  #UserBanner:not(:hover) > .v-image__image {
     /* -webkit-filter: blur(1px); */
     filter: blur(5px);
     transition: filter 0.5s ease-in-out;
   }
-  #userBanner:hover > .v-image__image {
+  #UserBanner:hover > .v-image__image {
     transition: filter 0.5s ease-in-out;
+  }
+  #UsernameInCard {
+    height: 30px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 18px;
+    font-weight: 300;
+  }
+  .span {
+    letter-spacing: 2px;
   }
 </style>

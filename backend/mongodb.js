@@ -1,8 +1,5 @@
 const mongoose = require('mongoose')
-const hash = require('./hash.js')
-const Token = require('./webtoken.js')
 const Methods = require('./backend-api-methods.js')
-
 const mongodbUrl = 'mongodb://localhost:27017/blog'
 const dbConnection = mongoose.connection
 const Schema = mongoose.Schema
@@ -23,12 +20,15 @@ const userInfoSchema = new Schema({
   registerDateInString: String,
   lastLoginDate: Date,
   lastLoginDateInString: String,
-  biography: String
+  biography: String,
+  alias: String,
+  emoji: String
 })
 
 const blogTextInfoSchema = new Schema({
   number: Number,
   author: String,
+  owner: String,
   date: Date,
   dateInString: String,
   lastDate: Date,
@@ -49,83 +49,31 @@ const blogTextInfoSchema = new Schema({
 const UserInfo = mongoose.model('user', userInfoSchema)
 const BlogTextInfo = mongoose.model('text', blogTextInfoSchema)
 const NumberOfBlogTexts = BlogTextInfo.countDocuments({})
+const DatabaseErr = Methods.generateMsg(500)
 
-function userLogin (req, res) {
-  const hashPassword = hash(req.body.password)
-  UserInfo.findOne({
-    username: req.body.username,
-    password: hashPassword
-  }, (err, docs) => {
-    if (err) res.send(Methods.generateMsg(500))
-    else {
-      if (docs === null) res.send(Methods.generateMsg(102))
-      else {
-        const token = Token.encrypt(docs.id)
-        res.send({
-          status: 200,
-          msg: 'Login Success',
-          username: docs.username,
-          userrole: docs.userrole,
-          token: token
-        })
-      }
-    }
+function userLogin (userInfo) {
+  UserInfo.findOne(userInfo, (err, docs) => {
+    if (err) console.log(err)
+    return docs || Methods.generateMsg(102)
   })
 }
 
-function tokenCheck (req, res) {
-  // console.log('User Token: ' + req.body.usertoken)
-  const userToken = req.body.usertoken
-  const userIdInfo = Token.decrypt(userToken)
-  // console.log('User id info: ' + userIdInfo.id)
+function getUserInfo (userInfo) {
   UserInfo.findOne({
-    // mongo里的id是 “_id ”
-    _id: userIdInfo.id
+    _id: userInfo.id
   }, (err, docs) => {
-    if (err) res.send(Methods.generateMsg(500))
-    else {
-      if (docs === null) res.send(Methods.generateMsg(101))
-      else {
-        res.send({
-          status: 200,
-          msg: 'User Token Check Success'
-        })
-      }
-    }
-  })
-}
-
-function getUserInfo (req, res) {
-  const userToken = req.body.token
-  const userIdInfo = Token.decrypt(userToken)
-  UserInfo.findOne({
-    _id: userIdInfo.id
-  }, (err, docs) => {
-    if (err) res.send(Methods.generateMsg(500))
-    else {
-      if (docs === null) res.send(Methods.generateMsg(101))
-      else {
-        res.send({
-          status: 200,
-          userInfo: {
-            userrole: docs.userrole,
-            nickname: docs.nickname,
-            username: docs.username,
-            biography: docs.biography
-          },
-          msg: 'UserInfo GET Daze!'
-        })
-      }
-    }
+    if (err) console.log(err)
+    return docs || Methods.generateMsg(101)
   })
 }
 
 function uploadBlog (req, res) {
   const timeNow = new Date()
   NumberOfBlogTexts.exec((execErr, count) => {
-    if (execErr) res.send(Methods.generateMsg(500))
+    if (execErr) res.status(500).send(DatabaseErr.msg)
     else {
       BlogTextInfo.create({
+        owner: req.body.owner,
         author: req.body.blogauthor,
         number: count + 1,
         date: timeNow,
@@ -143,13 +91,8 @@ function uploadBlog (req, res) {
         protectedPassword: req.body.blogprotectedpassword,
         hidden: req.body.bloghidden
       }, function (err) {
-        if (err) res.send(Methods.generateMsg(500))
-        else {
-          res.send({
-            status: 200,
-            msg: 'Upload Success'
-          })
-        }
+        if (err) res.status(500).send(DatabaseErr.msg)
+        else res.status(200).send({ msg: 'Upload Success' })
       })
     }
   })
@@ -175,180 +118,61 @@ function updateBlog (req, res) {
   }, {
     upsert: true
   }, function (err) {
-    if (err) res.send(Methods.generateMsg(500))
-    else {
-      res.send({
-        status: 200,
-        msg: 'Update Success'
-      })
-    }
+    if (err) res.status(500).send(DatabaseErr.msg)
+    else res.status(200).send({ msg: 'Update Success' })
   })
 }
 
-function getBlogTexts (req, res) {
-  let peekTexts = []
-  if (!req.body.isLogin) {
-    BlogTextInfo.find({
-      hidden: false,
-      secretLevel: 1
-    }, (err, docs) => {
-      if (err) res.send(Methods.generateMsg(500))
-      else {
-        peekTexts = Methods.getPeekTextsList(docs, req.body.needCardsInfo)
-        res.send({
-          status: 200,
-          msg: 'Guest View',
-          textsInfo: {
-            textsCount: peekTexts.length,
-            peekTexts: peekTexts
-          }
-        })
-      }
-    })
-  } else {
-    const userToken = req.body.userToken
-    const userIdInfo = Token.decrypt(userToken)
-    if (!userIdInfo.token) res.send(Methods.generateMsg(103))
-    else {
-      UserInfo.findOne({
-        _id: userIdInfo.id,
-        userrole: req.body.userRole
-      }, (err, docs) => {
-        if (err) res.send(Methods.generateMsg(500))
-        else {
-          if (docs === null) res.send(Methods.generateMsg(104))
-          else {
-            BlogTextInfo.find({
-              $or: [
-                { author: req.body.userName },
-                { hidden: false, secretLevel: { $lte: req.body.userRole } }
-              ]
-            }, (err, docs) => {
-              if (err) res.send(Methods.generateMsg(500))
-              else {
-                if (docs === null) res.send(Methods.generateMsg(105))
-                else {
-                  peekTexts = Methods.getPeekTextsList(docs)
-                  res.send({
-                    status: 200,
-                    msg: 'Login User View',
-                    textsInfo: {
-                      textsCount: peekTexts.length,
-                      peekTexts: peekTexts
-                    }
-                  })
-                }
-              }
-            })
-          }
-        }
+function getBlogTexts (userInfo, opts) {
+  const role = userInfo.userrole
+  switch (role) {
+    case 0: {
+      return BlogTextInfo.find({
+        hidden: false,
+        secretLevel: 1
+      }).then(res => {
+        return Promise.resolve(Methods.getPeekTextsList(res))
+      })
+    }
+    case 7: {
+      BlogTextInfo.find({}).then(res => {
+        return Promise.resolve(Methods.getPeekTextsList(res, opts.needCardsInfo))
+      })
+      break
+    }
+    default: {
+      BlogTextInfo.find({
+        $or: [
+          { owner: UserInfo.id },
+          { hidden: false, secretLevel: { $lte: role } }
+        ]
+      }).then(res => {
+        return Promise.resolve(Methods.getPeekTextsList(res, opts.needCardsInfo))
       })
     }
   }
 }
 
-function getBlogTextsV (req, res) {
-  let peekTexts = []
-  if (!req.body.isLogin) res.send(Methods.generateMsg(701))
-  else {
-    const userToken = req.body.userToken
-    const userIdInfo = Token.decrypt(userToken)
-    if (!userIdInfo.token) res.send(Methods.generateMsg(702))
-    else {
-      UserInfo.findOne({
-        _id: userIdInfo.id,
-        userrole: req.body.userRole
-      }, (err, docs) => {
-        if (err) res.send(Methods.generateMsg(703))
-        else {
-          if (docs === null) res.send(Methods.generateMsg(704))
-          else {
-            BlogTextInfo.find({}, (err, docs) => {
-              if (err) res.send(Methods.generateMsg(501))
-              else {
-                peekTexts = Methods.getPeekTextsList(docs, req.body.needCardsInfo)
-                res.send({
-                  status: 200,
-                  msg: 'Master Get All Texts',
-                  textsInfo: {
-                    textsCount: peekTexts.length,
-                    peekTexts: peekTexts
-                  }
-                })
-              }
-            })
-          }
-        }
-      })
-    }
-  }
-}
-
-function getOneText (req, res) {
-  if (req.query.id) {
-    BlogTextInfo.find({
-      _id: req.query.id
-    }, (err, docs) => {
-      if (err) res.send(Methods.generateMsg(500))
-      else {
-        res.send({
-          status: 200,
-          msg: 'Text Get Daze!',
-          docs: docs
-        })
-      }
-    })
-  } else if (req.query.title) {
-    BlogTextInfo.find({
-      title: req.query.title
-    }, (err, docs) => {
-      if (err) res.send(Methods.generateMsg(500))
-      else {
-        res.send({
-          status: 200,
-          msg: 'Text Get Daze!',
-          docs: docs
-        })
-      }
-    })
-  } else {
-    BlogTextInfo.find({
-      number: req.query.number
-    }, (err, docs) => {
-      if (err) res.send(Methods.generateMsg(500))
-      else {
-        res.send({
-          status: 200,
-          msg: 'Text Get Daze!',
-          docs: docs
-        })
-      }
-    })
-  }
+function getOneText (queryOption) {
+  BlogTextInfo.findOne(queryOption).then(res => {
+    return Promise.resolve(res)
+  })
 }
 
 function deleteText (req, res) {
-  console.log(req.body.id)
   BlogTextInfo.deleteOne({
     _id: req.body.id
   }, (err) => {
     if (err) res.send(Methods.generateMsg(500))
-    else {
-      res.send({
-        status: 200,
-        msg: 'Database Delete Daze'
-      })
-    }
+    else res.status(200).send({ msg: 'Database Delete Daze' })
   })
 }
 
 module.exports = {
   userLogin: userLogin,
-  tokenCheck: tokenCheck,
   getUserInfo: getUserInfo,
   uploadBlog: uploadBlog,
   getBlogTexts: getBlogTexts,
-  getBlogTextsV: getBlogTextsV,
   getOneText: getOneText,
   deleteText: deleteText,
   updateBlog: updateBlog

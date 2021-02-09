@@ -66,7 +66,6 @@ const router = new Router({
     },
     {
       path: '/user',
-      name: 'user',
       component: UserHome,
       meta: {
         title: 'UserHome',
@@ -75,7 +74,7 @@ const router = new Router({
       children: [
         {
           path: '',
-          name: 'userdefault',
+          name: 'user',
           component: UserSelf
         },
         {
@@ -116,9 +115,8 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  // let tmp_token = sessionStorage.getItem('session_authorization')
   if (to.matched.some(record => record.meta.needAuthorization) && !Store.state.HaveCheckUserToken) {
-    var token = sessionStorage.getItem('session_authorization')
+    const token = sessionStorage.getItem('session_authorization')
     if (!token) {
       console.log('Not Login')
       next({

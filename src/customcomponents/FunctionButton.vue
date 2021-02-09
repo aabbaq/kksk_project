@@ -1,6 +1,6 @@
 <template>
   <div v-scroll="getScrollDistance" v-resize="getWindowHeight">
-    <v-scale-transition origin='center' v-if='isTextPage'>
+    <v-scale-transition origin='center' v-if='showUpBtn'>
       <v-btn
         color='primary' fab large
         bottom right fixed
@@ -88,7 +88,6 @@ export default {
     },
     deleteText: function () {
       this.btnDialog = false
-      console.log(this.$route.params.id)
       this.$axios.post('http://localhost:3000/api/deleteText', {
         id: this.$route.params.id
       }).then(res => {
@@ -101,8 +100,8 @@ export default {
     needGoUp () {
       return this.scrollDistance >= this.windowHeight - 50
     },
-    isTextPage () {
-      return this.$route.name !== 'content'
+    showUpBtn () {
+      return !this.$store.state.HaveCheckUserToken || this.$route.name !== 'content'
     }
   }
 }
