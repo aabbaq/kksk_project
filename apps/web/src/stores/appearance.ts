@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useTheme } from 'vuetify'
+import vuetify from '@/plugins/vuetify'
 import {
   COLOR_LABELS,
   getDefaultSettings,
@@ -25,9 +25,9 @@ export const useAppearanceStore = defineStore('appearance', () => {
   const colors = ref<AppearanceColors>(getDefaultSettings().colors)
 
   function applyVuetifyTheme () {
-    const theme = useTheme()
-    theme.themes.value.dark.colors.primary = colors.value.topbarBg
-    theme.themes.value.dark.colors['surface-bright'] = colors.value.articleBg
+    const dark = vuetify.theme.themes.value.dark
+    dark.colors.primary = colors.value.topbarBg
+    dark.colors['surface-bright'] = colors.value.articleBg
   }
 
   function applyAll () {
