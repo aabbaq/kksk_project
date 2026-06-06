@@ -9,9 +9,8 @@
     <v-spacer />
     <v-btn
       v-if="auth.isLoggedIn"
-      variant="tonal"
-      color="secondary"
-      class="mr-2"
+      variant="text"
+      class="lothric-btn-blend mr-2"
       :to="{ name: 'post', params: { textNumber: '0' } }"
       prepend-icon="mdi-plus"
     >
@@ -19,7 +18,7 @@
     </v-btn>
     <v-tooltip location="bottom">
       <template #activator="{ props }">
-        <v-btn variant="tonal" color="secondary" v-bind="props" class="mr-2">
+        <v-btn variant="text" class="lothric-btn-blend mr-2" v-bind="props">
           <router-link v-if="auth.isLoggedIn" :to="toWhere" id="Postbuttom">
             下北沢に着きました
           </router-link>
@@ -31,7 +30,7 @@
       <span>{{ loginTip }}</span>
     </v-tooltip>
     <template v-if="isUserHome" #extension>
-      <v-tabs v-model="tab" color="secondary" density="comfortable">
+      <v-tabs v-model="tab" color="white" density="comfortable" bg-color="primary">
         <v-tab v-for="each in tabsInfo" :key="each.name" :to="each.to" id="Tabbuttom">
           {{ each.name }}
         </v-tab>

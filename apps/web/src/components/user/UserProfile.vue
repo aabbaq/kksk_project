@@ -43,7 +43,7 @@
               <v-text-field v-model="userInfo.emoji" label="Emoji" />
             </v-col>
           </v-row>
-          <v-btn color="secondary" variant="flat" width="200" @click="saveProfile">
+          <v-btn variant="text" class="lothric-btn-blend" width="200" @click="saveProfile">
             Save Profile
           </v-btn>
         </div>

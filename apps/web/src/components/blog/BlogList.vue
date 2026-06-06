@@ -7,8 +7,8 @@
       <v-container class="lothric-container">
       <div v-if="auth.isLoggedIn" class="d-flex justify-end mb-4">
         <v-btn
-          color="secondary"
-          variant="flat"
+          variant="text"
+          class="lothric-btn-blend"
           prepend-icon="mdi-plus"
           size="large"
           @click="goPost"
@@ -31,7 +31,7 @@
             />
           </v-col>
           <v-col cols="12" sm="4">
-            <v-btn color="secondary" block height="48" @click="loadTexts">
+            <v-btn variant="text" class="lothric-btn-blend" block height="48" @click="loadTexts">
               Search
             </v-btn>
           </v-col>

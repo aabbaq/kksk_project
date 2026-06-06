@@ -29,9 +29,9 @@ const peekTexts = ref<PeekText[]>([])
 const loading = ref(false)
 const loadError = ref('')
 
-const btnList = [
-  { name: 'View', color: 'success' },
-  { name: 'Edit', color: 'secondary' },
+const btnList: Array<{ name: string; color?: string }> = [
+  { name: 'View' },
+  { name: 'Edit' },
   { name: 'Delete', color: 'error' }
 ]
 
@@ -137,8 +137,8 @@ onMounted(loadTexts)
           </v-card-text>
           <v-card-actions>
             <v-btn
-              color="secondary"
               variant="text"
+              class="lothric-btn-blend"
               @click.stop="eachText.mode && (eachText.mode.needShow = !eachText.mode.needShow)"
             >
               Explore
@@ -186,7 +186,8 @@ onMounted(loadTexts)
             v-for="eachBtn in btnList"
             :key="eachBtn.name"
             :color="eachBtn.color"
-            variant="tonal"
+            :class="eachBtn.color ? '' : 'lothric-btn-blend'"
+            variant="text"
             size="large"
             @click="dealWithTexts(eachBtn.name, peekTexts[model])"
           >
@@ -197,7 +198,7 @@ onMounted(loadTexts)
     </v-expand-transition>
 
     <div class="d-flex justify-center mt-8">
-      <v-btn color="secondary" variant="flat" size="large" width="320" @click="goPost">
+      <v-btn variant="text" class="lothric-btn-blend" size="large" width="320" @click="goPost">
         Post A New Text
       </v-btn>
     </div>

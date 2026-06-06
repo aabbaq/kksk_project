@@ -16,7 +16,7 @@
           </template>
         </v-card-item>
         <v-card-actions class="px-4 pb-4">
-          <v-btn color="secondary" variant="text" @click="editDraft(draft)">
+          <v-btn variant="text" class="lothric-btn-blend" @click="editDraft(draft)">
             Continue Editing
           </v-btn>
           <v-spacer />

@@ -28,6 +28,43 @@ a {
 
 #Tabbuttom {
   text-decoration: none;
+  color: inherit;
+}
+
+/* Dark theme: white label when button color is not explicitly set */
+.v-theme--dark .v-btn:not(.v-btn--icon):not(.bg-error):not(.text-error):not(.bg-success):not(.text-success):not(.bg-warning):not(.text-warning):not(.bg-secondary):not(.text-secondary):not(.bg-primary):not(.text-primary) {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* Buttons on dark surfaces: no fill contrast, white label by default */
+.lothric-btn-blend.v-btn {
+  color: #fff !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.lothric-btn-blend.v-btn .v-btn__overlay {
+  opacity: 0;
+}
+
+.lothric-btn-blend.v-btn:hover .v-btn__overlay {
+  opacity: 0.08;
+}
+
+/* User management tabs in app bar */
+.v-app-bar .v-tab {
+  color: rgba(255, 255, 255, 0.72);
+  text-transform: none;
+  letter-spacing: normal;
+  min-width: 88px;
+}
+
+.v-app-bar .v-tab--selected {
+  color: #fff;
+}
+
+.v-app-bar .v-tabs-slider {
+  background: #fff;
 }
 
 .markdown-body {
