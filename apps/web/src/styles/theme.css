@@ -155,7 +155,7 @@ a {
 .lothric-panel {
   border-radius: var(--lothric-card-radius);
   border: 1px solid var(--lothric-border);
-  background: rgba(26, 6, 24, 0.85);
+  background: color-mix(in srgb, var(--lothric-surface) 88%, transparent);
   padding: 20px 24px;
 }
 
@@ -260,8 +260,8 @@ a {
   text-align: center;
   background: linear-gradient(
     180deg,
-    rgba(18, 4, 15, 0.35) 0%,
-    rgba(45, 4, 37, 0.55) 100%
+    color-mix(in srgb, var(--lothric-bg) 35%, transparent) 0%,
+    color-mix(in srgb, var(--lothric-primary) 55%, transparent) 100%
   );
 }
 

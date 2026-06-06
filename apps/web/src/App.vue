@@ -10,7 +10,8 @@ import FunctionButton from '@/components/layout/FunctionButton.vue'
 </script>
 
 <style>
-.lothric-app {
+.lothric-app,
+.lothric-app .v-main {
   background: var(--lothric-bg) !important;
 }
 </style>

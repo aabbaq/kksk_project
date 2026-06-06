@@ -18,6 +18,8 @@ const draft = reactive<AppearanceColors>({ ...colors.value })
 const draftPreset = reactive({ id: presetId.value })
 
 const hexKeys: Array<keyof AppearanceColors> = [
+  'pageBg',
+  'surfaceBg',
   'articleBg',
   'topbarBg',
   'footbarBg',
@@ -76,6 +78,7 @@ function resetDraft () {
           @click="selectPreset(id)"
         >
           <div class="lothric-preset-card__swatches">
+            <span :style="{ background: preset.colors.pageBg }" />
             <span :style="{ background: preset.colors.topbarBg }" />
             <span :style="{ background: preset.colors.tabsBg }" />
             <span :style="{ background: preset.colors.articleBg }" />

@@ -1,6 +1,8 @@
 export type ThemePresetId = 'black' | 'purple' | 'brown' | 'blue'
 
 export interface AppearanceColors {
+  pageBg: string
+  surfaceBg: string
   articleBg: string
   topbarBg: string
   footbarBg: string
@@ -16,6 +18,8 @@ export interface AppearanceSettings {
 export const STORAGE_KEY = 'lothric_appearance'
 
 export const COLOR_LABELS: Record<keyof AppearanceColors, string> = {
+  pageBg: 'Page background',
+  surfaceBg: 'Panel / card surface',
   articleBg: 'Article background',
   topbarBg: 'Top bar background',
   footbarBg: 'Footer background',
@@ -27,6 +31,8 @@ export const THEME_PRESETS: Record<ThemePresetId, { label: string; colors: Appea
   purple: {
     label: 'Purple (current)',
     colors: {
+      pageBg: '#12040f',
+      surfaceBg: '#1a0618',
       articleBg: '#2a0f24',
       topbarBg: '#2d0425',
       footbarBg: '#2d0425',
@@ -37,6 +43,8 @@ export const THEME_PRESETS: Record<ThemePresetId, { label: string; colors: Appea
   black: {
     label: 'Black',
     colors: {
+      pageBg: '#050505',
+      surfaceBg: '#111111',
       articleBg: '#1a1a1a',
       topbarBg: '#0a0a0a',
       footbarBg: '#0a0a0a',
@@ -47,6 +55,8 @@ export const THEME_PRESETS: Record<ThemePresetId, { label: string; colors: Appea
   brown: {
     label: 'Brown',
     colors: {
+      pageBg: '#1a1008',
+      surfaceBg: '#241810',
       articleBg: '#352015',
       topbarBg: '#2a1810',
       footbarBg: '#2a1810',
@@ -57,6 +67,8 @@ export const THEME_PRESETS: Record<ThemePresetId, { label: string; colors: Appea
   blue: {
     label: 'Deep blue',
     colors: {
+      pageBg: '#060d18',
+      surfaceBg: '#0c1525',
       articleBg: '#101e35',
       topbarBg: '#0a1628',
       footbarBg: '#0a1628',

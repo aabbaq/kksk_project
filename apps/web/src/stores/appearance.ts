@@ -13,6 +13,8 @@ import {
 
 function applyCssVars (colors: AppearanceColors) {
   const root = document.documentElement
+  root.style.setProperty('--lothric-bg', colors.pageBg)
+  root.style.setProperty('--lothric-surface', colors.surfaceBg)
   root.style.setProperty('--lothric-primary', colors.topbarBg)
   root.style.setProperty('--lothric-tabs-bg', colors.tabsBg)
   root.style.setProperty('--lothric-surface-elevated', colors.articleBg)
@@ -26,6 +28,8 @@ export const useAppearanceStore = defineStore('appearance', () => {
 
   function applyVuetifyTheme () {
     const dark = vuetify.theme.themes.value.dark
+    dark.colors.background = colors.value.pageBg
+    dark.colors.surface = colors.value.surfaceBg
     dark.colors.primary = colors.value.topbarBg
     dark.colors['surface-bright'] = colors.value.articleBg
   }
@@ -36,17 +40,19 @@ export const useAppearanceStore = defineStore('appearance', () => {
   }
 
   function load () {
+    const defaults = getDefaultSettings()
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
       if (!raw) {
+        presetId.value = defaults.presetId
+        colors.value = { ...defaults.colors }
         applyAll()
         return
       }
       const parsed = JSON.parse(raw) as AppearanceSettings
-      presetId.value = parsed.presetId ?? 'purple'
-      colors.value = { ...getDefaultSettings().colors, ...parsed.colors }
+      presetId.value = parsed.presetId ?? defaults.presetId
+      colors.value = { ...defaults.colors, ...parsed.colors }
     } catch {
-      const defaults = getDefaultSettings()
       presetId.value = defaults.presetId
       colors.value = { ...defaults.colors }
     }
