@@ -5,7 +5,7 @@ import {
   verifyPasswordSchema
 } from '@kksk/shared'
 import type { AuthRequest } from '../../middleware/auth.js'
-import { sendError, sendSuccess } from '../../utils/response.js'
+import { sendError, sendSuccess, appErrorToHttp } from '../../utils/response.js'
 import * as textService from './text.service.js'
 
 export async function list (req: AuthRequest, res: Response) {
@@ -35,10 +35,10 @@ export async function getOne (req: AuthRequest, res: Response) {
     title: req.query.title as string | undefined,
     number: req.query.number !== undefined ? Number(req.query.number) : undefined
   }
-  const verified = req.query.verified === 'true'
-  const result = await textService.getTextDetail(query, req.auth, verified)
+  // BUG-3 fix: removed ?verified=true bypass — password is only unlocked via verify-password endpoint
+  const result = await textService.getTextDetail(query, req.auth)
   if ('error' in result && result.error) {
-    sendError(res, result.error, result.error === 107 ? 403 : result.error)
+    sendError(res, result.error, appErrorToHttp(result.error))
     return
   }
   sendSuccess(res, { docs: [result.text] })
@@ -52,7 +52,7 @@ export async function verifyPassword (req: AuthRequest, res: Response) {
   }
   const result = await textService.verifyTextPassword(req.params.id, parsed.data.password, req.auth)
   if ('error' in result && result.error) {
-    sendError(res, result.error, result.error)
+    sendError(res, result.error, appErrorToHttp(result.error))
     return
   }
   sendSuccess(res, { docs: [result.text] })
@@ -69,7 +69,7 @@ export async function upload (req: AuthRequest, res: Response) {
     blogauthor: parsed.data.blogauthor ?? req.auth?.id
   })
   if ('error' in result && result.error) {
-    sendError(res, result.error, result.error)
+    sendError(res, result.error, appErrorToHttp(result.error))
     return
   }
   sendSuccess(res, result)
@@ -78,7 +78,7 @@ export async function upload (req: AuthRequest, res: Response) {
 export async function remove (req: AuthRequest, res: Response) {
   const result = await textService.deleteText(req.auth, req.params.id)
   if ('error' in result && result.error) {
-    sendError(res, result.error, result.error)
+    sendError(res, result.error, appErrorToHttp(result.error))
     return
   }
   sendSuccess(res, result)

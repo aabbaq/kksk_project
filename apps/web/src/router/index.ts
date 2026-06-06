@@ -65,6 +65,12 @@ const router = createRouter({
           name: 'usersettings',
           component: () => import('@/components/user/UserSettings.vue'),
           meta: { title: 'UserSettings' }
+        },
+        {
+          path: 'admin',
+          name: 'useradmin',
+          component: () => import('@/components/user/UserAdmin.vue'),
+          meta: { title: 'UserAdmin', needAdmin: true }
         }
       ]
     }
@@ -74,6 +80,7 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   const auth = useAuthStore()
   const needsAuth = to.matched.some(r => r.meta.needAuthorization)
+  const needsAdmin = to.matched.some(r => r.meta.needAdmin)
 
   if (needsAuth && !auth.haveCheckUserToken) {
     const token = sessionStorage.getItem('session_authorization')
@@ -84,12 +91,17 @@ router.beforeEach(async (to, _from, next) => {
     try {
       await tokenCheck()
       auth.haveCheckUserTokenCommit()
-      next()
     } catch {
       next({ name: 'login', query: { redirect: to.fullPath } })
+      return
     }
+  }
+
+  if (needsAdmin && auth.userRole !== 7) {
+    next({ name: 'userself' })
     return
   }
+
   next()
 })
 

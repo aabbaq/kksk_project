@@ -34,3 +34,13 @@ export async function changePassword (currentPassword: string, newPassword: stri
   const { data } = await client.patch('/user/password', { currentPassword, newPassword })
   return data
 }
+
+export async function adminListUsers () {
+  const { data } = await client.get('/user/admin/list')
+  return data
+}
+
+export async function adminUpdateUserRole (userId: string, role: number) {
+  const { data } = await client.patch(`/user/admin/${userId}/role`, { role })
+  return data
+}

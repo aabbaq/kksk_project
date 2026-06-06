@@ -91,3 +91,27 @@ export async function changePassword (id: string, currentPassword: string, newPa
   await user.save()
   return { ok: true }
 }
+
+export async function listAllUsers () {
+  const users = await UserModel.find({}, { password: 0 }).sort({ registerDate: -1 })
+  return users.map(u => ({
+    id: u._id.toString(),
+    username: u.username,
+    nickname: u.nickname ?? u.username,
+    userrole: u.userrole ?? 1,
+    biography: u.biography ?? '',
+    alias: u.alias ?? '',
+    emoji: u.emoji ?? '',
+    registerDateInString: u.registerDateInString ?? ''
+  }))
+}
+
+export async function setUserRole (id: string, role: number) {
+  const user = await UserModel.findByIdAndUpdate(
+    id,
+    { userrole: role },
+    { new: true }
+  )
+  if (!user) return { error: 101 as const }
+  return { userInfo: toUserInfo(user) }
+}

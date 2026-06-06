@@ -1,5 +1,7 @@
+import mongoose from 'mongoose'
 import { TextModel } from '../../models/text.model.js'
 import { UserModel } from '../../models/user.model.js'
+import { CounterModel } from '../../models/counter.model.js'
 import { dateToString } from '../../utils/response.js'
 import { renderMarkdown } from '../../utils/markdown.js'
 import type { AuthRequest } from '../../middleware/auth.js'
@@ -150,8 +152,7 @@ export async function listTexts (auth: AuthRequest['auth'], query: ListQuery) {
 
 export function canViewText (
   text: InstanceType<typeof TextModel>,
-  auth?: AuthRequest['auth'],
-  verifiedProtected = false
+  auth?: AuthRequest['auth']
 ) {
   const role = auth?.isTokenVerified ? (auth.userrole ?? 0) : 0
   const userId = auth?.id
@@ -163,16 +164,23 @@ export function canViewText (
   if (role === 7 || userId === text.owner?.toString()) return true
   if (text.hidden) return false
   if ((text.secretLevel ?? 0) > role) return false
-  if (text.protected && !verifiedProtected) return 'password_required'
+  if (text.protected) return 'password_required'
   return true
 }
 
 export async function getTextByQuery (query: { id?: string, title?: string, number?: number }) {
+  // BUG-2 fix: validate ObjectId before querying to prevent Mongoose CastError crash
   const mongoQuery: Record<string, unknown> = {}
-  if (query.id) mongoQuery._id = query.id
-  else if (query.title) mongoQuery.title = query.title
-  else if (query.number !== undefined) mongoQuery.number = query.number
-  else return null
+  if (query.id) {
+    if (!mongoose.isValidObjectId(query.id)) return null
+    mongoQuery._id = query.id
+  } else if (query.title) {
+    mongoQuery.title = query.title
+  } else if (query.number !== undefined) {
+    mongoQuery.number = query.number
+  } else {
+    return null
+  }
 
   return TextModel.findOne(mongoQuery)
 }
@@ -208,13 +216,13 @@ function toDetail (
 
 export async function getTextDetail (
   query: { id?: string, title?: string, number?: number },
-  auth?: AuthRequest['auth'],
-  verifiedProtected = false
+  auth?: AuthRequest['auth']
 ) {
   const doc = await getTextByQuery(query)
-  if (!doc) return { error: 501 as const }
+  // BUG-9 fix: 404 for not found
+  if (!doc) return { error: 404 as const }
 
-  const access = canViewText(doc, auth, verifiedProtected)
+  const access = canViewText(doc, auth)
   if (access === false) return { error: 105 as const }
   if (access === 'password_required') return { error: 107 as const }
 
@@ -224,16 +232,46 @@ export async function getTextDetail (
 }
 
 export async function verifyTextPassword (id: string, password: string, auth?: AuthRequest['auth']) {
+  if (!mongoose.isValidObjectId(id)) return { error: 404 as const }
   const doc = await TextModel.findById(id)
-  if (!doc) return { error: 501 as const }
+  if (!doc) return { error: 404 as const }
   if (!doc.protected) return { ok: true }
 
   if (doc.protectedPassword !== password) return { error: 108 as const }
 
-  const access = canViewText(doc, auth, true)
-  if (access !== true) return { error: 105 as const }
-  const resolveAuthor = await buildAuthorResolver([doc])
-  return { text: toDetail(doc, resolveAuthor, true) }
+  const access = canViewText(doc, auth)
+  if (access === 'password_required' || access === true) {
+    const resolveAuthor = await buildAuthorResolver([doc])
+    return { text: toDetail(doc, resolveAuthor, true) }
+  }
+  return { error: 105 as const }
+}
+
+/** Atomically get the next article number, seeded from existing document count */
+export async function getNextArticleNumber (): Promise<number> {
+  const counter = await CounterModel.findByIdAndUpdate(
+    'text_number',
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  )
+  // First-ever counter creation: seq will be 1, but we may have existing articles
+  if (counter.seq === 1) {
+    const existingCount = await TextModel.countDocuments({})
+    if (existingCount > 0) {
+      const seeded = await CounterModel.findByIdAndUpdate(
+        'text_number',
+        { seq: existingCount + 1 },
+        { new: true }
+      )
+      return seeded!.seq
+    }
+  }
+  return counter.seq
+}
+
+/** Max secret level a user role is allowed to write */
+export function maxSecretLevelForRole (role: number): number {
+  return Math.min(role, 3)
 }
 
 export async function upsertText (
@@ -256,37 +294,59 @@ export async function upsertText (
 ) {
   const now = new Date()
   const htmlContent = renderMarkdown(body.blogcontent ?? '')
-  const payload = {
+  const role = auth?.userrole ?? 0
+  // BUG-8 fix: cap secret level to what the user's role allows
+  const maxLevel = maxSecretLevelForRole(role)
+  const secretLevel = Math.min(body.blogsecretlevel ?? 0, maxLevel)
+
+  if (body.blogupdate && body.blogid) {
+    if (!mongoose.isValidObjectId(body.blogid)) return { error: 404 as const }
+    const existing = await TextModel.findById(body.blogid)
+    if (!existing) return { error: 404 as const }
+    if (role !== 7 && existing.owner?.toString() !== auth?.id) return { error: 105 as const }
+
+    // BUG-6 fix: only update fields that were explicitly provided
+    const updateFields: Record<string, unknown> = {
+      title: body.blogtitle,
+      content: body.blogcontent ?? existing.content ?? '',
+      htmlContent: renderMarkdown(body.blogcontent ?? existing.content ?? ''),
+      secretLevel,
+      protected: body.blogprotected ?? existing.protected ?? false,
+      protectedPassword: body.blogprotectedpassword ?? existing.protectedPassword ?? '',
+      hidden: body.bloghidden ?? existing.hidden ?? false,
+      isDraft: body.isDraft ?? existing.isDraft ?? false,
+      lastDate: now,
+      lastDateInString: dateToString(now, true)
+    }
+    // Only update optional display fields if explicitly provided
+    if (body.blogsubtitle !== undefined) updateFields.subtitle = body.blogsubtitle
+    if (body.blogtag !== undefined) updateFields.tag = body.blogtag
+    if (body.blogpic !== undefined) updateFields.picture = body.blogpic
+
+    await TextModel.findByIdAndUpdate(body.blogid, updateFields)
+    return { msg: 'Update Success' }
+  }
+
+  // BUG-5 fix: use atomic counter for article number
+  const number = await getNextArticleNumber()
+
+  await TextModel.create({
     title: body.blogtitle,
     subtitle: body.blogsubtitle ?? '',
     tag: body.blogtag ?? '',
     picture: body.blogpic ?? 'default',
     content: body.blogcontent ?? '',
     htmlContent,
-    secretLevel: body.blogsecretlevel ?? 0,
+    secretLevel,
     protected: body.blogprotected ?? false,
     protectedPassword: body.blogprotectedpassword ?? '',
     hidden: body.bloghidden ?? false,
     isDraft: body.isDraft ?? false,
     lastDate: now,
-    lastDateInString: dateToString(now, true)
-  }
-
-  if (body.blogupdate && body.blogid) {
-    const existing = await TextModel.findById(body.blogid)
-    if (!existing) return { error: 501 as const }
-    const role = auth?.userrole ?? 0
-    if (role !== 7 && existing.owner?.toString() !== auth?.id) return { error: 105 as const }
-    await TextModel.findByIdAndUpdate(body.blogid, payload)
-    return { msg: 'Update Success' }
-  }
-
-  const count = await TextModel.countDocuments({})
-  await TextModel.create({
-    ...payload,
+    lastDateInString: dateToString(now, true),
     owner: auth?.id,
     author: body.blogauthor ?? 'unknown',
-    number: count + 1,
+    number,
     date: now,
     dateInString: dateToString(now, true)
   })
@@ -294,8 +354,9 @@ export async function upsertText (
 }
 
 export async function deleteText (auth: AuthRequest['auth'], id: string) {
+  if (!mongoose.isValidObjectId(id)) return { error: 404 as const }
   const doc = await TextModel.findById(id)
-  if (!doc) return { error: 501 as const }
+  if (!doc) return { error: 404 as const }
 
   const role = auth?.userrole ?? 0
   if (role !== 7 && doc.owner?.toString() !== auth?.id) return { error: 105 as const }

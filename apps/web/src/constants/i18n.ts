@@ -3,7 +3,7 @@ export type Locale = 'zh' | 'en'
 export const LOCALE_STORAGE_KEY = 'lothric_locale'
 
 type MessageTree = {
-  tabs: Record<'myself' | 'texts' | 'drafts' | 'settings', string>
+  tabs: Record<'myself' | 'texts' | 'drafts' | 'settings' | 'admin', string>
   topbar: { post: string; welcome: string; guestDenied: string }
   auth: {
     loginTitle: string
@@ -96,6 +96,7 @@ type MessageTree = {
     pictureHint: string
     uploadCover: string
     secretLevel: string
+    secretLevelCap: string
     secretPublic: string
     secretNormal: string
     secretSecret: string
@@ -116,6 +117,22 @@ type MessageTree = {
     modeText: string
   }
   colorLabels: Record<string, string>
+  admin: {
+    title: string
+    subtitle: string
+    searchPlaceholder: string
+    username: string
+    nickname: string
+    role: string
+    registered: string
+    saveRole: string
+    savingRole: string
+    roleUpdated: string
+    roleUpdateError: string
+    noUsers: string
+    roleLabels: Record<number, string>
+    selfEditWarning: string
+  }
 }
 
 export const messages: Record<Locale, MessageTree> = {
@@ -124,7 +141,8 @@ export const messages: Record<Locale, MessageTree> = {
       myself: '我的',
       texts: '文章',
       drafts: '草稿',
-      settings: '设置'
+      settings: '设置',
+      admin: '管理'
     },
     topbar: {
       post: '写文章',
@@ -222,6 +240,7 @@ export const messages: Record<Locale, MessageTree> = {
       pictureHint: '图片文件名，或在下方上传',
       uploadCover: '上传封面',
       secretLevel: '保密等级',
+      secretLevelCap: '你的账号等级最高支持保密等级 {max}',
       secretPublic: '公开',
       secretNormal: '普通',
       secretSecret: '秘密',
@@ -249,6 +268,29 @@ export const messages: Record<Locale, MessageTree> = {
       footbarBg: '页脚背景',
       tabsBg: '标签栏背景',
       buttonBg: '按钮背景'
+    },
+    admin: {
+      title: '用户管理',
+      subtitle: '调整所有用户的账号等级。等级决定用户可读取与发布的最高保密等级文章。',
+      searchPlaceholder: '搜索用户名或昵称…',
+      username: '用户名',
+      nickname: '昵称',
+      role: '等级',
+      registered: '注册时间',
+      saveRole: '保存',
+      savingRole: '保存中…',
+      roleUpdated: '等级已更新',
+      roleUpdateError: '更新失败，请稍后重试',
+      noUsers: '未找到用户',
+      selfEditWarning: '（当前账号）',
+      roleLabels: {
+        1: '1 — 普通用户',
+        2: '2 — 可读秘密',
+        3: '3 — 可读绝密',
+        4: '4 — 高级',
+        5: '5 — 资深',
+        6: '6 — 特级'
+      }
     }
   },
   en: {
@@ -256,7 +298,8 @@ export const messages: Record<Locale, MessageTree> = {
       myself: 'myself',
       texts: 'texts',
       drafts: 'drafts',
-      settings: 'settings'
+      settings: 'settings',
+      admin: 'admin'
     },
     topbar: {
       post: 'Post',
@@ -354,6 +397,7 @@ export const messages: Record<Locale, MessageTree> = {
       pictureHint: 'Image name or upload below',
       uploadCover: 'Upload cover image',
       secretLevel: 'Secret Level',
+      secretLevelCap: 'Your account level allows up to secret level {max}',
       secretPublic: 'Public',
       secretNormal: 'Normal',
       secretSecret: 'Secret',
@@ -381,6 +425,29 @@ export const messages: Record<Locale, MessageTree> = {
       footbarBg: 'Footer background',
       tabsBg: 'Tabs background',
       buttonBg: 'Button background'
+    },
+    admin: {
+      title: 'User Management',
+      subtitle: 'Adjust account levels for all users. The level controls which secret-level articles a user can read and publish.',
+      searchPlaceholder: 'Search by username or nickname…',
+      username: 'Username',
+      nickname: 'Nickname',
+      role: 'Level',
+      registered: 'Registered',
+      saveRole: 'Save',
+      savingRole: 'Saving…',
+      roleUpdated: 'Level updated',
+      roleUpdateError: 'Update failed. Please try again.',
+      noUsers: 'No users found',
+      selfEditWarning: '(current account)',
+      roleLabels: {
+        1: '1 — Regular',
+        2: '2 — Can read Secret',
+        3: '3 — Can read Top Secret',
+        4: '4 — Senior',
+        5: '5 — Veteran',
+        6: '6 — Elite'
+      }
     }
   }
 }

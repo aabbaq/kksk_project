@@ -54,3 +54,7 @@ export const verifyPasswordSchema = z.object({
 export const updateSettingsSchema = z.object({
   imageStorageObjectStore: z.boolean()
 })
+
+export const updateUserRoleSchema = z.object({
+  role: z.coerce.number().int().min(1).max(6)
+})

@@ -56,12 +56,18 @@ const { t } = storeToRefs(localeStore)
 const route = useRoute()
 const tab = ref(null)
 
-const tabsInfo = computed(() => [
-  { key: 'myself', label: t.value.tabs.myself, to: { name: 'userself' } },
-  { key: 'texts', label: t.value.tabs.texts, to: { name: 'usertexts' } },
-  { key: 'drafts', label: t.value.tabs.drafts, to: { name: 'userdrafts' } },
-  { key: 'settings', label: t.value.tabs.settings, to: { name: 'usersettings' } }
-])
+const tabsInfo = computed(() => {
+  const base = [
+    { key: 'myself', label: t.value.tabs.myself, to: { name: 'userself' } },
+    { key: 'texts', label: t.value.tabs.texts, to: { name: 'usertexts' } },
+    { key: 'drafts', label: t.value.tabs.drafts, to: { name: 'userdrafts' } },
+    { key: 'settings', label: t.value.tabs.settings, to: { name: 'usersettings' } }
+  ]
+  if (auth.isAdmin) {
+    base.push({ key: 'admin', label: t.value.tabs.admin, to: { name: 'useradmin' } })
+  }
+  return base
+})
 
 onMounted(async () => {
   const token = sessionStorage.getItem('session_authorization')

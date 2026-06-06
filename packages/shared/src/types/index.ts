@@ -1,5 +1,12 @@
 export type UserRole = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
 
+export const MAX_SECRET_LEVEL = 3
+
+/** Max secret level a user role can publish articles at */
+export function maxSecretLevel (role: number): number {
+  return Math.min(role, MAX_SECRET_LEVEL)
+}
+
 export interface UserInfo {
   id?: string
   username: string

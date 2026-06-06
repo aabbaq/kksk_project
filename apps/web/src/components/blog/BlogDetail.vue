@@ -78,8 +78,8 @@ const loading = ref(true)
 const loaded = ref(false)
 const loadError = ref('')
 
-function buildQueryParams (verified = false) {
-  const params: Record<string, string | number | boolean> = {}
+function buildQueryParams () {
+  const params: Record<string, string | number> = {}
   if (route.query.id) {
     params.id = String(route.query.id)
     textId.value = String(route.query.id)
@@ -88,7 +88,6 @@ function buildQueryParams (verified = false) {
   } else {
     params.title = decodeURIComponent(String(route.params.textTitle))
   }
-  if (verified) params.verified = true
   return params
 }
 
@@ -101,14 +100,14 @@ function applyText (docs: Record<string, string>) {
   loadError.value = ''
 }
 
-async function loadText (verified = false) {
+async function loadText () {
   loading.value = true
   loaded.value = false
   loadError.value = ''
   needsPassword.value = false
 
   try {
-    const res = await getOneText(buildQueryParams(verified))
+    const res = await getOneText(buildQueryParams())
     if (res.status === 200 && res.docs?.[0]) {
       applyText(res.docs[0])
     } else {

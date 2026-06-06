@@ -65,12 +65,15 @@
               show-ticks="always"
               :label="t.editor.secretLevel"
               :prepend-icon="lockIcon"
-              :tick-labels="secretLabels"
+              :tick-labels="secretLabels.slice(0, maxWritableLevel + 1)"
               :color="secretLevelColor"
               :min="0"
-              :max="3"
+              :max="maxWritableLevel"
               :step="1"
             />
+            <p v-if="maxWritableLevel < 3" class="text-body-small text-medium-emphasis mt-1 pl-9">
+              {{ t.editor.secretLevelCap.replace('{max}', String(maxWritableLevel)) }}
+            </p>
             <div class="lothric-secret-legend">
               <span
                 v-for="(label, index) in secretLabels"
@@ -164,11 +167,16 @@ import TopBar from '@/components/layout/TopBar.vue'
 import LothricPage from '@/components/layout/LothricPage.vue'
 import { getOneText, uploadBlog as uploadBlogApi, uploadImage } from '@/api/text'
 import { useLocaleStore } from '@/stores/locale'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
 const router = useRouter()
 const localeStore = useLocaleStore()
+const authStore = useAuthStore()
 const { locale, t } = storeToRefs(localeStore)
+
+/** Max secret level this user can write: min(role, 3) */
+const maxWritableLevel = computed(() => Math.min(authStore.userRole, 3))
 
 const dialog = ref(false)
 const isUpdate = ref(false)
