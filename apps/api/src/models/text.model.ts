@@ -14,7 +14,7 @@ const blogTextInfoSchema = new Schema({
   picture: String,
   content: String,
   htmlContent: String,
-  secretLevel: { type: Number, default: 1 },
+  secretLevel: { type: Number, default: 0 },
   protected: { type: Boolean, default: false },
   protectedPassword: String,
   hidden: { type: Boolean, default: false },

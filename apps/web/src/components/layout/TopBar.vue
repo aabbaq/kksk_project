@@ -14,7 +14,7 @@
       :to="{ name: 'post', params: { textNumber: '0' } }"
       prepend-icon="mdi-plus"
     >
-      Post
+      {{ t.topbar.post }}
     </v-btn>
     <v-tooltip location="bottom">
       <template #activator="{ props }">
@@ -31,8 +31,8 @@
     </v-tooltip>
     <template v-if="isUserHome" #extension>
       <v-tabs v-model="tab" color="white" density="comfortable" class="lothric-user-tabs">
-        <v-tab v-for="each in tabsInfo" :key="each.name" :to="each.to" id="Tabbuttom">
-          {{ each.name }}
+        <v-tab v-for="each in tabsInfo" :key="each.key" :to="each.to" id="Tabbuttom">
+          {{ each.label }}
         </v-tab>
       </v-tabs>
     </template>
@@ -45,20 +45,23 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import { useAppearanceStore } from '@/stores/appearance'
+import { useLocaleStore } from '@/stores/locale'
 import { tokenCheck } from '@/api/user'
 
 const auth = useAuthStore()
 const appearance = useAppearanceStore()
+const localeStore = useLocaleStore()
 const { colors } = storeToRefs(appearance)
+const { t } = storeToRefs(localeStore)
 const route = useRoute()
 const tab = ref(null)
 
-const tabsInfo = [
-  { name: 'myself', to: { name: 'userself' } },
-  { name: 'texts', to: { name: 'usertexts' } },
-  { name: 'drafts', to: { name: 'userdrafts' } },
-  { name: 'settings', to: { name: 'usersettings' } }
-]
+const tabsInfo = computed(() => [
+  { key: 'myself', label: t.value.tabs.myself, to: { name: 'userself' } },
+  { key: 'texts', label: t.value.tabs.texts, to: { name: 'usertexts' } },
+  { key: 'drafts', label: t.value.tabs.drafts, to: { name: 'userdrafts' } },
+  { key: 'settings', label: t.value.tabs.settings, to: { name: 'usersettings' } }
+])
 
 onMounted(async () => {
   const token = sessionStorage.getItem('session_authorization')

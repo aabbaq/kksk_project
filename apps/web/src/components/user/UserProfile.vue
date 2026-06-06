@@ -4,22 +4,22 @@
       <v-col cols="12" lg="7">
         <div class="lothric-stack">
           <v-text-field
-            label="Username"
+            :label="t.profile.username"
             :model-value="userInfo.username"
             disabled
             prepend-inner-icon="mdi-account"
           />
           <v-text-field
             v-model="newPassword"
-            label="Password"
-            placeholder="Want to change your password?"
+            :label="t.profile.password"
+            :placeholder="t.profile.passwordPlaceholder"
             prepend-inner-icon="mdi-alpha-p-box"
             append-inner-icon="mdi-lead-pencil"
             @click:append-inner="changePassword"
           />
           <v-text-field
             v-model="userInfo.nickname"
-            label="Nickname"
+            :label="t.profile.nickname"
             :clearable="!canNicknameChange"
             prepend-inner-icon="mdi-alpha-n-box"
             append-inner-icon="mdi-lead-pencil"
@@ -29,22 +29,22 @@
           <v-textarea
             v-model="userInfo.biography"
             clearable
-            label="Biography"
-            placeholder="Show yourself"
-            hint="Show yourself"
+            :label="t.profile.biography"
+            :placeholder="t.profile.biographyPlaceholder"
+            :hint="t.profile.biographyPlaceholder"
             rows="3"
             prepend-inner-icon="mdi-bio"
           />
           <v-row>
             <v-col cols="12" sm="6">
-              <v-text-field v-model="userInfo.alias" label="Alias" />
+              <v-text-field v-model="userInfo.alias" :label="t.profile.alias" />
             </v-col>
             <v-col cols="12" sm="6">
-              <v-text-field v-model="userInfo.emoji" label="Emoji" />
+              <v-text-field v-model="userInfo.emoji" :label="t.profile.emoji" />
             </v-col>
           </v-row>
           <v-btn variant="text" class="lothric-btn-blend" width="200" @click="saveProfile">
-            Save Profile
+            {{ t.profile.save }}
           </v-btn>
         </div>
       </v-col>
@@ -65,7 +65,7 @@
             </div>
           </v-img>
           <v-card-text class="pt-4">
-            {{ userInfo.biography || 'Show yourself' }}
+            {{ userInfo.biography || t.profile.showYourself }}
           </v-card-text>
         </v-card>
       </v-col>
@@ -74,16 +74,16 @@
     <v-row justify="center" class="mt-8">
       <v-col cols="12" sm="8" md="6">
         <v-card class="lothric-card">
-          <v-card-title>Log Out</v-card-title>
+          <v-card-title>{{ t.logout.title }}</v-card-title>
           <v-card-actions class="px-4 pb-4">
             <v-spacer />
             <v-dialog v-model="dialog" max-width="480">
               <template #activator="{ props }">
-                <v-btn v-bind="props" color="error" variant="tonal">Quit</v-btn>
+                <v-btn v-bind="props" color="error" variant="tonal">{{ t.logout.quit }}</v-btn>
               </template>
               <v-card class="lothric-card pa-2">
-                <v-card-title>Are You Sure?</v-card-title>
-                <v-card-text>You will log out!</v-card-text>
+                <v-card-title>{{ t.logout.confirmTitle }}</v-card-title>
+                <v-card-text>{{ t.logout.confirmBody }}</v-card-text>
                 <v-card-actions class="px-4 pb-4">
                   <v-spacer />
                   <v-btn color="error" variant="text" @click="dialog = false">等等.</v-btn>
@@ -101,10 +101,14 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { changePassword as changePasswordApi, getUserInfo, updateProfile } from '@/api/user'
 import { useAuthStore } from '@/stores/auth'
+import { useLocaleStore } from '@/stores/locale'
 
 const auth = useAuthStore()
+const localeStore = useLocaleStore()
+const { t } = storeToRefs(localeStore)
 const router = useRouter()
 
 const dialog = ref(false)

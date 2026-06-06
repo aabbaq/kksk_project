@@ -38,7 +38,7 @@ export const upsertTextSchema = z.object({
   blogtag: z.string().optional().default(''),
   blogpic: z.string().optional().default('default'),
   blogcontent: z.string().default(''),
-  blogsecretlevel: z.coerce.number().int().min(1).max(3).default(1),
+  blogsecretlevel: z.coerce.number().int().min(0).max(3).default(0),
   blogprotected: z.coerce.boolean().default(false),
   blogprotectedpassword: z.string().optional().default(''),
   bloghidden: z.coerce.boolean().default(false),

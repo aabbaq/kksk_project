@@ -1,6 +1,6 @@
 <template>
   <v-container class="lothric-container lothric-container--narrow py-6">
-    <h2 class="text-h5 font-weight-medium mb-6">Drafts</h2>
+    <h2 class="text-h5 font-weight-medium mb-6">{{ t.drafts.title }}</h2>
     <div class="lothric-stack">
       <v-card
         v-for="draft in drafts"
@@ -9,7 +9,7 @@
       >
         <v-card-item>
           <template #title>
-            {{ draft.title || '(Untitled draft)' }}
+            {{ draft.title || t.drafts.untitled }}
           </template>
           <template #subtitle>
             {{ draft.date }} — {{ draft.subtitle }}
@@ -17,16 +17,16 @@
         </v-card-item>
         <v-card-actions class="px-4 pb-4">
           <v-btn variant="text" class="lothric-btn-blend" @click="editDraft(draft)">
-            Continue Editing
+            {{ t.drafts.continueEdit }}
           </v-btn>
           <v-spacer />
           <v-btn color="error" variant="text" @click="removeDraft(draft.id)">
-            Delete
+            {{ t.drafts.delete }}
           </v-btn>
         </v-card-actions>
       </v-card>
       <v-alert v-if="!drafts.length" type="info" variant="tonal" class="rounded-xl">
-        No drafts yet.
+        {{ t.drafts.empty }}
       </v-alert>
     </div>
   </v-container>
@@ -35,7 +35,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { deleteText, getBlogTexts } from '@/api/text'
+import { useLocaleStore } from '@/stores/locale'
 
 interface DraftItem {
   id: string
@@ -46,6 +48,8 @@ interface DraftItem {
 }
 
 const router = useRouter()
+const localeStore = useLocaleStore()
+const { t } = storeToRefs(localeStore)
 const drafts = ref<DraftItem[]>([])
 
 async function loadDrafts () {

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { deleteText, getBlogTexts } from '@/api/text'
 import { imageSrc } from '@/utils/image'
+import { useLocaleStore } from '@/stores/locale'
 
 interface TextMode {
   needShow: boolean
@@ -23,17 +25,20 @@ interface PeekText {
 }
 
 const router = useRouter()
+const localeStore = useLocaleStore()
+const { t } = storeToRefs(localeStore)
+
 const model = ref<number | null>(null)
 const dialog = ref(false)
 const peekTexts = ref<PeekText[]>([])
 const loading = ref(false)
 const loadError = ref('')
 
-const btnList: Array<{ name: string; color?: string }> = [
-  { name: 'View' },
-  { name: 'Edit' },
-  { name: 'Delete', color: 'error' }
-]
+const btnList = computed(() => [
+  { key: 'View', label: t.value.texts.view },
+  { key: 'Edit', label: t.value.texts.edit },
+  { key: 'Delete', label: t.value.texts.delete, color: 'error' }
+])
 
 async function loadTexts () {
   loading.value = true
@@ -59,9 +64,11 @@ function clickCard () {
 
 function textType (textMode: TextMode) {
   if (textMode.hidden) {
-    return textMode.protected ? 'Hidden & Protected' : 'Hidden'
+    return textMode.protected
+      ? `${t.value.texts.textTypeHidden} & ${t.value.texts.textTypeProtected}`
+      : t.value.texts.textTypeHidden
   }
-  return textMode.protected ? 'Protected' : 'Normal'
+  return textMode.protected ? t.value.texts.textTypeProtected : t.value.texts.textTypeNormal
 }
 
 function dealWithTexts (pageName: string, textInfo: PeekText) {
@@ -113,7 +120,7 @@ onMounted(loadTexts)
       class="pa-2"
     >
       <v-slide-group-item
-        v-for="(eachText, index) in peekTexts"
+        v-for="eachText in peekTexts"
         :key="eachText.id"
         v-slot="{ isSelected, toggle }"
       >
@@ -141,7 +148,7 @@ onMounted(loadTexts)
               class="lothric-btn-blend"
               @click.stop="eachText.mode && (eachText.mode.needShow = !eachText.mode.needShow)"
             >
-              Explore
+              {{ t.texts.explore }}
             </v-btn>
             <v-spacer />
             <v-btn
@@ -159,7 +166,7 @@ onMounted(loadTexts)
             <div v-show="eachText.mode?.needShow">
               <v-divider />
               <v-card-text>
-                This text is {{ eachText.mode ? textType(eachText.mode) : 'Unknown' }}
+                {{ eachText.mode ? textType(eachText.mode) : t.texts.textTypeUnknown }}
               </v-card-text>
             </div>
           </v-expand-transition>
@@ -173,25 +180,25 @@ onMounted(loadTexts)
       variant="tonal"
       class="mb-4 rounded-xl"
     >
-      You have not posted any texts yet.
+      {{ t.texts.empty }}
     </v-alert>
 
     <v-expand-transition>
       <v-sheet v-if="model !== null && peekTexts[model]" class="mt-4 pa-4 lothric-panel">
         <h3 class="text-h6 font-weight-bold text-center mb-4">
-          What do you want to do with {{ peekTexts[model].title }}?
+          {{ t.texts.actionPrompt }}
         </h3>
         <div class="d-flex justify-center flex-wrap ga-3">
           <v-btn
             v-for="eachBtn in btnList"
-            :key="eachBtn.name"
+            :key="eachBtn.key"
             :color="eachBtn.color"
             :class="eachBtn.color ? '' : 'lothric-btn-blend'"
             variant="text"
             size="large"
-            @click="dealWithTexts(eachBtn.name, peekTexts[model])"
+            @click="dealWithTexts(eachBtn.key, peekTexts[model])"
           >
-            {{ eachBtn.name }}
+            {{ eachBtn.label }}
           </v-btn>
         </div>
       </v-sheet>
@@ -199,15 +206,15 @@ onMounted(loadTexts)
 
     <div class="d-flex justify-center mt-8">
       <v-btn variant="text" class="lothric-btn-blend" size="large" width="320" @click="goPost">
-        Post A New Text
+        {{ t.texts.postNew }}
       </v-btn>
     </div>
 
     <v-dialog v-model="dialog" max-width="480">
       <v-card class="lothric-card pa-2">
-        <v-card-title>Delete Text</v-card-title>
+        <v-card-title>{{ t.texts.deleteTitle }}</v-card-title>
         <v-card-text v-if="model !== null">
-          Are you sure of deleting {{ peekTexts[model]?.title }}?
+          {{ t.texts.deleteBody }}
         </v-card-text>
         <v-card-actions class="px-4 pb-4">
           <v-spacer />

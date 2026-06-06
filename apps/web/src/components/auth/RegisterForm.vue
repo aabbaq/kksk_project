@@ -8,12 +8,12 @@
 
       <v-card class="lothric-auth__card" color="surface-bright">
         <v-card-title class="px-7 pt-6 pb-2">
-          <span class="text-h5">Register</span>
+          <span class="text-h5">{{ t.auth.registerTitle }}</span>
         </v-card-title>
-        <div class="lothric-auth__body">
-          <v-text-field v-model="username" label="Username" clearable class="mb-1" />
-          <v-text-field v-model="nickname" label="Nickname" clearable class="mb-1" />
-          <v-text-field v-model="password" label="Password" type="password" clearable />
+        <div class="lothric-auth__body lothric-auth__body--fields">
+          <v-text-field v-model="username" :label="t.auth.username" variant="underlined" clearable />
+          <v-text-field v-model="nickname" :label="t.auth.nickname" variant="underlined" clearable />
+          <v-text-field v-model="password" :label="t.auth.password" variant="underlined" type="password" clearable />
           <v-alert
             type="error"
             density="compact"
@@ -26,10 +26,10 @@
         </div>
         <div class="lothric-auth__actions">
           <v-btn color="secondary" variant="flat" block size="large" @click="submit">
-            Sign Up
+            {{ t.auth.registerSubmit }}
           </v-btn>
           <v-btn variant="text" block :to="{ name: 'login' }">
-            Back to Login
+            {{ t.auth.backToLogin }}
           </v-btn>
         </div>
       </v-card>
@@ -41,19 +41,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import TopBar from '@/components/layout/TopBar.vue'
 import LothricPage from '@/components/layout/LothricPage.vue'
 import { register } from '@/api/user'
 import { useAuthStore } from '@/stores/auth'
+import { useLocaleStore } from '@/stores/locale'
 
 const auth = useAuthStore()
+const localeStore = useLocaleStore()
+const { t } = storeToRefs(localeStore)
 const router = useRouter()
 
 const username = ref('')
 const nickname = ref('')
 const password = ref('')
 const inputError = ref(false)
-const errorMsg = ref('Registration failed')
+const errorMsg = ref('')
 
 async function submit () {
   inputError.value = false
@@ -71,7 +75,7 @@ async function submit () {
   } catch (err: unknown) {
     inputError.value = true
     const msg = (err as { response?: { data?: { msg?: string } } })?.response?.data?.msg
-    errorMsg.value = msg ?? 'Registration failed'
+    errorMsg.value = msg ?? t.value.auth.registerError
   }
 }
 </script>

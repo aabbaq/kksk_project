@@ -8,13 +8,13 @@
 
       <v-card class="lothric-auth__card" color="surface-bright">
         <v-card-title class="px-7 pt-6 pb-2">
-          <span class="text-h5">Login</span>
+          <span class="text-h5">{{ t.auth.loginTitle }}</span>
         </v-card-title>
         <div class="lothric-auth__body lothric-auth__body--fields">
           <v-text-field
             v-model="userName"
             :rules="rules.username"
-            label="Name"
+            :label="t.auth.name"
             color="secondary"
             variant="underlined"
             clearable
@@ -24,7 +24,7 @@
           <v-text-field
             v-model="userPassword"
             :rules="rules.password"
-            label="Password"
+            :label="t.auth.password"
             color="secondary"
             variant="underlined"
             type="password"
@@ -40,7 +40,7 @@
             class="mt-3"
             variant="tonal"
           >
-            Wrong <strong>Password</strong> or <strong>Username</strong>!
+            {{ t.auth.loginError }}
           </v-alert>
         </div>
         <div class="lothric-auth__actions">
@@ -53,10 +53,10 @@
             @click="userSignIn"
           >
             <v-icon start>mdi-campfire</v-icon>
-            Light BonFire
+            {{ t.auth.loginSubmit }}
           </v-btn>
           <v-btn variant="text" block :to="{ name: 'register' }">
-            Create a new account
+            {{ t.auth.createAccount }}
           </v-btn>
         </div>
       </v-card>
@@ -68,22 +68,27 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import TopBar from '@/components/layout/TopBar.vue'
 import LothricPage from '@/components/layout/LothricPage.vue'
 import { login } from '@/api/user'
 import { useAuthStore } from '@/stores/auth'
+import { useLocaleStore } from '@/stores/locale'
 
 const auth = useAuthStore()
+const localeStore = useLocaleStore()
+const { t } = storeToRefs(localeStore)
 const router = useRouter()
 const route = useRoute()
 
 const userName = ref('')
 const userPassword = ref('')
 const inputError = ref(false)
-const rules = {
-  username: [(v: string) => !!v || 'NEED USER NAME!'],
-  password: [(v: string) => !!v || 'NEED PASSWORD!']
-}
+
+const rules = computed(() => ({
+  username: [(v: string) => !!v || `${t.value.auth.name}!`],
+  password: [(v: string) => !!v || `${t.value.auth.password}!`]
+}))
 
 const canSubmit = computed(() => !userName.value || !userPassword.value)
 

@@ -2,20 +2,25 @@
 import { reactive, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAppearanceStore } from '@/stores/appearance'
+import { useLocaleStore } from '@/stores/locale'
 import {
-  COLOR_LABELS,
   THEME_PRESETS,
   type AppearanceColors,
   type ThemePresetId
 } from '@/constants/themePresets'
+import type { Locale } from '@/constants/i18n'
 
 const appearance = useAppearanceStore()
+const localeStore = useLocaleStore()
 const { presetId, colors } = storeToRefs(appearance)
+const { locale, t } = storeToRefs(localeStore)
 
 const presetList = Object.entries(THEME_PRESETS) as Array<[ThemePresetId, typeof THEME_PRESETS[ThemePresetId]]>
+const colorKeys = Object.keys(THEME_PRESETS.purple.colors) as Array<keyof AppearanceColors>
 
 const draft = reactive<AppearanceColors>({ ...colors.value })
 const draftPreset = reactive({ id: presetId.value })
+const draftLocale = reactive({ value: locale.value })
 
 const hexKeys: Array<keyof AppearanceColors> = [
   'pageBg',
@@ -30,6 +35,10 @@ watch(colors, (value) => {
   Object.assign(draft, value)
   draftPreset.id = presetId.value
 }, { deep: true })
+
+watch(locale, (value) => {
+  draftLocale.value = value
+})
 
 function toHexColor (value: string) {
   if (/^#[0-9a-f]{6}$/i.test(value)) return value
@@ -46,6 +55,7 @@ function onColorInput (key: keyof AppearanceColors, value: string) {
 }
 
 function saveSettings () {
+  localeStore.setLocale(draftLocale.value as Locale)
   appearance.$patch({
     presetId: draftPreset.id as ThemePresetId,
     colors: { ...draft }
@@ -61,13 +71,21 @@ function resetDraft () {
 
 <template>
   <v-container class="lothric-container py-6">
-    <h2 class="text-h5 font-weight-medium mb-2">Blog Appearance</h2>
+    <h2 class="text-h5 font-weight-medium mb-2">{{ t.settings.title }}</h2>
     <p class="text-body-medium text-medium-emphasis mb-6">
-      Choose a preset or customize each surface color. Settings are saved in local storage.
+      {{ t.settings.subtitle }}
     </p>
 
     <section class="lothric-panel mb-6">
-      <h3 class="text-subtitle-1 font-weight-medium mb-4">Color presets</h3>
+      <h3 class="text-subtitle-1 font-weight-medium mb-4">{{ t.settings.language }}</h3>
+      <v-btn-toggle v-model="draftLocale.value" mandatory color="secondary" variant="outlined" divided>
+        <v-btn value="zh">{{ t.settings.languageZh }}</v-btn>
+        <v-btn value="en">{{ t.settings.languageEn }}</v-btn>
+      </v-btn-toggle>
+    </section>
+
+    <section class="lothric-panel mb-6">
+      <h3 class="text-subtitle-1 font-weight-medium mb-4">{{ t.settings.presets }}</h3>
       <div class="d-flex flex-wrap ga-3">
         <v-card
           v-for="[id, preset] in presetList"
@@ -91,29 +109,29 @@ function resetDraft () {
     </section>
 
     <section class="lothric-panel mb-6">
-      <h3 class="text-subtitle-1 font-weight-medium mb-4">Custom colors</h3>
+      <h3 class="text-subtitle-1 font-weight-medium mb-4">{{ t.settings.customColors }}</h3>
       <div class="lothric-stack">
         <div
-          v-for="(label, key) in COLOR_LABELS"
+          v-for="key in colorKeys"
           :key="key"
           class="lothric-color-row"
         >
-          <label class="lothric-color-row__label">{{ label }}</label>
+          <label class="lothric-color-row__label">{{ t.colorLabels[key] }}</label>
           <input
-            v-if="hexKeys.includes(key as keyof AppearanceColors)"
+            v-if="hexKeys.includes(key)"
             type="color"
             class="lothric-color-row__picker"
-            :value="toHexColor(draft[key as keyof AppearanceColors])"
-            @input="onColorInput(key as keyof AppearanceColors, ($event.target as HTMLInputElement).value)"
+            :value="toHexColor(draft[key])"
+            @input="onColorInput(key, ($event.target as HTMLInputElement).value)"
           >
           <span v-else class="lothric-color-row__picker lothric-color-row__picker--text" />
           <v-text-field
-            :model-value="draft[key as keyof AppearanceColors]"
+            :model-value="draft[key]"
             density="compact"
             variant="underlined"
             hide-details
             class="lothric-color-row__hex"
-            @update:model-value="onColorInput(key as keyof AppearanceColors, String($event ?? ''))"
+            @update:model-value="onColorInput(key, String($event ?? ''))"
           />
         </div>
       </div>
@@ -121,10 +139,10 @@ function resetDraft () {
 
     <div class="d-flex flex-wrap ga-3">
       <v-btn variant="text" class="lothric-btn-blend" @click="saveSettings">
-        Save settings
+        {{ t.settings.save }}
       </v-btn>
       <v-btn variant="text" class="lothric-btn-blend" @click="resetDraft">
-        Reset to preset
+        {{ t.settings.reset }}
       </v-btn>
     </div>
   </v-container>

@@ -8,18 +8,18 @@
           <v-col cols="12" md="6">
             <v-text-field
               v-model="blogTextInfo.title"
-              label="Blog Title"
+              :label="t.editor.title"
               prepend-inner-icon="mdi-alpha-t-box-outline"
-              hint='For example, "The first blog text"'
+              :hint="t.editor.titleHint"
               clearable
             />
           </v-col>
           <v-col cols="12" md="6">
             <v-text-field
               v-model="blogTextInfo.subtitle"
-              label="Blog Subtitle"
+              :label="t.editor.subtitle"
               prepend-inner-icon="mdi-alpha-s-box-outline"
-              hint="You can set one or not"
+              :hint="t.editor.subtitleHint"
               clearable
             />
           </v-col>
@@ -29,23 +29,23 @@
           <v-col cols="12" md="6">
             <v-text-field
               v-model="blogTextInfo.tag"
-              label="Blog Tag"
+              :label="t.editor.tag"
               prepend-inner-icon="mdi-label-multiple-outline"
-              hint="Use tag to mark the text"
+              :hint="t.editor.tagHint"
               clearable
             />
           </v-col>
           <v-col cols="12" md="6">
             <v-text-field
               v-model="blogTextInfo.picture"
-              label="Blog Picture"
+              :label="t.editor.picture"
               prepend-inner-icon="mdi-image"
-              hint="Image name or upload below"
+              :hint="t.editor.pictureHint"
               clearable
             />
             <v-file-input
               class="mt-2"
-              label="Upload cover image"
+              :label="t.editor.uploadCover"
               prepend-icon="mdi-upload"
               accept="image/*"
               density="compact"
@@ -62,11 +62,11 @@
               thumb-label="always"
               thumb-color="error"
               show-ticks="always"
-              label="Scret Level"
+              :label="t.editor.secretLevel"
               :prepend-icon="lockIcon"
               :tick-labels="secretLabels"
               color="error"
-              :min="1"
+              :min="0"
               :max="3"
               :step="1"
             />
@@ -76,14 +76,14 @@
               v-model="blogTextInfo.protectedMode"
               prepend-icon="mdi-shield-lock-outline"
               color="secondary"
-              label="Set this text protected"
+              :label="t.editor.protected"
               hide-details
             />
             <v-switch
               v-model="blogTextInfo.hiddenMode"
               prepend-icon="mdi-shield-lock-outline"
               color="primary"
-              label="Set this text hidden"
+              :label="t.editor.hidden"
               hide-details
             />
           </v-col>
@@ -94,15 +94,15 @@
             v-if="blogTextInfo.protectedMode"
             v-model="blogTextInfo.protectedPassword"
             prepend-inner-icon="mdi-shield-lock-outline"
-            label="Protected Password"
-            hint="Set Password to protect your text"
+            :label="t.editor.protectedPassword"
+            :hint="t.editor.protectedPasswordHint"
             clearable
             type="password"
           />
         </v-expand-transition>
 
         <div class="lothric-editor">
-          <MdEditor v-model="blogTextInfo.content" theme="dark" language="en-US" />
+          <MdEditor v-model="blogTextInfo.content" theme="dark" :language="editorLanguage" />
         </div>
 
         <v-row class="mt-2">
@@ -114,13 +114,13 @@
                 </v-btn>
               </template>
               <v-card class="lothric-card pa-2">
-                <v-card-title>{{ btnName }} The Text</v-card-title>
+                <v-card-title>{{ btnName }} {{ t.editor.modeText }}</v-card-title>
                 <v-card-text>
-                  Be Sure Nothing Wrong:<br />
-                  <span class="pl-2">This text will be set as a</span><br />
+                  {{ t.editor.confirmBody }}<br />
+                  <span class="pl-2">{{ t.editor.confirmWillBe }}</span><br />
                   <strong class="text-secondary">{{ textMode('hiddenMode') }}</strong>
                   <strong v-if="symbolCheck"> &amp; </strong>
-                  <strong :class="textColor">{{ textMode('protectedMode') }}</strong>Text
+                  <strong :class="textColor">{{ textMode('protectedMode') }}</strong>{{ t.editor.modeText }}
                 </v-card-text>
                 <v-card-actions class="px-4 pb-4">
                   <v-spacer />
@@ -131,8 +131,8 @@
             </v-dialog>
           </v-col>
           <v-col cols="12" sm="6">
-            <v-btn variant="outlined" block size="large" @click="saveDraft">
-              Save as Draft
+            <v-btn variant="text" class="lothric-btn-blend" block size="large" @click="saveDraft">
+              {{ t.editor.saveDraft }}
             </v-btn>
           </v-col>
         </v-row>
@@ -145,16 +145,19 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import TopBar from '@/components/layout/TopBar.vue'
 import LothricPage from '@/components/layout/LothricPage.vue'
 import { getOneText, uploadBlog as uploadBlogApi, uploadImage } from '@/api/text'
+import { useLocaleStore } from '@/stores/locale'
 
 const route = useRoute()
 const router = useRouter()
+const localeStore = useLocaleStore()
+const { locale, t } = storeToRefs(localeStore)
 
-const secretLabels = ['N', 'S', 'D']
 const dialog = ref(false)
 const isUpdate = ref(false)
 
@@ -165,26 +168,37 @@ const blogTextInfo = reactive({
   subtitle: '',
   tag: '',
   picture: 'default',
-  secretLevel: 1,
+  secretLevel: 0,
   protectedMode: false,
   protectedPassword: '',
   hiddenMode: false,
   content: ''
 })
 
+const secretLabels = computed(() => [
+  t.value.editor.secretPublic,
+  t.value.editor.secretNormal,
+  t.value.editor.secretSecret,
+  t.value.editor.secretDark
+])
+
+const editorLanguage = computed(() => (locale.value === 'zh' ? 'zh-CN' : 'en-US'))
+
 const lockIcon = computed(() =>
-  blogTextInfo.secretLevel === 1 ? 'mdi-lock-open-outline' : 'mdi-lock-outline'
+  blogTextInfo.secretLevel === 0 ? 'mdi-lock-open-outline' : 'mdi-lock-outline'
 )
-const btnName = computed(() => (isUpdate.value ? 'Update' : 'Upload'))
+const btnName = computed(() => (isUpdate.value ? t.value.editor.update : t.value.editor.upload))
 const textColor = computed(() =>
   blogTextInfo.protectedMode ? 'text-secondary' : 'text-warning'
 )
 const symbolCheck = computed(() => blogTextInfo.protectedMode && blogTextInfo.hiddenMode)
 
 function textMode (modeName: string) {
-  if (modeName === 'hiddenMode') return blogTextInfo.hiddenMode ? 'Hidden ' : ''
+  if (modeName === 'hiddenMode') return blogTextInfo.hiddenMode ? t.value.editor.modeHidden : ''
   if (modeName === 'protectedMode') {
-    return blogTextInfo.protectedMode ? 'Protected ' : (blogTextInfo.hiddenMode ? '' : 'Normal ')
+    return blogTextInfo.protectedMode
+      ? t.value.editor.modeProtected
+      : (blogTextInfo.hiddenMode ? '' : t.value.editor.modeNormal)
   }
   return ''
 }
@@ -207,7 +221,7 @@ async function loadText () {
     blogTextInfo.subtitle = docs.subtitle
     blogTextInfo.picture = docs.picture
     blogTextInfo.tag = docs.tag
-    blogTextInfo.secretLevel = docs.secretLevel
+    blogTextInfo.secretLevel = docs.secretLevel ?? 0
     blogTextInfo.protectedMode = docs.protected
     blogTextInfo.protectedPassword = docs.protectedPassword ?? ''
     blogTextInfo.hiddenMode = docs.hidden

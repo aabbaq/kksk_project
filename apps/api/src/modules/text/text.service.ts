@@ -28,7 +28,7 @@ function buildPeekText (doc: InstanceType<typeof TextModel>, needCardsInfo = fal
       needShow: false,
       protected: doc.protected ?? false,
       hidden: doc.hidden ?? false,
-      secretLevel: doc.secretLevel ?? 1
+      secretLevel: doc.secretLevel ?? 0
     }
   }
   return peek
@@ -48,7 +48,7 @@ function buildVisibilityFilter (auth?: AuthRequest['auth'], draft?: boolean) {
   }
 
   if (!auth?.isTokenVerified || role === 0) {
-    return { isDraft: { $ne: true }, hidden: false, secretLevel: 1 }
+    return { isDraft: { $ne: true }, hidden: false, secretLevel: 0 }
   }
 
   return {
@@ -113,7 +113,7 @@ export function canViewText (
 
   if (role === 7 || userId === text.owner?.toString()) return true
   if (text.hidden) return false
-  if ((text.secretLevel ?? 1) > role) return false
+  if ((text.secretLevel ?? 0) > role) return false
   if (text.protected && !verifiedProtected) return 'password_required'
   return true
 }
@@ -138,7 +138,7 @@ function toDetail (doc: InstanceType<typeof TextModel>, includeContent = true) {
     owner: doc.owner?.toString() ?? '',
     tag: doc.tag ?? '',
     picture: doc.picture ?? 'default',
-    secretLevel: doc.secretLevel ?? 1,
+    secretLevel: doc.secretLevel ?? 0,
     protected: doc.protected ?? false,
     hidden: doc.hidden ?? false,
     isDraft: doc.isDraft ?? false,
@@ -208,7 +208,7 @@ export async function upsertText (
     picture: body.blogpic ?? 'default',
     content: body.blogcontent ?? '',
     htmlContent,
-    secretLevel: body.blogsecretlevel ?? 1,
+    secretLevel: body.blogsecretlevel ?? 0,
     protected: body.blogprotected ?? false,
     protectedPassword: body.blogprotectedpassword ?? '',
     hidden: body.bloghidden ?? false,
