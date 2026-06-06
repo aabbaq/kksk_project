@@ -1,7 +1,8 @@
 <template>
   <div>
     <TopBar />
-    <LothricPage>
+    <LothricPage class="lothric-main--fill">
+      <div class="lothric-fill__body">
       <MainPicture />
 
       <v-container class="lothric-container">
@@ -147,6 +148,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+      </div>
 
       <FootBar />
     </LothricPage>

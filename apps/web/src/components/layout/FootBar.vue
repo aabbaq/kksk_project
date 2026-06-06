@@ -8,6 +8,6 @@
 
 <style scoped>
 .lothric-footer {
-  margin-top: 16px;
+  margin-top: 0;
 }
 </style>

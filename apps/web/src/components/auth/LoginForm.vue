@@ -10,14 +10,14 @@
         <v-card-title class="px-7 pt-6 pb-2">
           <span class="text-h5">Login</span>
         </v-card-title>
-        <div class="lothric-auth__body">
+        <div class="lothric-auth__body lothric-auth__body--fields">
           <v-text-field
             v-model="userName"
             :rules="rules.username"
             label="Name"
             color="secondary"
+            variant="underlined"
             clearable
-            class="mb-1"
             @click="inputError = false"
             @keydown.enter="userSignIn"
           />
@@ -26,6 +26,7 @@
             :rules="rules.password"
             label="Password"
             color="secondary"
+            variant="underlined"
             type="password"
             clearable
             @click="inputError = false"

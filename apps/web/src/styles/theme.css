@@ -165,6 +165,27 @@ a {
   padding: 8px 28px 24px;
 }
 
+.lothric-auth__body--fields {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Homepage: footer sticks to viewport bottom when content is short */
+.lothric-main--fill {
+  display: flex;
+  flex-direction: column;
+}
+
+.lothric-fill__body {
+  flex: 1 0 auto;
+}
+
+.lothric-main--fill .lothric-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
 .lothric-auth__actions {
   padding: 0 20px 20px;
   display: flex;
@@ -212,6 +233,43 @@ a {
   border-radius: var(--lothric-card-radius);
   border: 1px solid var(--lothric-border);
   background: var(--lothric-surface-elevated);
+}
+
+/* Article markdown — white text on dark surface (overrides github-markdown.css) */
+.lothric-markdown {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.lothric-markdown h1,
+.lothric-markdown h2,
+.lothric-markdown h3,
+.lothric-markdown h4,
+.lothric-markdown h5,
+.lothric-markdown h6,
+.lothric-markdown p,
+.lothric-markdown li,
+.lothric-markdown td,
+.lothric-markdown th {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.lothric-markdown a {
+  color: var(--lothric-edit);
+}
+
+.lothric-markdown code,
+.lothric-markdown pre {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.lothric-markdown blockquote {
+  color: rgba(255, 255, 255, 0.75);
+  border-left-color: var(--lothric-edit);
+}
+
+.lothric-markdown hr {
+  background-color: var(--lothric-border);
 }
 
 .transition-swing {

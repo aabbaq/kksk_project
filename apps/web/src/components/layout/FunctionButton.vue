@@ -1,54 +1,70 @@
 <template>
-  <div>
-    <v-btn
-      v-if="showUpBtn"
-      color="primary"
-      icon="mdi-navigation"
-      size="large"
-      position="fixed"
-      location="bottom end"
-      class="mr-12 mb-12"
-      v-show="needGoUp"
-      @click="flyToTheSky"
-    />
-    <v-btn
-      v-else
-      color="primary"
-      icon="mdi-cards"
-      position="fixed"
-      location="bottom end"
-      class="mr-16 mb-16"
-      @click="showBtns = !showBtns"
-    />
+  <div ref="rootRef" class="function-button-root">
+    <v-scale-transition v-if="showUpBtn" origin="bottom right">
+      <v-btn
+        v-show="needGoUp"
+        color="primary"
+        icon="mdi-navigation"
+        size="large"
+        class="function-button-root__toggle"
+        @click="flyToTheSky"
+      />
+    </v-scale-transition>
+
+    <v-scale-transition v-if="!showUpBtn" origin="bottom right">
+      <v-btn
+        color="primary"
+        icon="mdi-cards"
+        size="default"
+        class="function-button-root__toggle"
+        @click.stop="showBtns = !showBtns"
+      />
+    </v-scale-transition>
+
+    <v-scale-transition v-if="!showUpBtn" origin="bottom right">
+      <v-btn
+        v-if="showBtns"
+        color="error"
+        icon="mdi-trash-can"
+        size="default"
+        class="function-button-root__item function-button-root__item--delete"
+        @click.stop="btnDialog = true"
+      />
+    </v-scale-transition>
+
+    <v-scale-transition v-if="!showUpBtn" origin="bottom right">
+      <v-btn
+        v-if="showBtns"
+        color="success"
+        icon="mdi-pencil"
+        size="default"
+        class="function-button-root__item function-button-root__item--edit"
+        @click.stop="goToEditPage"
+      />
+    </v-scale-transition>
+
+    <v-scale-transition v-if="!showUpBtn" origin="bottom right">
+      <v-btn
+        v-if="showBtns && needGoUp"
+        color="primary"
+        icon="mdi-navigation"
+        size="default"
+        class="function-button-root__item function-button-root__item--up"
+        @click.stop="flyToTheSky"
+      />
+    </v-scale-transition>
+
     <v-dialog v-model="btnDialog" width="500">
-      <v-card>
+      <v-card class="lothric-card pa-2">
         <v-card-title>Delete The Text</v-card-title>
         <v-card-text>Be Sure Nothing Wrong!</v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="red darken-1" variant="text" @click="btnDialog = false">等等.</v-btn>
-          <v-btn color="blue darken-2" variant="text" @click="deleteCurrentText">Yes, I AM!</v-btn>
+          <v-btn color="error" variant="text" @click="btnDialog = false">等等.</v-btn>
+          <v-btn variant="text" class="lothric-btn-blend" @click="deleteCurrentText">Yes, I AM!</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-btn
-      v-if="showBtns"
-      color="red lighten-1"
-      icon="mdi-trash-can"
-      position="fixed"
-      location="bottom end"
-      class="mr-9 mb-16"
-      @click="btnDialog = true"
-    />
-    <v-btn
-      v-if="showBtns"
-      color="green lighten-3"
-      icon="mdi-pencil"
-      position="fixed"
-      location="bottom end"
-      class="mb-28 mr-16"
-      @click="goToEditPage"
-    />
   </div>
 </template>
 
@@ -62,6 +78,7 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
+const rootRef = ref<HTMLElement | null>(null)
 const btnDialog = ref(false)
 const showBtns = ref(false)
 const scrollDistance = ref(0)
@@ -74,15 +91,25 @@ function onResize () {
   windowHeight.value = window.innerHeight
 }
 
+function onDocumentClick (event: MouseEvent) {
+  if (!showBtns.value) return
+  const root = rootRef.value
+  if (root && !root.contains(event.target as Node)) {
+    showBtns.value = false
+  }
+}
+
 onMounted(() => {
   onResize()
   onScroll()
   window.addEventListener('scroll', onScroll)
   window.addEventListener('resize', onResize)
+  document.addEventListener('click', onDocumentClick)
 })
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
   window.removeEventListener('resize', onResize)
+  document.removeEventListener('click', onDocumentClick)
 })
 
 const needGoUp = computed(() => scrollDistance.value >= windowHeight.value - 50)
@@ -93,17 +120,55 @@ function flyToTheSky () {
 }
 
 function goToEditPage () {
+  showBtns.value = false
   router.push({
     name: 'post',
-    params: { textNumber: String(route.params.number ?? '0') }
+    params: { textNumber: String(route.query.number ?? '0') },
+    query: route.query.id ? { id: String(route.query.id) } : undefined
   })
 }
 
 async function deleteCurrentText () {
   btnDialog.value = false
-  const id = (route.query.id ?? route.params.id) as string
+  const id = String(route.query.id ?? '')
   if (!id) return
   const res = await deleteText(id)
   if (res.status === 200) router.push({ name: 'helloworld' })
 }
 </script>
+
+<style scoped>
+.function-button-root {
+  position: fixed;
+  right: 64px;
+  bottom: 64px;
+  z-index: 1000;
+  width: 48px;
+  height: 48px;
+}
+
+.function-button-root__toggle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.function-button-root__item {
+  position: absolute;
+}
+
+.function-button-root__item--delete {
+  right: 52px;
+  bottom: 0;
+}
+
+.function-button-root__item--edit {
+  right: 0;
+  bottom: 56px;
+}
+
+.function-button-root__item--up {
+  right: 52px;
+  bottom: 112px;
+}
+</style>
