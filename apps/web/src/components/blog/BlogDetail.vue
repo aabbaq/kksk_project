@@ -16,11 +16,11 @@
         </div>
       </v-parallax>
 
-      <v-container v-if="loading" class="lothric-container lothric-container--narrow">
+      <v-container v-if="loading" class="lothric-container lothric-container--article">
         <v-progress-linear indeterminate color="secondary" class="mt-6" />
       </v-container>
 
-      <v-container v-else-if="needsPassword" class="lothric-container lothric-container--narrow">
+      <v-container v-else-if="needsPassword" class="lothric-container lothric-container--article">
         <v-card class="lothric-card pa-6">
           <v-card-title class="px-0 pt-0">This text is protected</v-card-title>
           <v-text-field
@@ -41,13 +41,13 @@
         </v-card>
       </v-container>
 
-      <v-container v-else-if="loadError" class="lothric-container lothric-container--narrow">
+      <v-container v-else-if="loadError" class="lothric-container lothric-container--article">
         <v-alert type="warning" variant="tonal" class="rounded-xl">
           {{ loadError }}
         </v-alert>
       </v-container>
 
-      <v-container v-else-if="loaded" class="lothric-container lothric-container--narrow">
+      <v-container v-else-if="loaded" class="lothric-container lothric-container--article">
         <article class="lothric-article">
           <div v-html="textInfo.htmlContent" class="markdown-body lothric-markdown" />
         </article>

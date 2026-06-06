@@ -59,6 +59,12 @@ const router = createRouter({
           name: 'userdrafts',
           component: () => import('@/components/user/UserDrafts.vue'),
           meta: { title: 'UserDrafts' }
+        },
+        {
+          path: 'settings',
+          name: 'usersettings',
+          component: () => import('@/components/user/UserSettings.vue'),
+          meta: { title: 'UserSettings' }
         }
       ]
     }

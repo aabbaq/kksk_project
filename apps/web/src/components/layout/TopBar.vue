@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar color="primary" :elevation="2" density="comfortable">
+  <v-app-bar :elevation="2" density="comfortable" :style="{ backgroundColor: colors.topbarBg }">
     <v-toolbar-title class="text-uppercase pl-2">
       <router-link to="/" id="lothric">
         <span class="text-h6">Lothric</span>
@@ -42,17 +42,22 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
+import { useAppearanceStore } from '@/stores/appearance'
 import { tokenCheck } from '@/api/user'
 
 const auth = useAuthStore()
+const appearance = useAppearanceStore()
+const { colors } = storeToRefs(appearance)
 const route = useRoute()
 const tab = ref(null)
 
 const tabsInfo = [
   { name: 'myself', to: { name: 'userself' } },
   { name: 'texts', to: { name: 'usertexts' } },
-  { name: 'drafts', to: { name: 'userdrafts' } }
+  { name: 'drafts', to: { name: 'userdrafts' } },
+  { name: 'settings', to: { name: 'usersettings' } }
 ]
 
 onMounted(async () => {

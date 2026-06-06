@@ -1,13 +1,15 @@
 <template>
-  <v-footer color="primary" class="lothric-footer pa-6">
-    <v-container class="text-center py-0">
-      <span class="text-body-medium font-weight-light">Lothric Castle — KKSK</span>
+  <v-footer class="lothric-footer" :style="{ backgroundColor: colors.footbarBg }">
+    <v-container class="lothric-footer__inner text-center">
+      <span class="lothric-footer__text">Lothric Castle — KKSK</span>
     </v-container>
   </v-footer>
 </template>
 
-<style scoped>
-.lothric-footer {
-  margin-top: 0;
-}
-</style>
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useAppearanceStore } from '@/stores/appearance'
+
+const appearance = useAppearanceStore()
+const { colors } = storeToRefs(appearance)
+</script>

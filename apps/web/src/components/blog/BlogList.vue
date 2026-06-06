@@ -6,55 +6,30 @@
       <MainPicture />
 
       <v-container class="lothric-container">
-      <div v-if="auth.isLoggedIn" class="d-flex justify-end mb-4">
-        <v-btn
-          variant="text"
-          class="lothric-btn-blend"
-          prepend-icon="mdi-plus"
-          size="large"
-          @click="goPost"
+      <section class="lothric-search-bar mb-5">
+        <v-text-field
+          v-model="search"
+          density="compact"
+          variant="plain"
+          hide-details
+          single-line
+          clearable
+          prepend-inner-icon="mdi-magnify"
+          :placeholder="searchPlaceholder"
+          class="lothric-search-field flex-grow-1"
+          @keydown.enter="onSearchEnter"
+          @click:clear="clearFilters"
+        />
+        <v-chip
+          v-if="selectedTag"
+          size="small"
+          variant="outlined"
+          closable
+          class="flex-shrink-0"
+          @click:close="clearTag"
         >
-          Post A New Text
-        </v-btn>
-      </div>
-
-      <!-- Search & filters -->
-      <section class="lothric-panel mb-6">
-        <v-row align="center" :style="{ gap: '12px' }">
-          <v-col cols="12" sm="8">
-            <v-text-field
-              v-model="search"
-              label="Search texts"
-              prepend-inner-icon="mdi-magnify"
-              clearable
-              hide-details
-              @keyup.enter="loadTexts"
-            />
-          </v-col>
-          <v-col cols="12" sm="4">
-            <v-btn variant="text" class="lothric-btn-blend" block height="48" @click="loadTexts">
-              Search
-            </v-btn>
-          </v-col>
-        </v-row>
-        <v-chip-group v-if="tags.length" class="mt-4">
-          <v-chip
-            :color="!selectedTag ? 'secondary' : undefined"
-            :variant="!selectedTag ? 'flat' : 'outlined'"
-            @click="selectTag('')"
-          >
-            All
-          </v-chip>
-          <v-chip
-            v-for="tag in tags"
-            :key="tag"
-            :color="selectedTag === tag ? 'secondary' : undefined"
-            :variant="selectedTag === tag ? 'flat' : 'outlined'"
-            @click="selectTag(tag)"
-          >
-            {{ tag }}
-          </v-chip>
-        </v-chip-group>
+          #{{ selectedTag }}
+        </v-chip>
       </section>
 
       <!-- Article list -->
@@ -156,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import TopBar from '@/components/layout/TopBar.vue'
 import LothricPage from '@/components/layout/LothricPage.vue'
@@ -192,13 +167,50 @@ const selectedTag = ref('')
 const page = ref(1)
 const totalPages = ref(1)
 
+const searchPlaceholder = computed(() =>
+  selectedTag.value
+    ? 'Search within tag or type a new #tag'
+    : 'Search texts — press Enter (#tag for tag filter)'
+)
+
+function resolveTagFromInput (value: string) {
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+  if (trimmed.startsWith('#')) return trimmed.slice(1)
+  const match = tags.value.find((tag) => tag.toLowerCase() === trimmed.toLowerCase())
+  return match ?? ''
+}
+
+function onSearchEnter () {
+  const tagCandidate = resolveTagFromInput(search.value)
+  if (tagCandidate) {
+    selectedTag.value = tagCandidate
+    search.value = ''
+  }
+  page.value = 1
+  loadTexts()
+}
+
+function clearTag () {
+  selectedTag.value = ''
+  page.value = 1
+  loadTexts()
+}
+
+function clearFilters () {
+  search.value = ''
+  selectedTag.value = ''
+  page.value = 1
+  loadTexts()
+}
+
 async function loadTexts () {
   loading.value = true
   try {
     const res = await getBlogTexts({
       page: page.value,
       pageSize: 10,
-      search: search.value || undefined,
+      search: search.value.trim() || undefined,
       tag: selectedTag.value || undefined
     })
     if (res.status === 200) {
@@ -209,12 +221,6 @@ async function loadTexts () {
   } finally {
     loading.value = false
   }
-}
-
-function selectTag (tag: string) {
-  selectedTag.value = tag
-  page.value = 1
-  loadTexts()
 }
 
 function showDialog (id: string, _idx: number) {
@@ -242,10 +248,6 @@ function editText (info: PeekText) {
     params: { textNumber: String(info.number) },
     query: { id: info.id }
   })
-}
-
-function goPost () {
-  router.push({ name: 'post', params: { textNumber: '0' } })
 }
 
 onMounted(async () => {

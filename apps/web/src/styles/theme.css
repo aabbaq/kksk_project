@@ -10,7 +10,10 @@
   --lothric-border: rgba(140, 210, 188, 0.12);
   --lothric-content-max: 1120px;
   --lothric-narrow-max: 720px;
+  --lothric-article-max: 960px;
   --lothric-form-max: 880px;
+  --lothric-footer-bg: #2d0425;
+  --lothric-button-bg: rgba(255, 255, 255, 0.06);
   --lothric-section-y: 32px;
   --lothric-card-radius: 16px;
   --lothric-stack-gap: 20px;
@@ -105,6 +108,10 @@ a {
   max-width: var(--lothric-narrow-max) !important;
 }
 
+.lothric-container--article {
+  max-width: var(--lothric-article-max) !important;
+}
+
 .lothric-container--form {
   max-width: var(--lothric-form-max) !important;
 }
@@ -182,8 +189,53 @@ a {
 }
 
 .lothric-main--fill .lothric-footer {
+  flex: 0 0 auto;
   flex-shrink: 0;
   margin-top: auto;
+}
+
+.lothric-footer {
+  max-height: 52px;
+  min-height: 44px;
+  padding: 0 !important;
+  background: var(--lothric-footer-bg) !important;
+}
+
+.lothric-footer__inner {
+  padding: 10px 16px !important;
+  min-height: unset !important;
+}
+
+.lothric-footer__text {
+  font-size: 0.875rem;
+  line-height: 1.25;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.lothric-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--lothric-border);
+  min-height: 40px;
+  padding-bottom: 2px;
+}
+
+.lothric-search-field :deep(.v-field) {
+  padding-top: 0;
+  padding-bottom: 0;
+  min-height: 36px;
+}
+
+.lothric-search-field :deep(.v-field__input) {
+  min-height: 32px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.lothric-btn-blend.v-btn:hover .v-btn__overlay {
+  background-color: var(--lothric-button-bg);
 }
 
 .lothric-auth__actions {
@@ -223,7 +275,7 @@ a {
 
 /* Article content */
 .lothric-article {
-  max-width: var(--lothric-narrow-max);
+  max-width: 100%;
   margin: 0 auto;
   padding: 8px 0 40px;
 }
