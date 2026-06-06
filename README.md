@@ -1,24 +1,47 @@
-# kksk_project
+# kksk_project — Lothric Castle
 
-## Project setup
-```
-npm install
-```
+带权限分级的个人 Markdown 博客（Monorepo）。
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## 结构
 
-### Compiles and minifies for production
 ```
-npm run build
+apps/web/          # Vue 3 + Vite + Vuetify 3 前端
+apps/api/          # Express + TypeScript 后端
+packages/shared/   # 共享类型与 Zod 校验
+docs/              # 重构方案与执行计划
+legacy/            # 旧版 Vue2 代码（归档）
+static/            # 旧版静态图片（API 兼容托管）
 ```
 
-### Lints and fixes files
-```
-npm run lint
+## 快速开始
+
+```bash
+# 安装依赖
+pnpm install
+
+# 启动 MongoDB（需 Docker）
+docker compose -f docker/docker-compose.yml up -d
+
+# 同时启动前后端
+pnpm dev
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+- 前端：http://localhost:5173
+- 后端：http://localhost:3000
+
+## 单独启动
+
+```bash
+pnpm dev:web
+pnpm dev:api
+```
+
+## 文档
+
+- [重构方案](docs/REFACTOR_PLAN.md)
+- [执行计划](docs/EXECUTION_PLAN.md)
+- [业务分析](docs/BUSINESS_ANALYSIS.md)
+
+## 环境变量
+
+复制 `.env.example` 并按需修改 `apps/api/.env` 与 `apps/web/.env`。

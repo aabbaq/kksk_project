@@ -1,0 +1,410 @@
+/* Lothric Castle — layout tokens & shared patterns */
+:root {
+  --lothric-primary: #2d0425;
+  --lothric-edit: #8cd2bc;
+  --lothric-delete: #ff5234;
+  --lothric-bg: #12040f;
+  --lothric-surface: #1a0618;
+  --lothric-surface-elevated: #2a0f24;
+  --lothric-tabs-bg: #3f1235;
+  --lothric-border: rgba(140, 210, 188, 0.12);
+  --lothric-content-max: 1120px;
+  --lothric-narrow-max: 720px;
+  --lothric-article-min: 680px;
+  --lothric-article-max: 1200px;
+  --lothric-article-width: clamp(
+    var(--lothric-article-min),
+    72vw,
+    var(--lothric-article-max)
+  );
+  --lothric-form-max: 880px;
+  --lothric-footer-bg: #2d0425;
+  --lothric-button-bg: rgba(255, 255, 255, 0.06);
+  --lothric-section-y: 32px;
+  --lothric-card-radius: 16px;
+  --lothric-stack-gap: 20px;
+}
+
+a {
+  text-decoration: none;
+}
+
+#lothric,
+#Postbuttom,
+#Loginbuttom {
+  text-decoration: none;
+  color: white;
+}
+
+#Tabbuttom {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Dark theme: white label when button color is not explicitly set */
+.v-theme--dark .v-btn:not(.v-btn--icon):not(.bg-error):not(.text-error):not(.bg-success):not(.text-success):not(.bg-warning):not(.text-warning):not(.bg-secondary):not(.text-secondary):not(.bg-primary):not(.text-primary) {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* Buttons on dark surfaces: no fill contrast, white label by default */
+.lothric-btn-blend.v-btn {
+  color: #fff !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.lothric-btn-blend.v-btn .v-btn__overlay {
+  opacity: 0;
+}
+
+.lothric-btn-blend.v-btn:hover .v-btn__overlay {
+  opacity: 0.08;
+  background-color: var(--lothric-button-bg);
+}
+
+/* Primary actions — slightly lighter than theme, distinct from page background */
+.lothric-btn-action.v-btn {
+  color: #fff !important;
+  background-color: color-mix(in srgb, var(--lothric-primary) 62%, #ffffff 38%) !important;
+  box-shadow: none !important;
+}
+
+.lothric-btn-action.v-btn .v-btn__overlay {
+  opacity: 0;
+}
+
+.lothric-btn-action.v-btn:hover .v-btn__overlay {
+  opacity: 0.12;
+  background-color: #fff;
+}
+
+/* Edit / delete actions — muted brand accents */
+.lothric-btn-edit.v-btn {
+  color: var(--lothric-edit) !important;
+  background-color: color-mix(in srgb, var(--lothric-edit) 16%, transparent) !important;
+  box-shadow: none !important;
+}
+
+.lothric-btn-edit.v-btn .v-btn__overlay {
+  opacity: 0;
+}
+
+.lothric-btn-edit.v-btn:hover .v-btn__overlay {
+  opacity: 0.1;
+  background-color: var(--lothric-edit);
+}
+
+.lothric-btn-delete.v-btn {
+  color: var(--lothric-delete) !important;
+  background-color: color-mix(in srgb, var(--lothric-delete) 14%, transparent) !important;
+  box-shadow: none !important;
+}
+
+.lothric-btn-delete.v-btn .v-btn__overlay {
+  opacity: 0;
+}
+
+.lothric-btn-delete.v-btn:hover .v-btn__overlay {
+  opacity: 0.1;
+  background-color: var(--lothric-delete);
+}
+
+.lothric-btn-icon-edit.v-btn {
+  color: var(--lothric-edit) !important;
+  background-color: color-mix(in srgb, var(--lothric-edit) 22%, var(--lothric-surface-elevated)) !important;
+}
+
+.lothric-btn-icon-delete.v-btn {
+  color: var(--lothric-delete) !important;
+  background-color: color-mix(in srgb, var(--lothric-delete) 18%, var(--lothric-surface-elevated)) !important;
+}
+
+/* User management tabs — slightly lighter than primary app bar */
+.v-app-bar .v-toolbar__extension {
+  background: var(--lothric-tabs-bg) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.v-app-bar .lothric-user-tabs {
+  background: transparent;
+}
+
+.v-app-bar .v-tab {
+  color: rgba(255, 255, 255, 0.72);
+  text-transform: none;
+  letter-spacing: normal;
+  min-width: 88px;
+}
+
+.v-app-bar .v-tab--selected {
+  color: #fff;
+}
+
+.v-app-bar .v-tabs-slider {
+  background: #fff;
+}
+
+.markdown-body {
+  box-sizing: border-box;
+  line-height: 1.75;
+}
+
+/* Offset fixed app bar so page content is visible */
+.lothric-main {
+  padding-top: 64px;
+  min-height: 100vh;
+}
+
+.lothric-main--user {
+  padding-top: 112px;
+}
+
+/* Page containers */
+.lothric-container {
+  max-width: var(--lothric-content-max) !important;
+  padding-top: var(--lothric-section-y) !important;
+  padding-bottom: calc(var(--lothric-section-y) + 16px) !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+.lothric-container--narrow {
+  max-width: var(--lothric-narrow-max) !important;
+}
+
+.lothric-container--article {
+  width: 100%;
+  max-width: var(--lothric-article-width) !important;
+}
+
+.lothric-container--form {
+  max-width: var(--lothric-form-max) !important;
+}
+
+.lothric-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lothric-stack-gap);
+}
+
+.lothric-stack--loose {
+  gap: 28px;
+}
+
+/* Cards */
+.lothric-card {
+  border-radius: var(--lothric-card-radius) !important;
+  border: 1px solid var(--lothric-border);
+  background: var(--lothric-surface-elevated) !important;
+  overflow: hidden;
+}
+
+.lothric-card--interactive {
+  cursor: pointer;
+  transition: transform 0.28s cubic-bezier(0.25, 0.8, 0.5, 1),
+    box-shadow 0.28s cubic-bezier(0.25, 0.8, 0.5, 1);
+}
+
+.lothric-card--interactive:hover {
+  transform: translateY(-2px);
+}
+
+.lothric-panel {
+  border-radius: var(--lothric-card-radius);
+  border: 1px solid var(--lothric-border);
+  background: color-mix(in srgb, var(--lothric-surface) 88%, transparent);
+  padding: 20px 24px;
+}
+
+/* Auth pages */
+.lothric-auth {
+  min-height: calc(100vh - 128px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px 48px;
+}
+
+.lothric-auth__card {
+  width: 100%;
+  max-width: 440px;
+  border-radius: var(--lothric-card-radius);
+  border: 1px solid var(--lothric-border);
+}
+
+.lothric-auth__body {
+  padding: 8px 28px 24px;
+}
+
+.lothric-auth__body--fields {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Homepage: footer sticks to viewport bottom when content is short */
+.lothric-main--fill {
+  display: flex;
+  flex-direction: column;
+}
+
+.lothric-fill__body {
+  flex: 1 0 auto;
+}
+
+.lothric-main--fill .lothric-footer {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.lothric-footer {
+  max-height: 52px;
+  min-height: 44px;
+  padding: 0 !important;
+  background: var(--lothric-footer-bg) !important;
+}
+
+.lothric-footer__inner {
+  padding: 10px 16px !important;
+  min-height: unset !important;
+}
+
+.lothric-footer__text {
+  font-size: 0.875rem;
+  line-height: 1.25;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.lothric-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--lothric-border);
+  min-height: 40px;
+  padding-bottom: 2px;
+}
+
+.lothric-search-field :deep(.v-field) {
+  padding-top: 0;
+  padding-bottom: 0;
+  min-height: 36px;
+}
+
+.lothric-search-field :deep(.v-field__input) {
+  min-height: 32px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.lothric-auth__actions {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Hero */
+.lothric-hero__overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 48px 24px;
+  text-align: center;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--lothric-bg) 35%, transparent) 0%,
+    color-mix(in srgb, var(--lothric-primary) 55%, transparent) 100%
+  );
+}
+
+.lothric-hero__line {
+  font-weight: 300;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 640px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+.lothric-hero__line + .lothric-hero__line {
+  margin-top: 12px;
+}
+
+/* Article content */
+.lothric-article {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 8px 0 40px;
+}
+
+.lothric-article .markdown-body {
+  padding: 24px 28px;
+  border-radius: var(--lothric-card-radius);
+  border: 1px solid var(--lothric-border);
+  background: var(--lothric-surface-elevated);
+}
+
+/* Article markdown — white text on dark surface (overrides github-markdown.css) */
+.lothric-markdown {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.lothric-markdown h1,
+.lothric-markdown h2,
+.lothric-markdown h3,
+.lothric-markdown h4,
+.lothric-markdown h5,
+.lothric-markdown h6,
+.lothric-markdown p,
+.lothric-markdown li,
+.lothric-markdown td,
+.lothric-markdown th {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.lothric-markdown a {
+  color: var(--lothric-edit);
+}
+
+.lothric-markdown code,
+.lothric-markdown pre {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.lothric-markdown blockquote {
+  color: rgba(255, 255, 255, 0.75);
+  border-left-color: var(--lothric-edit);
+}
+
+.lothric-markdown hr {
+  background-color: var(--lothric-border);
+}
+
+.transition-swing {
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+}
+
+@media (max-width: 600px) {
+  .lothric-container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-top: 20px !important;
+  }
+
+  .lothric-panel {
+    padding: 16px;
+  }
+
+  .lothric-article .markdown-body {
+    padding: 16px 18px;
+  }
+
+  :root {
+    --lothric-article-width: clamp(320px, 92vw, var(--lothric-article-max));
+  }
+}
