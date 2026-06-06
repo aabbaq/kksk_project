@@ -205,7 +205,7 @@ export const messages: Record<Locale, MessageTree> = {
       secretPublic: '公开',
       secretNormal: '普通',
       secretSecret: '秘密',
-      secretDark: '黑暗',
+      secretDark: '绝密',
       protected: '启用密码保护',
       hidden: '设为隐藏',
       protectedPassword: '保护密码',

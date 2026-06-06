@@ -71,20 +71,20 @@
                 <v-btn
                   icon
                   size="small"
-                  color="#8CD2BC"
+                  class="lothric-btn-icon-edit"
                   variant="flat"
                   @click.stop="editText(peekText)"
                 >
-                  <v-icon color="white" size="small">mdi-lead-pencil</v-icon>
+                  <v-icon size="small">mdi-lead-pencil</v-icon>
                 </v-btn>
                 <v-btn
                   icon
                   size="small"
-                  color="#FF5234"
+                  class="lothric-btn-icon-delete"
                   variant="flat"
                   @click.stop="showDialog(peekText.id, index)"
                 >
-                  <v-icon color="white" size="small">mdi-trash-can-outline</v-icon>
+                  <v-icon size="small">mdi-trash-can-outline</v-icon>
                 </v-btn>
               </template>
             </div>

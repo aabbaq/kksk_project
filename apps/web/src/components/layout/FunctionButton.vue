@@ -24,10 +24,9 @@
     <v-scale-transition v-if="!showUpBtn" origin="bottom right">
       <v-btn
         v-if="showBtns"
-        color="error"
         icon="mdi-trash-can"
         size="default"
-        class="function-button-root__item function-button-root__item--delete"
+        class="function-button-root__item function-button-root__item--delete lothric-btn-icon-delete"
         @click.stop="btnDialog = true"
       />
     </v-scale-transition>
@@ -35,10 +34,9 @@
     <v-scale-transition v-if="!showUpBtn" origin="bottom right">
       <v-btn
         v-if="showBtns"
-        color="success"
         icon="mdi-pencil"
         size="default"
-        class="function-button-root__item function-button-root__item--edit"
+        class="function-button-root__item function-button-root__item--edit lothric-btn-icon-edit"
         @click.stop="goToEditPage"
       />
     </v-scale-transition>

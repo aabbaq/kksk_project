@@ -78,6 +78,47 @@ a {
   background-color: #fff;
 }
 
+/* Edit / delete actions — muted brand accents */
+.lothric-btn-edit.v-btn {
+  color: var(--lothric-edit) !important;
+  background-color: color-mix(in srgb, var(--lothric-edit) 16%, transparent) !important;
+  box-shadow: none !important;
+}
+
+.lothric-btn-edit.v-btn .v-btn__overlay {
+  opacity: 0;
+}
+
+.lothric-btn-edit.v-btn:hover .v-btn__overlay {
+  opacity: 0.1;
+  background-color: var(--lothric-edit);
+}
+
+.lothric-btn-delete.v-btn {
+  color: var(--lothric-delete) !important;
+  background-color: color-mix(in srgb, var(--lothric-delete) 14%, transparent) !important;
+  box-shadow: none !important;
+}
+
+.lothric-btn-delete.v-btn .v-btn__overlay {
+  opacity: 0;
+}
+
+.lothric-btn-delete.v-btn:hover .v-btn__overlay {
+  opacity: 0.1;
+  background-color: var(--lothric-delete);
+}
+
+.lothric-btn-icon-edit.v-btn {
+  color: var(--lothric-edit) !important;
+  background-color: color-mix(in srgb, var(--lothric-edit) 22%, var(--lothric-surface-elevated)) !important;
+}
+
+.lothric-btn-icon-delete.v-btn {
+  color: var(--lothric-delete) !important;
+  background-color: color-mix(in srgb, var(--lothric-delete) 18%, var(--lothric-surface-elevated)) !important;
+}
+
 /* User management tabs — slightly lighter than primary app bar */
 .v-app-bar .v-toolbar__extension {
   background: var(--lothric-tabs-bg) !important;

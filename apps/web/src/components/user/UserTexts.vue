@@ -35,9 +35,9 @@ const loading = ref(false)
 const loadError = ref('')
 
 const btnList = computed(() => [
-  { key: 'View', label: t.value.texts.view },
-  { key: 'Edit', label: t.value.texts.edit },
-  { key: 'Delete', label: t.value.texts.delete, color: 'error' }
+  { key: 'View', label: t.value.texts.view, btnClass: 'lothric-btn-blend' },
+  { key: 'Edit', label: t.value.texts.edit, btnClass: 'lothric-btn-edit' },
+  { key: 'Delete', label: t.value.texts.delete, btnClass: 'lothric-btn-delete' }
 ])
 
 async function loadTexts () {
@@ -192,8 +192,7 @@ onMounted(loadTexts)
           <v-btn
             v-for="eachBtn in btnList"
             :key="eachBtn.key"
-            :color="eachBtn.color"
-            :class="eachBtn.color ? '' : 'lothric-btn-blend'"
+            :class="eachBtn.btnClass"
             variant="text"
             size="large"
             @click="dealWithTexts(eachBtn.key, peekTexts[model])"
