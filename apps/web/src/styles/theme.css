@@ -6,6 +6,7 @@
   --lothric-bg: #12040f;
   --lothric-surface: #1a0618;
   --lothric-surface-elevated: #2a0f24;
+  --lothric-tabs-bg: #3f1235;
   --lothric-border: rgba(140, 210, 188, 0.12);
   --lothric-content-max: 1120px;
   --lothric-narrow-max: 720px;
@@ -51,7 +52,16 @@ a {
   opacity: 0.08;
 }
 
-/* User management tabs in app bar */
+/* User management tabs — slightly lighter than primary app bar */
+.v-app-bar .v-toolbar__extension {
+  background: var(--lothric-tabs-bg) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.v-app-bar .lothric-user-tabs {
+  background: transparent;
+}
+
 .v-app-bar .v-tab {
   color: rgba(255, 255, 255, 0.72);
   text-transform: none;

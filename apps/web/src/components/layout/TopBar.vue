@@ -30,7 +30,7 @@
       <span>{{ loginTip }}</span>
     </v-tooltip>
     <template v-if="isUserHome" #extension>
-      <v-tabs v-model="tab" color="white" density="comfortable" bg-color="primary">
+      <v-tabs v-model="tab" color="white" density="comfortable" class="lothric-user-tabs">
         <v-tab v-for="each in tabsInfo" :key="each.name" :to="each.to" id="Tabbuttom">
           {{ each.name }}
         </v-tab>
