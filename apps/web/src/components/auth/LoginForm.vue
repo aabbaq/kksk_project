@@ -1,6 +1,7 @@
 <template>
   <div>
     <TopBar />
+    <LothricPage>
     <div class="lothric-auth">
       <v-img src="@/assets/logo.svg" class="mb-6" contain max-height="160" max-width="280" />
       <h1 class="text-h4 font-weight-bold mb-6 text-center">Welcome to Lothric</h1>
@@ -59,6 +60,7 @@
         </div>
       </v-card>
     </div>
+    </LothricPage>
   </div>
 </template>
 
@@ -66,6 +68,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import TopBar from '@/components/layout/TopBar.vue'
+import LothricPage from '@/components/layout/LothricPage.vue'
 import { login } from '@/api/user'
 import { useAuthStore } from '@/stores/auth'
 

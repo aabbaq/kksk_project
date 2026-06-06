@@ -1,6 +1,7 @@
 <template>
   <div>
     <TopBar />
+    <LothricPage>
     <v-parallax v-if="picture" id="textPic" height="360" :src="imageSrc(picture)">
       <div class="lothric-hero__overlay">
         <h1 class="text-h4 text-md-h3 font-weight-light lothric-hero__line">
@@ -40,6 +41,7 @@
         <div v-html="textInfo.htmlContent" class="markdown-body" />
       </article>
     </v-container>
+    </LothricPage>
   </div>
 </template>
 
@@ -47,6 +49,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import TopBar from '@/components/layout/TopBar.vue'
+import LothricPage from '@/components/layout/LothricPage.vue'
 import { getOneText, verifyTextPassword } from '@/api/text'
 import { imageSrc } from '@/utils/image'
 

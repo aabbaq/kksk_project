@@ -35,6 +35,16 @@ a {
   line-height: 1.75;
 }
 
+/* Offset fixed app bar so page content is visible */
+.lothric-main {
+  padding-top: 64px;
+  min-height: 100vh;
+}
+
+.lothric-main--user {
+  padding-top: 112px;
+}
+
 /* Page containers */
 .lothric-container {
   max-width: var(--lothric-content-max) !important;

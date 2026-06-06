@@ -1,6 +1,7 @@
 <template>
   <div>
     <TopBar />
+    <LothricPage>
     <v-container class="lothric-container lothric-container--form">
       <div class="lothric-stack">
         <v-row>
@@ -137,6 +138,7 @@
         </v-row>
       </div>
     </v-container>
+    </LothricPage>
   </div>
 </template>
 
@@ -146,6 +148,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import TopBar from '@/components/layout/TopBar.vue'
+import LothricPage from '@/components/layout/LothricPage.vue'
 import { getOneText, uploadBlog as uploadBlogApi, uploadImage } from '@/api/text'
 
 const route = useRoute()

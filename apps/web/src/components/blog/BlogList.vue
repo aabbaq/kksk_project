@@ -1,9 +1,22 @@
 <template>
   <div>
     <TopBar />
-    <MainPicture />
+    <LothricPage>
+      <MainPicture />
 
-    <v-container class="lothric-container">
+      <v-container class="lothric-container">
+      <div v-if="auth.isLoggedIn" class="d-flex justify-end mb-4">
+        <v-btn
+          color="secondary"
+          variant="flat"
+          prepend-icon="mdi-plus"
+          size="large"
+          @click="goPost"
+        >
+          Post A New Text
+        </v-btn>
+      </div>
+
       <!-- Search & filters -->
       <section class="lothric-panel mb-6">
         <v-row align="center" :style="{ gap: '12px' }">
@@ -135,7 +148,8 @@
       </v-card>
     </v-dialog>
 
-    <FootBar />
+      <FootBar />
+    </LothricPage>
   </div>
 </template>
 
@@ -143,6 +157,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import TopBar from '@/components/layout/TopBar.vue'
+import LothricPage from '@/components/layout/LothricPage.vue'
 import MainPicture from '@/components/layout/MainPicture.vue'
 import FootBar from '@/components/layout/FootBar.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -225,6 +240,10 @@ function editText (info: PeekText) {
     params: { textNumber: String(info.number) },
     query: { id: info.id }
   })
+}
+
+function goPost () {
+  router.push({ name: 'post', params: { textNumber: '0' } })
 }
 
 onMounted(async () => {

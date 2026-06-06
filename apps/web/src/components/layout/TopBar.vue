@@ -7,6 +7,16 @@
       </router-link>
     </v-toolbar-title>
     <v-spacer />
+    <v-btn
+      v-if="auth.isLoggedIn"
+      variant="tonal"
+      color="secondary"
+      class="mr-2"
+      :to="{ name: 'post', params: { textNumber: '0' } }"
+      prepend-icon="mdi-plus"
+    >
+      Post
+    </v-btn>
     <v-tooltip location="bottom">
       <template #activator="{ props }">
         <v-btn variant="tonal" color="secondary" v-bind="props" class="mr-2">
