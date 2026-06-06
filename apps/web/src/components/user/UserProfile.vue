@@ -43,7 +43,7 @@
               <v-text-field v-model="userInfo.emoji" :label="t.profile.emoji" />
             </v-col>
           </v-row>
-          <v-btn variant="text" class="lothric-btn-blend" width="200" @click="saveProfile">
+          <v-btn variant="text" class="lothric-btn-blend" width="200" :loading="saving" @click="saveProfile">
             {{ t.profile.save }}
           </v-btn>
         </div>
@@ -95,6 +95,16 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      location="bottom"
+      :timeout="3000"
+      rounded="lg"
+    >
+      {{ snackbar.text }}
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -112,8 +122,14 @@ const { t } = storeToRefs(localeStore)
 const router = useRouter()
 
 const dialog = ref(false)
+const saving = ref(false)
 const canNicknameChange = ref(true)
 const newPassword = ref('')
+const snackbar = reactive({
+  show: false,
+  text: '',
+  color: 'success' as 'success' | 'error'
+})
 const userInfo = reactive({
   username: '',
   nickname: '',
@@ -127,14 +143,34 @@ function toggleNicknameEdit () {
   if (canNicknameChange.value) saveProfile()
 }
 
+function showSnackbar (text: string, color: 'success' | 'error') {
+  snackbar.text = text
+  snackbar.color = color
+  snackbar.show = true
+}
+
 async function saveProfile () {
-  await updateProfile({
-    nickname: userInfo.nickname,
-    biography: userInfo.biography,
-    alias: userInfo.alias,
-    emoji: userInfo.emoji
-  })
-  canNicknameChange.value = true
+  saving.value = true
+  try {
+    const res = await updateProfile({
+      nickname: userInfo.nickname,
+      biography: userInfo.biography,
+      alias: userInfo.alias,
+      emoji: userInfo.emoji
+    })
+    if (res.status === 200) {
+      if (res.userInfo) Object.assign(userInfo, res.userInfo)
+      auth.setNickname(userInfo.nickname)
+      showSnackbar(t.value.profile.saveSuccess, 'success')
+    } else {
+      showSnackbar(t.value.profile.saveError, 'error')
+    }
+  } catch {
+    showSnackbar(t.value.profile.saveError, 'error')
+  } finally {
+    saving.value = false
+    canNicknameChange.value = true
+  }
 }
 
 async function changePassword () {

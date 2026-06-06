@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAppearanceStore } from '@/stores/appearance'
 import { useLocaleStore } from '@/stores/locale'
@@ -21,6 +21,21 @@ const colorKeys = Object.keys(THEME_PRESETS.purple.colors) as Array<keyof Appear
 const draft = reactive<AppearanceColors>({ ...colors.value })
 const draftPreset = reactive({ id: presetId.value })
 const draftLocale = reactive({ value: locale.value })
+
+const languageOptions = computed(() => [
+  {
+    value: 'zh' as Locale,
+    glyph: '中',
+    label: t.value.settings.languageZh,
+    desc: t.value.settings.languageZhDesc
+  },
+  {
+    value: 'en' as Locale,
+    glyph: 'En',
+    label: t.value.settings.languageEn,
+    desc: t.value.settings.languageEnDesc
+  }
+])
 
 const hexKeys: Array<keyof AppearanceColors> = [
   'pageBg',
@@ -77,11 +92,32 @@ function resetDraft () {
     </p>
 
     <section class="lothric-panel mb-6">
-      <h3 class="text-subtitle-1 font-weight-medium mb-4">{{ t.settings.language }}</h3>
-      <v-btn-toggle v-model="draftLocale.value" mandatory color="secondary" variant="outlined" divided>
-        <v-btn value="zh">{{ t.settings.languageZh }}</v-btn>
-        <v-btn value="en">{{ t.settings.languageEn }}</v-btn>
-      </v-btn-toggle>
+      <h3 class="text-subtitle-1 font-weight-medium mb-2">{{ t.settings.language }}</h3>
+      <p class="text-body-small text-medium-emphasis mb-5">{{ t.settings.languageHint }}</p>
+      <div class="lothric-lang-picker" role="radiogroup" :aria-label="t.settings.language">
+        <button
+          v-for="option in languageOptions"
+          :key="option.value"
+          type="button"
+          class="lothric-lang-picker__option"
+          :class="{ 'lothric-lang-picker__option--active': draftLocale.value === option.value }"
+          role="radio"
+          :aria-checked="draftLocale.value === option.value"
+          @click="draftLocale.value = option.value"
+        >
+          <span class="lothric-lang-picker__glyph">{{ option.glyph }}</span>
+          <span class="lothric-lang-picker__text">
+            <span class="lothric-lang-picker__label">{{ option.label }}</span>
+            <span class="lothric-lang-picker__desc">{{ option.desc }}</span>
+          </span>
+          <v-icon
+            v-if="draftLocale.value === option.value"
+            class="lothric-lang-picker__check"
+            size="18"
+            icon="mdi-check-circle"
+          />
+        </button>
+      </div>
     </section>
 
     <section class="lothric-panel mb-6">
@@ -149,6 +185,78 @@ function resetDraft () {
 </template>
 
 <style scoped>
+.lothric-lang-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.lothric-lang-picker__option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px 18px;
+  border: 1px solid var(--lothric-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--lothric-surface) 90%, transparent);
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.22s ease, background 0.22s ease, transform 0.22s ease;
+}
+
+.lothric-lang-picker__option:hover {
+  border-color: color-mix(in srgb, var(--lothric-edit) 45%, transparent);
+  background: color-mix(in srgb, var(--lothric-surface-elevated) 85%, transparent);
+}
+
+.lothric-lang-picker__option--active {
+  border-color: var(--lothric-edit);
+  background: color-mix(in srgb, var(--lothric-edit) 12%, var(--lothric-surface-elevated));
+  transform: translateY(-1px);
+}
+
+.lothric-lang-picker__glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: color-mix(in srgb, var(--lothric-primary) 55%, transparent);
+  color: rgba(255, 255, 255, 0.92);
+  flex-shrink: 0;
+}
+
+.lothric-lang-picker__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.lothric-lang-picker__label {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.lothric-lang-picker__desc {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.35;
+}
+
+.lothric-lang-picker__check {
+  color: var(--lothric-edit);
+  flex-shrink: 0;
+}
+
 .lothric-preset-card {
   cursor: pointer;
   transition: border-color 0.2s ease, transform 0.2s ease;

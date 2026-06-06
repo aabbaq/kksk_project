@@ -46,7 +46,7 @@ import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import { useAppearanceStore } from '@/stores/appearance'
 import { useLocaleStore } from '@/stores/locale'
-import { tokenCheck } from '@/api/user'
+import { getUserInfo, tokenCheck } from '@/api/user'
 
 const auth = useAuthStore()
 const appearance = useAppearanceStore()
@@ -65,17 +65,28 @@ const tabsInfo = computed(() => [
 
 onMounted(async () => {
   const token = sessionStorage.getItem('session_authorization')
-  if (token && !auth.haveCheckUserToken) {
-    try {
+  if (!token) return
+  try {
+    if (!auth.haveCheckUserToken) {
       await tokenCheck()
       auth.haveCheckUserTokenCommit()
-    } catch {
-      // ignore
     }
+    if (!auth.userNickname || auth.userNickname === auth.userName) {
+      const res = await getUserInfo()
+      if (res.status === 200 && res.userInfo?.nickname) {
+        auth.setNickname(res.userInfo.nickname)
+      }
+    }
+  } catch {
+    // ignore
   }
 })
 
 const toWhere = computed(() => (auth.isLoggedIn ? '/user' : '/login'))
-const loginTip = computed(() => (auth.isLoggedIn ? '欢迎你！Homo！' : '你不属于这里！'))
+const loginTip = computed(() => {
+  if (!auth.isLoggedIn) return t.value.topbar.guestDenied
+  const name = auth.userNickname || auth.userName
+  return t.value.topbar.welcome.replace('{name}', name)
+})
 const isUserHome = computed(() => /user/.test(String(route.name)))
 </script>

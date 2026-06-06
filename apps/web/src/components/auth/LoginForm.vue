@@ -53,7 +53,7 @@
             @click="userSignIn"
           >
             <v-icon start>mdi-campfire</v-icon>
-            {{ t.auth.loginSubmit }}
+            Light BonFire
           </v-btn>
           <v-btn variant="text" block :to="{ name: 'register' }">
             {{ t.auth.createAccount }}
@@ -100,6 +100,7 @@ async function userSignIn () {
       auth.changeLogin({
         token: res.token,
         username: res.username,
+        nickname: res.nickname,
         userrole: res.userrole
       })
       auth.haveCheckUserTokenCommit()

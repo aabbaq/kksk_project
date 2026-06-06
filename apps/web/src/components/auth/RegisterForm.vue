@@ -67,6 +67,7 @@ async function submit () {
       auth.changeLogin({
         token: res.token,
         username: res.username,
+        nickname: res.nickname,
         userrole: res.userrole
       })
       auth.haveCheckUserTokenCommit()

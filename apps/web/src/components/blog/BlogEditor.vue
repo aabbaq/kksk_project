@@ -59,17 +59,29 @@
           <v-col cols="12" md="6">
             <v-slider
               v-model="blogTextInfo.secretLevel"
+              class="lothric-secret-slider"
               thumb-label="always"
-              thumb-color="error"
+              :thumb-color="secretLevelColor"
               show-ticks="always"
               :label="t.editor.secretLevel"
               :prepend-icon="lockIcon"
               :tick-labels="secretLabels"
-              color="error"
+              :color="secretLevelColor"
               :min="0"
               :max="3"
               :step="1"
             />
+            <div class="lothric-secret-legend">
+              <span
+                v-for="(label, index) in secretLabels"
+                :key="index"
+                class="lothric-secret-legend__item"
+                :class="{ 'lothric-secret-legend__item--active': blogTextInfo.secretLevel === index }"
+              >
+                <i :style="{ backgroundColor: secretLevelColors[index] }" />
+                {{ label }}
+              </span>
+            </div>
           </v-col>
           <v-col cols="12" md="6">
             <v-switch
@@ -109,7 +121,7 @@
           <v-col cols="12" sm="6">
             <v-dialog v-model="dialog" max-width="480">
               <template #activator="{ props }">
-                <v-btn v-bind="props" color="primary" block size="large">
+                <v-btn v-bind="props" class="lothric-btn-action" block size="large">
                   {{ btnName }}
                 </v-btn>
               </template>
@@ -131,7 +143,7 @@
             </v-dialog>
           </v-col>
           <v-col cols="12" sm="6">
-            <v-btn variant="text" class="lothric-btn-blend" block size="large" @click="saveDraft">
+            <v-btn class="lothric-btn-action" block size="large" @click="saveDraft">
               {{ t.editor.saveDraft }}
             </v-btn>
           </v-col>
@@ -175,12 +187,16 @@ const blogTextInfo = reactive({
   content: ''
 })
 
+const secretLevelColors = ['#6b9e7a', '#6b8fae', '#b8a86a', '#b86b6b'] as const
+
 const secretLabels = computed(() => [
   t.value.editor.secretPublic,
   t.value.editor.secretNormal,
   t.value.editor.secretSecret,
   t.value.editor.secretDark
 ])
+
+const secretLevelColor = computed(() => secretLevelColors[blogTextInfo.secretLevel] ?? secretLevelColors[0])
 
 const editorLanguage = computed(() => (locale.value === 'zh' ? 'zh-CN' : 'en-US'))
 
@@ -279,5 +295,38 @@ onMounted(loadText)
   border-radius: var(--lothric-card-radius);
   overflow: hidden;
   border: 1px solid var(--lothric-border);
+}
+
+.lothric-secret-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-top: 8px;
+  padding-left: 4px;
+}
+
+.lothric-secret-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.2s ease;
+}
+
+.lothric-secret-legend__item i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.lothric-secret-legend__item--active {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 500;
+}
+
+.lothric-secret-slider :deep(.v-slider-track__tick-label) {
+  font-size: 0.75rem;
 }
 </style>

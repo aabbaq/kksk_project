@@ -4,7 +4,7 @@ export const LOCALE_STORAGE_KEY = 'lothric_locale'
 
 type MessageTree = {
   tabs: Record<'myself' | 'texts' | 'drafts' | 'settings', string>
-  topbar: { post: string }
+  topbar: { post: string; welcome: string; guestDenied: string }
   auth: {
     loginTitle: string
     registerTitle: string
@@ -35,6 +35,8 @@ type MessageTree = {
     alias: string
     emoji: string
     save: string
+    saveSuccess: string
+    saveError: string
     showYourself: string
   }
   texts: {
@@ -65,6 +67,9 @@ type MessageTree = {
     language: string
     languageZh: string
     languageEn: string
+    languageHint: string
+    languageZhDesc: string
+    languageEnDesc: string
     presets: string
     customColors: string
     save: string
@@ -111,7 +116,11 @@ export const messages: Record<Locale, MessageTree> = {
       drafts: '草稿',
       settings: '设置'
     },
-    topbar: { post: '写文章' },
+    topbar: {
+      post: '写文章',
+      welcome: '欢迎你！{name}！',
+      guestDenied: '你不属于这里！'
+    },
     auth: {
       loginTitle: '登录',
       registerTitle: '注册',
@@ -142,6 +151,8 @@ export const messages: Record<Locale, MessageTree> = {
       alias: '别名',
       emoji: '表情',
       save: '保存资料',
+      saveSuccess: '资料已保存',
+      saveError: '保存失败，请稍后重试',
       showYourself: '展示你自己'
     },
     texts: {
@@ -170,8 +181,11 @@ export const messages: Record<Locale, MessageTree> = {
       title: '博客外观',
       subtitle: '选择预设配色，或单独调整各区域颜色。设置保存在本地。',
       language: '界面语言',
+      languageHint: '选择博客界面的显示语言，保存后生效。',
       languageZh: '中文',
+      languageZhDesc: '简体中文界面',
       languageEn: 'English',
+      languageEnDesc: 'English interface',
       presets: '配色预设',
       customColors: '自定义颜色',
       save: '保存设置',
@@ -224,7 +238,11 @@ export const messages: Record<Locale, MessageTree> = {
       drafts: 'drafts',
       settings: 'settings'
     },
-    topbar: { post: 'Post' },
+    topbar: {
+      post: 'Post',
+      welcome: 'Welcome, {name}!',
+      guestDenied: 'You do not belong here!'
+    },
     auth: {
       loginTitle: 'Login',
       registerTitle: 'Register',
@@ -255,6 +273,8 @@ export const messages: Record<Locale, MessageTree> = {
       alias: 'Alias',
       emoji: 'Emoji',
       save: 'Save Profile',
+      saveSuccess: 'Profile saved successfully',
+      saveError: 'Failed to save profile. Please try again.',
       showYourself: 'Show yourself'
     },
     texts: {
@@ -283,8 +303,11 @@ export const messages: Record<Locale, MessageTree> = {
       title: 'Blog Appearance',
       subtitle: 'Choose a preset or customize each surface color. Settings are saved in local storage.',
       language: 'Language',
+      languageHint: 'Choose the display language for the blog interface. Takes effect after saving.',
       languageZh: '中文',
+      languageZhDesc: 'Simplified Chinese',
       languageEn: 'English',
+      languageEnDesc: 'English interface',
       presets: 'Color presets',
       customColors: 'Custom colors',
       save: 'Save settings',
