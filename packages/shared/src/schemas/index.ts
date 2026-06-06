@@ -50,3 +50,7 @@ export const upsertTextSchema = z.object({
 export const verifyPasswordSchema = z.object({
   password: z.string().min(1)
 })
+
+export const updateSettingsSchema = z.object({
+  imageStorageObjectStore: z.boolean()
+})

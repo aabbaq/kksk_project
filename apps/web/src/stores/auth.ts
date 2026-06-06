@@ -16,6 +16,7 @@ export const useAuthStore = defineStore('auth', () => {
   const haveCheckUserToken = ref(false)
 
   const isLoggedIn = computed(() => haveCheckUserToken.value)
+  const isAdmin = computed(() => userRole.value === 7)
 
   function changeLogin (payload: {
     token: string
@@ -76,6 +77,7 @@ export const useAuthStore = defineStore('auth', () => {
     setNickname,
     haveCheckUserToken,
     isLoggedIn,
+    isAdmin,
     changeLogin,
     haveCheckUserTokenCommit,
     changeLogout

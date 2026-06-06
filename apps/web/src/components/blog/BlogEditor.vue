@@ -250,7 +250,7 @@ async function onImageUpload (files: File | File[] | null) {
   if (!file) return
   const res = await uploadImage(file)
   if (res.status === 200) {
-    blogTextInfo.picture = res.filename
+    blogTextInfo.picture = res.picture ?? res.filename
   }
 }
 

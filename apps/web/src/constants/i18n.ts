@@ -74,6 +74,16 @@ type MessageTree = {
     customColors: string
     save: string
     reset: string
+    imageStorage: string
+    imageStorageHint: string
+    imageStorageLocal: string
+    imageStorageLocalDesc: string
+    imageStorageObject: string
+    imageStorageObjectDesc: string
+    imageStorageUnavailable: string
+    imageStorageEffective: string
+    imageStorageSaved: string
+    imageStorageSaveError: string
   }
   editor: {
     title: string
@@ -189,7 +199,17 @@ export const messages: Record<Locale, MessageTree> = {
       presets: '配色预设',
       customColors: '自定义颜色',
       save: '保存设置',
-      reset: '恢复预设'
+      reset: '恢复预设',
+      imageStorage: '图片存储',
+      imageStorageHint: '开启后新上传的封面图将保存到对象存储并引用 URL；关闭则保存到服务器本地目录（适合开发/测试）。',
+      imageStorageLocal: '本地存储',
+      imageStorageLocalDesc: '图片写入服务器 uploads 目录',
+      imageStorageObject: '对象存储',
+      imageStorageObjectDesc: '图片上传到 S3 兼容对象存储，数据库只保存 URL',
+      imageStorageUnavailable: '当前环境未配置对象存储凭证，无法开启。',
+      imageStorageEffective: '当前生效：{driver}',
+      imageStorageSaved: '图片存储设置已保存',
+      imageStorageSaveError: '图片存储设置保存失败'
     },
     editor: {
       title: '文章标题',
@@ -311,7 +331,17 @@ export const messages: Record<Locale, MessageTree> = {
       presets: 'Color presets',
       customColors: 'Custom colors',
       save: 'Save settings',
-      reset: 'Reset to preset'
+      reset: 'Reset to preset',
+      imageStorage: 'Image storage',
+      imageStorageHint: 'When enabled, new cover uploads go to object storage with a URL reference. When disabled, files are stored on the server (dev/test).',
+      imageStorageLocal: 'Local storage',
+      imageStorageLocalDesc: 'Save images to the server uploads directory',
+      imageStorageObject: 'Object storage',
+      imageStorageObjectDesc: 'Upload to S3-compatible storage; only the URL is stored in the database',
+      imageStorageUnavailable: 'Object storage credentials are not configured in this environment.',
+      imageStorageEffective: 'Active driver: {driver}',
+      imageStorageSaved: 'Image storage settings saved',
+      imageStorageSaveError: 'Failed to save image storage settings'
     },
     editor: {
       title: 'Blog Title',

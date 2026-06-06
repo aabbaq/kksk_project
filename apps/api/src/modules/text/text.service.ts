@@ -1,4 +1,5 @@
 import { TextModel } from '../../models/text.model.js'
+import { UserModel } from '../../models/user.model.js'
 import { dateToString } from '../../utils/response.js'
 import { renderMarkdown } from '../../utils/markdown.js'
 import type { AuthRequest } from '../../middleware/auth.js'
@@ -12,13 +13,51 @@ interface ListQuery {
   needCardsInfo?: boolean
 }
 
-function buildPeekText (doc: InstanceType<typeof TextModel>, needCardsInfo = false) {
+type AuthorResolver = (doc: InstanceType<typeof TextModel>) => string
+
+async function buildAuthorResolver (docs: InstanceType<typeof TextModel>[]): Promise<AuthorResolver> {
+  const ownerIds = [...new Set(docs.map(d => d.owner?.toString()).filter(Boolean))] as string[]
+  const authorNames = [...new Set(docs.map(d => d.author).filter((name): name is string => Boolean(name)))]
+
+  if (!ownerIds.length && !authorNames.length) {
+    return (doc) => doc.author ?? 'unknown'
+  }
+
+  const users = await UserModel.find({
+    $or: [
+      ...(ownerIds.length ? [{ _id: { $in: ownerIds } }] : []),
+      ...(authorNames.length ? [{ username: { $in: authorNames } }] : [])
+    ]
+  })
+
+  const byOwner = new Map(users.map(user => [user._id.toString(), user]))
+  const byUsername = new Map(users.map(user => [user.username, user]))
+
+  return (doc) => {
+    const ownerId = doc.owner?.toString()
+    if (ownerId && byOwner.has(ownerId)) {
+      const user = byOwner.get(ownerId)!
+      return user.nickname ?? user.username
+    }
+    if (doc.author && byUsername.has(doc.author)) {
+      const user = byUsername.get(doc.author)!
+      return user.nickname ?? user.username
+    }
+    return doc.author ?? 'unknown'
+  }
+}
+
+function buildPeekText (
+  doc: InstanceType<typeof TextModel>,
+  resolveAuthor: AuthorResolver,
+  needCardsInfo = false
+) {
   const peek: Record<string, unknown> = {
     title: doc.title,
     subtitle: doc.subtitle ?? '',
     number: doc.number,
     id: doc._id.toString(),
-    author: doc.author,
+    author: resolveAuthor(doc),
     date: dateToString(doc.date ?? new Date()),
     picture: doc.picture ?? 'default',
     tag: doc.tag ?? ''
@@ -69,16 +108,24 @@ export async function listTexts (auth: AuthRequest['auth'], query: ListQuery) {
 
   if (query.search) {
     const regex = new RegExp(query.search, 'i')
+    const matchedUsers = await UserModel.find({
+      $or: [{ username: regex }, { nickname: regex }]
+    }).select('username')
+    const matchedUsernames = matchedUsers.map(user => user.username)
+
+    const searchOr: Record<string, unknown>[] = [
+      { title: regex },
+      { subtitle: regex },
+      { author: regex },
+      { tag: regex }
+    ]
+    if (matchedUsernames.length) {
+      searchOr.push({ author: { $in: matchedUsernames } })
+    }
+
     filter.$and = [
       ...(Array.isArray(filter.$and) ? filter.$and : []),
-      {
-        $or: [
-          { title: regex },
-          { subtitle: regex },
-          { author: regex },
-          { tag: regex }
-        ]
-      }
+      { $or: searchOr }
     ]
   }
 
@@ -89,8 +136,10 @@ export async function listTexts (auth: AuthRequest['auth'], query: ListQuery) {
     TextModel.distinct('tag', { tag: { $nin: [null, ''] } })
   ])
 
+  const resolveAuthor = await buildAuthorResolver(docs)
+
   return {
-    peekTexts: docs.map(d => buildPeekText(d, query.needCardsInfo)),
+    peekTexts: docs.map(d => buildPeekText(d, resolveAuthor, query.needCardsInfo)),
     textsCount: total,
     page: query.page,
     pageSize: query.pageSize,
@@ -128,13 +177,17 @@ export async function getTextByQuery (query: { id?: string, title?: string, numb
   return TextModel.findOne(mongoQuery)
 }
 
-function toDetail (doc: InstanceType<typeof TextModel>, includeContent = true) {
+function toDetail (
+  doc: InstanceType<typeof TextModel>,
+  resolveAuthor: AuthorResolver,
+  includeContent = true
+) {
   const base = {
     id: doc._id.toString(),
     number: doc.number,
     title: doc.title,
     subtitle: doc.subtitle ?? '',
-    author: doc.author,
+    author: resolveAuthor(doc),
     owner: doc.owner?.toString() ?? '',
     tag: doc.tag ?? '',
     picture: doc.picture ?? 'default',
@@ -166,7 +219,8 @@ export async function getTextDetail (
   if (access === 'password_required') return { error: 107 as const }
 
   const includeContent = access === true
-  return { text: toDetail(doc, includeContent) }
+  const resolveAuthor = await buildAuthorResolver([doc])
+  return { text: toDetail(doc, resolveAuthor, includeContent) }
 }
 
 export async function verifyTextPassword (id: string, password: string, auth?: AuthRequest['auth']) {
@@ -178,7 +232,8 @@ export async function verifyTextPassword (id: string, password: string, auth?: A
 
   const access = canViewText(doc, auth, true)
   if (access !== true) return { error: 105 as const }
-  return { text: toDetail(doc, true) }
+  const resolveAuthor = await buildAuthorResolver([doc])
+  return { text: toDetail(doc, resolveAuthor, true) }
 }
 
 export async function upsertText (

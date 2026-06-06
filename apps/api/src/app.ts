@@ -8,6 +8,7 @@ import { errorHandler } from './middleware/error-handler.js'
 import userRoutes from './modules/user/user.routes.js'
 import textRoutes from './modules/text/text.routes.js'
 import uploadRoutes from './modules/upload/upload.routes.js'
+import settingsRoutes from './modules/settings/settings.routes.js'
 
 import type { Express } from 'express'
 
@@ -38,6 +39,7 @@ export function createApp (): Express {
   app.use('/api/user', userRoutes)
   app.use('/api/text', textRoutes)
   app.use('/api/upload', uploadRoutes)
+  app.use('/api/settings', settingsRoutes)
 
   app.use(errorHandler)
   return app
