@@ -1,0 +1,22 @@
+a {
+  text-decoration: none;
+}
+
+#lothric,
+#Postbuttom,
+#Loginbuttom {
+  text-decoration: none;
+  color: white;
+}
+
+#Tabbuttom {
+  text-decoration: none;
+}
+
+.markdown-body {
+  box-sizing: border-box;
+}
+
+.transition-swing {
+  transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+}

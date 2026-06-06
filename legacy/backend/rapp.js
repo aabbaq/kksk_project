@@ -1,0 +1,47 @@
+const express = require('express')
+const path = require('path')
+const rapp = express()
+const port = 3000
+const bodyParser = require('body-parser')
+const ejs = require('ejs')
+const userRouter = require('./routes/user.js')
+const textRouter = require('./routes/text.js')
+
+rapp.use(bodyParser.urlencoded({ extended: false }))
+rapp.use(bodyParser.json())
+rapp.use(express.static(path.join(__dirname, 'views')))
+
+rapp.all('*', function (req, res, next) {
+  // 设置header后会先发送一次Options的请求，跳过该请求
+  if (req.method.toLowerCase() === 'options') {
+    res.status(200)
+  }
+  res.set('access-control-allow-headers', 'Authorization, Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, X-Requested-By, If-Modified-Since, X-File-Name, X-File-Type, Cache-Control, Origin')
+  res.set('Access-Control-Allow-Origin', '*')
+  res.set('Access-Control-Allow-Credentials', 'true')
+  // 巨坑，Access-Control-Allow-Headers在谷歌浏览器里要设置Content-Type
+  res.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization')
+  res.set('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+  res.set('X-Powered-By', ' 3.2.1')
+  res.set('Content-Type', 'application/json;charset=utf-8')
+  next()
+})
+
+// 新版本规定要使用绝对路径
+rapp.engine('html', ejs.renderFile)
+rapp.set('views', path.join(__dirname, 'views'))
+rapp.set('view engine', 'html')
+rapp.get('/', (req, res) => {
+  const url = path.join(__dirname, 'views', 'index.html')
+  console.log(url)
+  res.render(url)
+})
+
+rapp.use('/api/user', userRouter)
+rapp.use('/api/text', textRouter)
+
+rapp.listen(port, () => {
+  // const host = server.address().address
+  // const port = server.address().port
+})
+// const server =

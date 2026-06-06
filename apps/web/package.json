@@ -1,0 +1,30 @@
+{
+  "name": "@kksk/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "echo 'lint skipped'"
+  },
+  "dependencies": {
+    "@kksk/shared": "workspace:*",
+    "@mdi/font": "^7.4.47",
+    "axios": "^1.7.9",
+    "md-editor-v3": "^5.1.1",
+    "pinia": "^2.2.6",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
+    "vuetify": "^3.7.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "sass": "^1.81.0",
+    "typescript": "^5.4.5",
+    "vite": "^6.0.3",
+    "vite-plugin-vuetify": "^2.0.4",
+    "vue-tsc": "^2.1.10"
+  }
+}
