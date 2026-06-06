@@ -1,45 +1,44 @@
 <template>
   <div>
     <TopBar />
-    <v-parallax v-if="picture" id="textPic" height="400" :src="imageSrc(picture)">
-      <v-container>
-        <v-row>
-          <v-col>
-            <div class="font-weight-thin text-h3 text-center">{{ textInfo.title }}</div>
-          </v-col>
-        </v-row>
-        <div class="text-subtitle-2 font-weight-regular font-italic text-center">
+    <v-parallax v-if="picture" id="textPic" height="360" :src="imageSrc(picture)">
+      <div class="lothric-hero__overlay">
+        <h1 class="text-h4 text-md-h3 font-weight-light lothric-hero__line">
+          {{ textInfo.title }}
+        </h1>
+        <p class="text-body-medium font-italic lothric-hero__line mt-2">
           {{ textInfo.dateInString }}
-        </div>
-        <div class="font-weight-light text-h6 text-center">{{ textInfo.author }}</div>
-      </v-container>
+        </p>
+        <p class="text-body-large lothric-hero__line mt-1">
+          {{ textInfo.author }}
+        </p>
+      </div>
     </v-parallax>
 
-    <v-container v-if="needsPassword" class="mx-auto" max-width="480">
-      <v-card class="pa-6">
-        <v-card-title>This text is protected</v-card-title>
+    <v-container v-if="needsPassword" class="lothric-container lothric-container--narrow">
+      <v-card class="lothric-card pa-6">
+        <v-card-title class="px-0 pt-0">This text is protected</v-card-title>
         <v-text-field
           v-model="protectPassword"
           label="Protected Password"
           type="password"
-          prepend-icon="mdi-shield-lock-outline"
+          prepend-inner-icon="mdi-shield-lock-outline"
+          class="mt-2"
+          @keydown.enter="submitPassword"
         />
-        <v-alert v-if="passwordError" type="error" density="compact" class="mt-2">
+        <v-alert v-if="passwordError" type="error" density="compact" class="mt-2" variant="tonal">
           Wrong password!
         </v-alert>
-        <v-btn color="secondary" block class="mt-4" @click="submitPassword">Enter</v-btn>
+        <v-btn color="secondary" block class="mt-4" size="large" @click="submitPassword">
+          Enter
+        </v-btn>
       </v-card>
     </v-container>
 
-    <v-container v-else class="mx-24 px-10">
-      <v-row>
-        <v-col cols="1" />
-        <v-col cols="8">
-          <v-card min-width="320" elevation="0" rounded>
-            <div v-html="textInfo.htmlContent" class="markdown-body" />
-          </v-card>
-        </v-col>
-      </v-row>
+    <v-container v-else class="lothric-container lothric-container--narrow">
+      <article class="lothric-article">
+        <div v-html="textInfo.htmlContent" class="markdown-body" />
+      </article>
     </v-container>
   </div>
 </template>
@@ -111,7 +110,7 @@ onMounted(() => loadText())
 
 <style scoped>
 #textPic :deep(.v-parallax__image) {
-  filter: blur(10px);
+  filter: blur(8px);
   transition: filter 0.5s ease-in-out;
 }
 #textPic:hover :deep(.v-parallax__image) {

@@ -1,143 +1,141 @@
 <template>
   <div>
     <TopBar />
-    <v-container>
-      <v-row class="mx-8 px-8">
-        <v-col>
-          <v-text-field
-            v-model="blogTextInfo.title"
-            label="Blog Title"
-            prepend-icon="mdi-alpha-t-box-outline"
-            hint='For example, "The first blog text"'
-            clearable
-          />
-        </v-col>
-        <v-col>
-          <v-text-field
-            v-model="blogTextInfo.subtitle"
-            label="Blog Subtitle"
-            prepend-icon="mdi-alpha-s-box-outline"
-            hint="You can set one or not"
-            clearable
-          />
-        </v-col>
-      </v-row>
-      <v-row class="mx-8 px-8">
-        <v-col>
-          <v-text-field
-            v-model="blogTextInfo.tag"
-            label="Blog Tag"
-            prepend-icon="mdi-label-multiple-outline"
-            hint="Use tag to mark the text"
-            clearable
-          />
-        </v-col>
-        <v-col>
-          <v-text-field
-            v-model="blogTextInfo.picture"
-            label="Blog Picture"
-            prepend-icon="mdi-image"
-            hint="Image name or upload below"
-            clearable
-          />
-          <v-file-input
-            class="mt-2"
-            label="Upload cover image"
-            prepend-icon="mdi-upload"
-            accept="image/*"
-            hide-details
-            @update:model-value="onImageUpload"
-          />
-        </v-col>
-      </v-row>
-      <v-row class="mx-8 px-8 pt-4">
-        <v-col>
-          <v-slider
-            v-model="blogTextInfo.secretLevel"
-            thumb-label="always"
-            thumb-color="red"
-            show-ticks="always"
-            label="Scret Level"
-            :prepend-icon="lockIcon"
-            :tick-labels="secretLabels"
-            track-fill-color="red"
-            :min="1"
-            :max="3"
-            :step="1"
-          />
-        </v-col>
-        <v-col>
-          <v-row no-gutters>
-            <v-col>
-              <v-switch
-                v-model="blogTextInfo.protectedMode"
-                class="mt-0 pt-0"
-                prepend-icon="mdi-shield-lock-outline"
-                color="green"
-                label="Set this text protected"
-              />
-            </v-col>
-            <v-col>
-              <v-switch
-                v-model="blogTextInfo.hiddenMode"
-                class="mt-0 pt-0"
-                prepend-icon="mdi-shield-lock-outline"
-                color="blue"
-                label="Set this text hidden"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-      <v-row class="mx-8 px-8">
-        <v-col>
-          <v-expand-transition>
+    <v-container class="lothric-container lothric-container--form">
+      <div class="lothric-stack">
+        <v-row>
+          <v-col cols="12" md="6">
             <v-text-field
-              v-if="blogTextInfo.protectedMode"
-              v-model="blogTextInfo.protectedPassword"
-              prepend-icon="mdi-shield-lock-outline"
-              label="Protected Password"
-              hint="Set Password to protect your text"
+              v-model="blogTextInfo.title"
+              label="Blog Title"
+              prepend-inner-icon="mdi-alpha-t-box-outline"
+              hint='For example, "The first blog text"'
               clearable
-              type="password"
             />
-          </v-expand-transition>
-        </v-col>
-      </v-row>
-      <v-row class="mx-8 px-8">
-        <v-col>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="blogTextInfo.subtitle"
+              label="Blog Subtitle"
+              prepend-inner-icon="mdi-alpha-s-box-outline"
+              hint="You can set one or not"
+              clearable
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="blogTextInfo.tag"
+              label="Blog Tag"
+              prepend-inner-icon="mdi-label-multiple-outline"
+              hint="Use tag to mark the text"
+              clearable
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="blogTextInfo.picture"
+              label="Blog Picture"
+              prepend-inner-icon="mdi-image"
+              hint="Image name or upload below"
+              clearable
+            />
+            <v-file-input
+              class="mt-2"
+              label="Upload cover image"
+              prepend-icon="mdi-upload"
+              accept="image/*"
+              density="compact"
+              hide-details
+              @update:model-value="onImageUpload"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row align="center">
+          <v-col cols="12" md="6">
+            <v-slider
+              v-model="blogTextInfo.secretLevel"
+              thumb-label="always"
+              thumb-color="error"
+              show-ticks="always"
+              label="Scret Level"
+              :prepend-icon="lockIcon"
+              :tick-labels="secretLabels"
+              color="error"
+              :min="1"
+              :max="3"
+              :step="1"
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-switch
+              v-model="blogTextInfo.protectedMode"
+              prepend-icon="mdi-shield-lock-outline"
+              color="secondary"
+              label="Set this text protected"
+              hide-details
+            />
+            <v-switch
+              v-model="blogTextInfo.hiddenMode"
+              prepend-icon="mdi-shield-lock-outline"
+              color="primary"
+              label="Set this text hidden"
+              hide-details
+            />
+          </v-col>
+        </v-row>
+
+        <v-expand-transition>
+          <v-text-field
+            v-if="blogTextInfo.protectedMode"
+            v-model="blogTextInfo.protectedPassword"
+            prepend-inner-icon="mdi-shield-lock-outline"
+            label="Protected Password"
+            hint="Set Password to protect your text"
+            clearable
+            type="password"
+          />
+        </v-expand-transition>
+
+        <div class="lothric-editor">
           <MdEditor v-model="blogTextInfo.content" theme="dark" language="en-US" />
-        </v-col>
-      </v-row>
-      <v-row class="mx-8 px-8">
-        <v-col>
-          <v-dialog v-model="dialog" width="500">
-            <template #activator="{ props }">
-              <v-btn v-bind="props" block>{{ btnName }}</v-btn>
-            </template>
-            <v-card>
-              <v-card-title>{{ btnName }} The Text</v-card-title>
-              <v-card-text>
-                Be Sure Nothing Wrong:<br />
-                <div class="pl-4">This text will be set as a<br /></div>
-                <strong class="text-blue">{{ textMode('hiddenMode') }}</strong>
-                <strong v-if="symbolCheck"> &amp; </strong>
-                <strong :class="textColor">{{ textMode('protectedMode') }}</strong>Text
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn color="red darken-1" variant="text" @click="dialog = false">等等.</v-btn>
-                <v-btn color="blue darken-2" variant="text" @click="uploadBlog">Yes, I AM!</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-col>
-      </v-row>
-      <v-row class="mx-8 px-8 pb-8">
-        <v-col>
-          <v-btn variant="outlined" block @click="saveDraft">Save as Draft</v-btn>
-        </v-col>
-      </v-row>
+        </div>
+
+        <v-row class="mt-2">
+          <v-col cols="12" sm="6">
+            <v-dialog v-model="dialog" max-width="480">
+              <template #activator="{ props }">
+                <v-btn v-bind="props" color="primary" block size="large">
+                  {{ btnName }}
+                </v-btn>
+              </template>
+              <v-card class="lothric-card pa-2">
+                <v-card-title>{{ btnName }} The Text</v-card-title>
+                <v-card-text>
+                  Be Sure Nothing Wrong:<br />
+                  <span class="pl-2">This text will be set as a</span><br />
+                  <strong class="text-secondary">{{ textMode('hiddenMode') }}</strong>
+                  <strong v-if="symbolCheck"> &amp; </strong>
+                  <strong :class="textColor">{{ textMode('protectedMode') }}</strong>Text
+                </v-card-text>
+                <v-card-actions class="px-4 pb-4">
+                  <v-spacer />
+                  <v-btn color="error" variant="text" @click="dialog = false">等等.</v-btn>
+                  <v-btn color="secondary" variant="text" @click="uploadBlog">Yes, I AM!</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-col>
+          <v-col cols="12" sm="6">
+            <v-btn variant="outlined" block size="large" @click="saveDraft">
+              Save as Draft
+            </v-btn>
+          </v-col>
+        </v-row>
+      </div>
     </v-container>
   </div>
 </template>
@@ -176,7 +174,7 @@ const lockIcon = computed(() =>
 )
 const btnName = computed(() => (isUpdate.value ? 'Update' : 'Upload'))
 const textColor = computed(() =>
-  blogTextInfo.protectedMode ? 'text-green' : 'text-yellow-darken-2'
+  blogTextInfo.protectedMode ? 'text-secondary' : 'text-warning'
 )
 const symbolCheck = computed(() => blogTextInfo.protectedMode && blogTextInfo.hiddenMode)
 
@@ -258,3 +256,11 @@ function saveDraft () {
 
 onMounted(loadText)
 </script>
+
+<style scoped>
+.lothric-editor {
+  border-radius: var(--lothric-card-radius);
+  overflow: hidden;
+  border: 1px solid var(--lothric-border);
+}
+</style>

@@ -1,3 +1,20 @@
+/* Lothric Castle — layout tokens & shared patterns */
+:root {
+  --lothric-primary: #2d0425;
+  --lothric-edit: #8cd2bc;
+  --lothric-delete: #ff5234;
+  --lothric-bg: #12040f;
+  --lothric-surface: #1a0618;
+  --lothric-surface-elevated: #2a0f24;
+  --lothric-border: rgba(140, 210, 188, 0.12);
+  --lothric-content-max: 1120px;
+  --lothric-narrow-max: 720px;
+  --lothric-form-max: 880px;
+  --lothric-section-y: 32px;
+  --lothric-card-radius: 16px;
+  --lothric-stack-gap: 20px;
+}
+
 a {
   text-decoration: none;
 }
@@ -15,8 +32,147 @@ a {
 
 .markdown-body {
   box-sizing: border-box;
+  line-height: 1.75;
+}
+
+/* Page containers */
+.lothric-container {
+  max-width: var(--lothric-content-max) !important;
+  padding-top: var(--lothric-section-y) !important;
+  padding-bottom: calc(var(--lothric-section-y) + 16px) !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+.lothric-container--narrow {
+  max-width: var(--lothric-narrow-max) !important;
+}
+
+.lothric-container--form {
+  max-width: var(--lothric-form-max) !important;
+}
+
+.lothric-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lothric-stack-gap);
+}
+
+.lothric-stack--loose {
+  gap: 28px;
+}
+
+/* Cards */
+.lothric-card {
+  border-radius: var(--lothric-card-radius) !important;
+  border: 1px solid var(--lothric-border);
+  background: var(--lothric-surface-elevated) !important;
+  overflow: hidden;
+}
+
+.lothric-card--interactive {
+  cursor: pointer;
+  transition: transform 0.28s cubic-bezier(0.25, 0.8, 0.5, 1),
+    box-shadow 0.28s cubic-bezier(0.25, 0.8, 0.5, 1);
+}
+
+.lothric-card--interactive:hover {
+  transform: translateY(-2px);
+}
+
+.lothric-panel {
+  border-radius: var(--lothric-card-radius);
+  border: 1px solid var(--lothric-border);
+  background: rgba(26, 6, 24, 0.85);
+  padding: 20px 24px;
+}
+
+/* Auth pages */
+.lothric-auth {
+  min-height: calc(100vh - 128px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px 48px;
+}
+
+.lothric-auth__card {
+  width: 100%;
+  max-width: 440px;
+  border-radius: var(--lothric-card-radius);
+  border: 1px solid var(--lothric-border);
+}
+
+.lothric-auth__body {
+  padding: 8px 28px 24px;
+}
+
+.lothric-auth__actions {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Hero */
+.lothric-hero__overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 48px 24px;
+  text-align: center;
+  background: linear-gradient(
+    180deg,
+    rgba(18, 4, 15, 0.35) 0%,
+    rgba(45, 4, 37, 0.55) 100%
+  );
+}
+
+.lothric-hero__line {
+  font-weight: 300;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 640px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+.lothric-hero__line + .lothric-hero__line {
+  margin-top: 12px;
+}
+
+/* Article content */
+.lothric-article {
+  max-width: var(--lothric-narrow-max);
+  margin: 0 auto;
+  padding: 8px 0 40px;
+}
+
+.lothric-article .markdown-body {
+  padding: 24px 28px;
+  border-radius: var(--lothric-card-radius);
+  border: 1px solid var(--lothric-border);
+  background: var(--lothric-surface-elevated);
 }
 
 .transition-swing {
   transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
+}
+
+@media (max-width: 600px) {
+  .lothric-container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-top: 20px !important;
+  }
+
+  .lothric-panel {
+    padding: 16px;
+  }
+
+  .lothric-article .markdown-body {
+    padding: 16px 18px;
+  }
 }

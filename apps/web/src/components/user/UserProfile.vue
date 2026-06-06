@@ -1,116 +1,93 @@
 <template>
-  <v-container>
+  <v-container class="lothric-container py-6">
     <v-row>
-      <v-col>
-        <v-row>
-          <v-col>
-            <v-text-field
-              label="Username"
-              :model-value="userInfo.username"
-              variant="outlined"
-              disabled
-              prepend-inner-icon="mdi-account"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-text-field
-              v-model="newPassword"
-              label="Password"
-              placeholder="Want to change your password?"
-              variant="outlined"
-              prepend-inner-icon="mdi-alpha-p-box"
-              append-inner-icon="mdi-lead-pencil"
-              @click:append-inner="changePassword"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-text-field
-              v-model="userInfo.nickname"
-              label="Nickname"
-              variant="outlined"
-              :clearable="!canNicknameChange"
-              prepend-inner-icon="mdi-alpha-n-box"
-              append-inner-icon="mdi-lead-pencil"
-              :readonly="canNicknameChange"
-              @click:append-inner="toggleNicknameEdit"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-textarea
-              v-model="userInfo.biography"
-              clearable
-              label="Biography"
-              variant="outlined"
-              placeholder="Show yourself"
-              hint="Show yourself"
-              append-inner-icon="mdi-lead-pencil"
-              @click:append-inner="saveProfile"
-            >
-              <template #prepend-inner>
-                <v-icon size="x-large">mdi-bio</v-icon>
-              </template>
-            </v-textarea>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field v-model="userInfo.alias" label="Alias" variant="outlined" />
-          </v-col>
-          <v-col cols="6">
-            <v-text-field v-model="userInfo.emoji" label="Emoji" variant="outlined" />
-          </v-col>
-        </v-row>
-        <v-btn color="secondary" @click="saveProfile">Save Profile</v-btn>
+      <v-col cols="12" lg="7">
+        <div class="lothric-stack">
+          <v-text-field
+            label="Username"
+            :model-value="userInfo.username"
+            disabled
+            prepend-inner-icon="mdi-account"
+          />
+          <v-text-field
+            v-model="newPassword"
+            label="Password"
+            placeholder="Want to change your password?"
+            prepend-inner-icon="mdi-alpha-p-box"
+            append-inner-icon="mdi-lead-pencil"
+            @click:append-inner="changePassword"
+          />
+          <v-text-field
+            v-model="userInfo.nickname"
+            label="Nickname"
+            :clearable="!canNicknameChange"
+            prepend-inner-icon="mdi-alpha-n-box"
+            append-inner-icon="mdi-lead-pencil"
+            :readonly="canNicknameChange"
+            @click:append-inner="toggleNicknameEdit"
+          />
+          <v-textarea
+            v-model="userInfo.biography"
+            clearable
+            label="Biography"
+            placeholder="Show yourself"
+            hint="Show yourself"
+            rows="3"
+            prepend-inner-icon="mdi-bio"
+          />
+          <v-row>
+            <v-col cols="12" sm="6">
+              <v-text-field v-model="userInfo.alias" label="Alias" />
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-text-field v-model="userInfo.emoji" label="Emoji" />
+            </v-col>
+          </v-row>
+          <v-btn color="secondary" variant="flat" width="200" @click="saveProfile">
+            Save Profile
+          </v-btn>
+        </div>
       </v-col>
-      <v-col>
-        <v-card class="mx-auto" max-width="434" tile>
-          <v-img
-            id="UserBanner"
-            aspect-ratio="2.618"
-            src="/images/pic1.jpg"
-            class="white--text align-space-around"
-            cover
-          >
-            <v-avatar class="profile ma-4" color="grey" size="120" tile>
-              <v-img src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg" />
-            </v-avatar>
-            <v-card-title>
-              <span>{{ userInfo.nickname }}</span>
-              <span>{{ userInfo.emoji }}</span>
-              <span>{{ userInfo.alias }}</span>
-              <span id="UsernameInCard" class="pl-1">@{{ userInfo.username }}</span>
-            </v-card-title>
+
+      <v-col cols="12" lg="5">
+        <v-card class="lothric-card mx-auto" max-width="420">
+          <v-img id="UserBanner" aspect-ratio="2.618" src="/images/pic1.jpg" cover>
+            <div class="pa-4 d-flex flex-column justify-end fill-height">
+              <v-avatar color="grey-darken-3" size="96" rounded="lg" class="mb-3">
+                <v-img src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg" />
+              </v-avatar>
+              <div class="text-h6">
+                {{ userInfo.nickname }}
+                <span v-if="userInfo.emoji">{{ userInfo.emoji }}</span>
+                <span v-if="userInfo.alias" class="ml-1">{{ userInfo.alias }}</span>
+              </div>
+              <div id="UsernameInCard" class="text-body-medium">@{{ userInfo.username }}</div>
+            </div>
           </v-img>
-          <v-card-text class="text--primary">
-            <div>{{ userInfo.biography }}</div>
+          <v-card-text class="pt-4">
+            {{ userInfo.biography || 'Show yourself' }}
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
 
-    <v-row justify="center" align="center" class="mt-6">
-      <v-col cols="6">
-        <v-card>
+    <v-row justify="center" class="mt-8">
+      <v-col cols="12" sm="8" md="6">
+        <v-card class="lothric-card">
           <v-card-title>Log Out</v-card-title>
-          <v-card-actions>
+          <v-card-actions class="px-4 pb-4">
             <v-spacer />
-            <v-dialog v-model="dialog" width="500">
+            <v-dialog v-model="dialog" max-width="480">
               <template #activator="{ props }">
-                <v-btn v-bind="props">Quit</v-btn>
+                <v-btn v-bind="props" color="error" variant="tonal">Quit</v-btn>
               </template>
-              <v-card>
+              <v-card class="lothric-card pa-2">
                 <v-card-title>Are You Sure?</v-card-title>
                 <v-card-text>You will log out!</v-card-text>
-                <v-card-actions>
+                <v-card-actions class="px-4 pb-4">
                   <v-spacer />
-                  <v-btn color="red darken-1" variant="text" @click="dialog = false">等等.</v-btn>
-                  <v-btn color="blue darken-2" variant="text" @click="userQuit">Yes, I AM!</v-btn>
+                  <v-btn color="error" variant="text" @click="dialog = false">等等.</v-btn>
+                  <v-btn color="secondary" variant="text" @click="userQuit">Yes, I AM!</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -188,8 +165,7 @@ onMounted(async () => {
   filter: none;
 }
 #UsernameInCard {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 18px;
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 300;
 }
 </style>

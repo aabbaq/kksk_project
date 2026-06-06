@@ -1,97 +1,96 @@
 <template>
-  <v-container fluid>
-    <v-row justify="center" align="center">
-      <v-sheet max-width="75%" width="100%">
-        <v-slide-group v-model="model" show-arrows class="pa-4" center-active>
-          <v-slide-group-item
-            v-for="(eachText, idx) in peekTexts"
-            :key="eachText.id"
-            v-slot="{ isSelected, toggle }"
-            :value="idx"
-          >
-            <div class="mx-6 my-2" @click="collapseOthers">
-              <v-card
-                :color="isSelected ? 'rgba(0, 0, 0, 0.8)' : 'white'"
-                width="300"
-                @click="toggle"
-              >
-                <v-img :src="imageSrc(eachText.picture)" height="200" cover />
-                <div :class="isSelected ? 'text-white' : ''">
-                  <v-card-title>
-                    <div class="font-weight-bold">{{ eachText.title }}</div>
-                    <v-spacer />
-                    <div class="text-subtitle-2 font-weight-light font-italic">{{ eachText.date }}</div>
-                  </v-card-title>
-                  <v-card-subtitle class="py-1">
-                    {{ eachText.subtitle }}
-                  </v-card-subtitle>
-                  <v-card-text class="pt-1">{{ eachText.author }}</v-card-text>
-                  <v-card-actions>
-                    <v-btn
-                      color="orange lighten-2"
-                      variant="text"
-                      @click.stop="toggleMode(eachText)"
-                    >
-                      Explore
-                    </v-btn>
-                    <v-spacer />
-                    <v-btn icon variant="text" @click.stop="toggleMode(eachText)">
-                      <v-icon :color="isSelected ? 'white' : undefined">
-                        {{ eachText.mode?.needShow ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
-                      </v-icon>
-                    </v-btn>
-                  </v-card-actions>
-                  <v-expand-transition>
-                    <div v-show="eachText.mode?.needShow">
-                      <v-divider />
-                      <v-card-text :class="isSelected ? 'text-white' : ''">
-                        This Text is <br />
-                        {{ textType(eachText.mode) }}
-                      </v-card-text>
-                    </div>
-                  </v-expand-transition>
-                </div>
-              </v-card>
+  <v-container class="lothric-container py-6">
+    <v-slide-group v-model="model" show-arrows class="mb-4">
+      <v-slide-group-item
+        v-for="(eachText, idx) in peekTexts"
+        :key="eachText.id"
+        v-slot="{ isSelected, toggle }"
+        :value="idx"
+      >
+        <v-card
+          class="lothric-card ma-3"
+          :color="isSelected ? 'surface-bright' : 'surface'"
+          width="280"
+          :elevation="isSelected ? 4 : 2"
+          @click="toggle"
+        >
+          <v-img :src="imageSrc(eachText.picture)" height="180" cover />
+          <v-card-item class="pb-0">
+            <template #title>
+              <span class="text-body-large font-weight-bold text-truncate">
+                {{ eachText.title }}
+              </span>
+            </template>
+            <template #subtitle>
+              <span class="text-caption font-italic">{{ eachText.date }}</span>
+            </template>
+          </v-card-item>
+          <v-card-text class="pt-1 pb-2">
+            <div class="text-body-medium text-truncate mb-1">{{ eachText.subtitle }}</div>
+            <div class="text-caption">{{ eachText.author }}</div>
+          </v-card-text>
+          <v-card-actions class="pt-0">
+            <v-btn color="secondary" variant="text" size="small" @click.stop="toggleMode(eachText)">
+              Explore
+            </v-btn>
+            <v-spacer />
+            <v-btn icon variant="text" size="small" @click.stop="toggleMode(eachText)">
+              <v-icon size="small">
+                {{ eachText.mode?.needShow ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+              </v-icon>
+            </v-btn>
+          </v-card-actions>
+          <v-expand-transition>
+            <div v-show="eachText.mode?.needShow">
+              <v-divider />
+              <v-card-text class="text-caption pt-3">
+                This Text is<br />
+                {{ textType(eachText.mode) }}
+              </v-card-text>
             </div>
-          </v-slide-group-item>
-        </v-slide-group>
+          </v-expand-transition>
+        </v-card>
+      </v-slide-group-item>
+    </v-slide-group>
 
-        <v-expand-transition>
-          <v-sheet v-if="model !== null && peekTexts[model]" height="80" tile>
-            <v-row align="center" justify="center">
-              <h3 class="text-h6 font-weight-bold">
-                What Do You Want To Do With {{ peekTexts[model].title }}
-              </h3>
-            </v-row>
-            <v-row align="center" justify="space-around" no-gutters>
-              <v-btn
-                v-for="eachBtn in btnList"
-                :key="eachBtn.name"
-                :color="eachBtn.color"
-                variant="text"
-                width="20%"
-                size="large"
-                @click="dealWithTexts(eachBtn.name, peekTexts[model])"
-              >
-                {{ eachBtn.name }}
-              </v-btn>
-            </v-row>
-          </v-sheet>
-        </v-expand-transition>
+    <v-expand-transition>
+      <v-sheet
+        v-if="model !== null && peekTexts[model]"
+        class="lothric-panel mb-6 text-center"
+        rounded="xl"
+      >
+        <p class="text-h6 font-weight-medium mb-4 px-4">
+          What Do You Want To Do With {{ peekTexts[model].title }}
+        </p>
+        <div class="d-flex justify-center flex-wrap ga-3 px-4 pb-2">
+          <v-btn
+            v-for="eachBtn in btnList"
+            :key="eachBtn.name"
+            :color="eachBtn.color"
+            variant="tonal"
+            min-width="100"
+            @click="dealWithTexts(eachBtn.name, peekTexts[model])"
+          >
+            {{ eachBtn.name }}
+          </v-btn>
+        </div>
       </v-sheet>
-    </v-row>
-    <v-row justify="center" align="center">
-      <v-btn variant="text" class="mt-4" width="65%" @click="goToPostPage">Post A New Text</v-btn>
-    </v-row>
+    </v-expand-transition>
 
-    <v-dialog v-model="dialog" width="500">
-      <v-card>
+    <div class="d-flex justify-center mt-2">
+      <v-btn color="secondary" variant="flat" width="280" size="large" @click="goToPostPage">
+        Post A New Text
+      </v-btn>
+    </div>
+
+    <v-dialog v-model="dialog" max-width="480">
+      <v-card class="lothric-card pa-2">
         <v-card-title>Delete Text</v-card-title>
         <v-card-text>Are You Sure Of Deleting {{ deletingTitle }}</v-card-text>
-        <v-card-actions>
+        <v-card-actions class="px-4 pb-4">
           <v-spacer />
-          <v-btn color="red darken-1" variant="text" @click="dialog = false">等等.</v-btn>
-          <v-btn color="blue darken-2" variant="text" @click="confirmDelete">Yes, I AM!</v-btn>
+          <v-btn color="error" variant="text" @click="dialog = false">等等.</v-btn>
+          <v-btn color="secondary" variant="text" @click="confirmDelete">Yes, I AM!</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -130,9 +129,9 @@ const deletingTitle = ref('')
 const peekTexts = ref<PeekText[]>([])
 
 const btnList = [
-  { name: 'View', color: 'green' },
-  { name: 'Edit', color: 'blue' },
-  { name: 'Delete', color: 'red' }
+  { name: 'View', color: 'secondary' },
+  { name: 'Edit', color: 'primary' },
+  { name: 'Delete', color: 'error' }
 ]
 
 async function loadTexts () {
@@ -149,12 +148,6 @@ function textType (textMode?: TextMode) {
 
 function toggleMode (text: PeekText) {
   if (text.mode) text.mode.needShow = !text.mode.needShow
-}
-
-function collapseOthers () {
-  peekTexts.value.forEach(t => {
-    if (t.mode) t.mode.needShow = false
-  })
 }
 
 function dealWithTexts (pageName: string, textInfo: PeekText) {

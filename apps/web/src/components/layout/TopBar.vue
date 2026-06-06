@@ -1,15 +1,15 @@
 <template>
-  <v-app-bar color="primary" dark>
-    <v-toolbar-title class="headline text-uppercase">
+  <v-app-bar color="primary" :elevation="2" density="comfortable">
+    <v-toolbar-title class="text-uppercase pl-2">
       <router-link to="/" id="lothric">
-        <span>Lothric</span>
-        <span class="font-weight-light">Castle</span>
+        <span class="text-h6">Lothric</span>
+        <span class="text-h6 font-weight-light">Castle</span>
       </router-link>
     </v-toolbar-title>
     <v-spacer />
     <v-tooltip location="bottom">
       <template #activator="{ props }">
-        <v-btn depressed v-bind="props">
+        <v-btn variant="tonal" color="secondary" v-bind="props" class="mr-2">
           <router-link v-if="auth.isLoggedIn" :to="toWhere" id="Postbuttom">
             下北沢に着きました
           </router-link>
@@ -21,7 +21,7 @@
       <span>{{ loginTip }}</span>
     </v-tooltip>
     <template v-if="isUserHome" #extension>
-      <v-tabs v-model="tab" color="yellow">
+      <v-tabs v-model="tab" color="secondary" density="comfortable">
         <v-tab v-for="each in tabsInfo" :key="each.name" :to="each.to" id="Tabbuttom">
           {{ each.name }}
         </v-tab>
