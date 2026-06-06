@@ -2,10 +2,17 @@
 import { reactive, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAppearanceStore } from '@/stores/appearance'
-import type { AppearanceColors, ThemePresetId } from '@/constants/themePresets'
+import {
+  COLOR_LABELS,
+  THEME_PRESETS,
+  type AppearanceColors,
+  type ThemePresetId
+} from '@/constants/themePresets'
 
 const appearance = useAppearanceStore()
-const { presetId, colors, presets, colorLabels } = storeToRefs(appearance)
+const { presetId, colors } = storeToRefs(appearance)
+
+const presetList = Object.entries(THEME_PRESETS) as Array<[ThemePresetId, typeof THEME_PRESETS[ThemePresetId]]>
 
 const draft = reactive<AppearanceColors>({ ...colors.value })
 const draftPreset = reactive({ id: presetId.value })
@@ -29,7 +36,7 @@ function toHexColor (value: string) {
 
 function selectPreset (id: ThemePresetId) {
   draftPreset.id = id
-  Object.assign(draft, presets.value[id].colors)
+  Object.assign(draft, THEME_PRESETS[id].colors)
 }
 
 function onColorInput (key: keyof AppearanceColors, value: string) {
@@ -45,7 +52,8 @@ function saveSettings () {
 }
 
 function resetDraft () {
-  selectPreset(draftPreset.id as ThemePresetId)
+  const id = (draftPreset.id in THEME_PRESETS ? draftPreset.id : 'purple') as ThemePresetId
+  selectPreset(id)
 }
 </script>
 
@@ -60,12 +68,12 @@ function resetDraft () {
       <h3 class="text-subtitle-1 font-weight-medium mb-4">Color presets</h3>
       <div class="d-flex flex-wrap ga-3">
         <v-card
-          v-for="(preset, id) in presets"
+          v-for="[id, preset] in presetList"
           :key="id"
           class="lothric-card lothric-preset-card"
           :class="{ 'lothric-preset-card--active': draftPreset.id === id }"
           width="140"
-          @click="selectPreset(id as ThemePresetId)"
+          @click="selectPreset(id)"
         >
           <div class="lothric-preset-card__swatches">
             <span :style="{ background: preset.colors.topbarBg }" />
@@ -83,7 +91,7 @@ function resetDraft () {
       <h3 class="text-subtitle-1 font-weight-medium mb-4">Custom colors</h3>
       <div class="lothric-stack">
         <div
-          v-for="(label, key) in colorLabels"
+          v-for="(label, key) in COLOR_LABELS"
           :key="key"
           class="lothric-color-row"
         >

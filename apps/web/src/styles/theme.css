@@ -10,7 +10,13 @@
   --lothric-border: rgba(140, 210, 188, 0.12);
   --lothric-content-max: 1120px;
   --lothric-narrow-max: 720px;
-  --lothric-article-max: 960px;
+  --lothric-article-min: 680px;
+  --lothric-article-max: 1200px;
+  --lothric-article-width: clamp(
+    var(--lothric-article-min),
+    72vw,
+    var(--lothric-article-max)
+  );
   --lothric-form-max: 880px;
   --lothric-footer-bg: #2d0425;
   --lothric-button-bg: rgba(255, 255, 255, 0.06);
@@ -53,6 +59,7 @@ a {
 
 .lothric-btn-blend.v-btn:hover .v-btn__overlay {
   opacity: 0.08;
+  background-color: var(--lothric-button-bg);
 }
 
 /* User management tabs — slightly lighter than primary app bar */
@@ -109,7 +116,8 @@ a {
 }
 
 .lothric-container--article {
-  max-width: var(--lothric-article-max) !important;
+  width: 100%;
+  max-width: var(--lothric-article-width) !important;
 }
 
 .lothric-container--form {
@@ -234,10 +242,6 @@ a {
   padding-bottom: 4px;
 }
 
-.lothric-btn-blend.v-btn:hover .v-btn__overlay {
-  background-color: var(--lothric-button-bg);
-}
-
 .lothric-auth__actions {
   padding: 0 20px 20px;
   display: flex;
@@ -341,5 +345,9 @@ a {
 
   .lothric-article .markdown-body {
     padding: 16px 18px;
+  }
+
+  :root {
+    --lothric-article-width: clamp(320px, 92vw, var(--lothric-article-max));
   }
 }
