@@ -168,6 +168,19 @@ git push origin master
 
 更新后（本 PR）工作流会在 deploy 前校验 Secrets，并在 `DEPLOY_ENABLED != true` 时跳过部署。
 
+### `error copy file to dest`（scp 失败）
+
+**原因：** GitHub Actions 往服务器拷贝文件时，目标目录不存在或当前 SSH 用户无写权限。
+
+| 检查项 | 处理 |
+|--------|------|
+| 未创建部署目录 | 登录服务器执行：`sudo mkdir -p /opt/app/docker/scripts` |
+| `DEPLOY_USER` 非 root | 将目录授权：`sudo chown -R 你的用户名:你的用户名 /opt/app`，或把 `DEPLOY_PATH` 改到 `$HOME/app` |
+| GitHub `DEPLOY_PATH` 与服务器不一致 | 确保 Secret/Variable `DEPLOY_PATH` 与服务器实际目录相同 |
+| 未跑初始化脚本 | `DEPLOY_PATH=/opt/app bash docker/scripts/server-init.sh` |
+
+工作流已在 scp 前自动执行 `mkdir -p`；若 `/opt` 下目录需 root 权限，请先用 root 创建并授权。
+
 ### `IMAGE_REGISTRY is required`
 
 服务器 `.env` 缺少 `IMAGE_REGISTRY`。手动添加或重新触发 CI 部署（`deploy-remote.sh` 会自动写入）。

@@ -82,6 +82,20 @@ jobs:
           fi
           exit $missing
 
+      - name: Prepare deploy directory on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            DEPLOY_PATH='${{ env.DEPLOY_REMOTE_PATH }}'
+            mkdir -p "$DEPLOY_PATH/docker/scripts"
+            echo "Deploy directory ready: $DEPLOY_PATH"
+
       - name: Copy deploy files to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -91,6 +105,7 @@ jobs:
           port: ${{ secrets.DEPLOY_PORT || 22 }}
           source: 'docker/docker-compose.prod.yml,docker/deploy.env.example,docker/scripts/deploy-remote.sh'
           target: ${{ env.DEPLOY_REMOTE_PATH }}
+          overwrite: true
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
