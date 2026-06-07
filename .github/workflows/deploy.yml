@@ -82,15 +82,48 @@ jobs:
           fi
           exit $missing
 
-      - name: Copy deploy files to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.DEPLOY_PORT || 22 }}
-          source: 'docker/docker-compose.prod.yml,docker/deploy.env.example,docker/scripts/deploy-remote.sh'
-          target: ${{ env.DEPLOY_REMOTE_PATH }}
+      - name: Show resolved deploy config
+        run: |
+          echo "DEPLOY_REMOTE_PATH=${{ env.DEPLOY_REMOTE_PATH }}"
+          echo "DEPLOY_COMPOSE_FILE=${{ env.DEPLOY_COMPOSE_FILE }}"
+          echo "IMAGE_PREFIX=${{ env.IMAGE_PREFIX }}"
+
+      - name: Setup SSH key
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.DEPLOY_PORT || 22 }}" "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Prepare deploy directory on server
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p "${{ secrets.DEPLOY_PORT || 22 }}" \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" <<'REMOTE'
+          set -euo pipefail
+          DEPLOY_PATH='${{ env.DEPLOY_REMOTE_PATH }}'
+          mkdir -p "$DEPLOY_PATH/docker/scripts"
+          echo "SSH user: $(whoami)"
+          echo "Home: $HOME"
+          echo "Deploy path listing:"
+          ls -la "$DEPLOY_PATH"
+          ls -la "$DEPLOY_PATH/docker" || true
+          touch "$DEPLOY_PATH/.write-test"
+          rm "$DEPLOY_PATH/.write-test"
+          echo "Write test: OK"
+          REMOTE
+
+      - name: Copy deploy files to server (tar over SSH)
+        run: |
+          tar czf - \
+            docker/docker-compose.prod.yml \
+            docker/deploy.env.example \
+            docker/scripts/deploy-remote.sh \
+          | ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p "${{ secrets.DEPLOY_PORT || 22 }}" \
+              "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+              "tar xzf - -C '${{ env.DEPLOY_REMOTE_PATH }}'"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p "${{ secrets.DEPLOY_PORT || 22 }}" \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "ls -la '${{ env.DEPLOY_REMOTE_PATH }}/docker/'"
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
