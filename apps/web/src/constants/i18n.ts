@@ -97,6 +97,7 @@ type MessageTree = {
     uploadCover: string
     uploadCoverOk: string
     uploadCoverError: string
+    uploadCoverTooLarge: string
     secretLevel: string
     secretLevelCap: string
     secretPublic: string
@@ -243,6 +244,7 @@ export const messages: Record<Locale, MessageTree> = {
       uploadCover: '上传封面',
       uploadCoverOk: '封面上传成功，请记得发布或保存草稿',
       uploadCoverError: '封面上传失败，请重试',
+      uploadCoverTooLarge: '图片超过 10MB，请压缩后重试',
       secretLevel: '保密等级',
       secretLevelCap: '你的账号等级最高支持保密等级 {max}',
       secretPublic: '公开',
@@ -402,6 +404,7 @@ export const messages: Record<Locale, MessageTree> = {
       uploadCover: 'Upload cover image',
       uploadCoverOk: 'Cover uploaded — publish or save draft to apply',
       uploadCoverError: 'Cover upload failed — please try again',
+      uploadCoverTooLarge: 'Image exceeds 10MB — please compress and retry',
       secretLevel: 'Secret Level',
       secretLevelCap: 'Your account level allows up to secret level {max}',
       secretPublic: 'Public',
