@@ -170,30 +170,29 @@ git push origin master
 
 ### `error copy file to dest`（文件拷贝失败）
 
-**原因：** SSH 已连通，但部署用户对目标目录**没有写权限**，或父目录不可进入。
-
-常见场景：`DEPLOY_PATH=/home/work/kksk`，但 `DEPLOY_USER=deploy`：
+**原因：** SSH 已连通，但部署用户对 `DEPLOY_PATH` **没有写权限**，或路径上某层父目录不可进入。
 
 ```bash
-# 在服务器检查
-ls -la /home/work          # 若是 drwx------ work work，deploy 用户进不去
-ls -la /home/work/kksk/docker   # 若属主不是 DEPLOY_USER，无法写入
-namei -l /home/work/kksk/docker # 查看整条路径权限
+# 将 /path/to/deploy 替换为你的 DEPLOY_PATH
+DEPLOY_PATH=/path/to/deploy
+SSH_USER=你的DEPLOY_USER
+
+# 检查整条路径权限
+namei -l "$DEPLOY_PATH/docker"
+ls -la "$DEPLOY_PATH"
+
+# 模拟 CI 用户测试写入
+sudo -u "$SSH_USER" touch "$DEPLOY_PATH/.write-test" && echo OK
+sudo -u "$SSH_USER" rm "$DEPLOY_PATH/.write-test"
 ```
 
-**修复（任选其一）：**
+**修复建议：**
 
-```bash
-# 方案 A：把目录交给 deploy 用户，并允许进入 /home/work
-sudo chmod 711 /home/work
-sudo chown -R deploy:deploy /home/work/kksk
+1. 将 `DEPLOY_PATH` 设在 **SSH 用户自己的 home 目录下**（如 `/home/<user>/app`），最省事
+2. 若必须用其他路径，确保目录属主为 `DEPLOY_USER`：`chown -R <user>:<user> $DEPLOY_PATH`
+3. 确保父目录对 SSH 用户可进入（至少 `chmod o+x` 于中间路径）
 
-# 方案 B（推荐）：把 DEPLOY_PATH 改到 SSH 用户自己的 home
-# GitHub Variable DEPLOY_PATH=/home/deploy/kksk
-mkdir -p /home/deploy/kksk/docker/scripts
-```
-
-工作流会在拷贝前执行 **Write test**；若失败，日志会显示 `SSH user:` 和 `ls -la` 输出，便于定位权限问题。
+工作流拷贝前会执行 **Write test**；失败时日志会打印 `SSH user:` 和目录列表，便于排查。
 
 ### `IMAGE_REGISTRY is required`
 
