@@ -12,7 +12,7 @@ set -euo pipefail
 
 DEPLOY_PATH="${DEPLOY_PATH:-/opt/app}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker/docker-compose.prod.yml}"
-ENV_FILE="${ENV_FILE:-.env}"
+ENV_FILE="${ENV_FILE:-docker/.env}"
 ENV_TEMPLATE="${ENV_TEMPLATE:-docker/deploy.env.example}"
 IMAGE_REGISTRY="${IMAGE_REGISTRY:?IMAGE_REGISTRY is required}"
 IMAGE_TAG="${IMAGE_TAG:?IMAGE_TAG is required}"
@@ -24,6 +24,12 @@ cd "$DEPLOY_PATH"
 if [ ! -f "$COMPOSE_FILE" ]; then
   echo "ERROR: compose file not found: $DEPLOY_PATH/$COMPOSE_FILE" >&2
   exit 1
+fi
+
+# Migrate legacy .env at deploy root (older docs placed it next to docker/)
+if [ -f .env ] && [ ! -f "$ENV_FILE" ]; then
+  mv .env "$ENV_FILE"
+  echo "INFO: migrated .env -> $ENV_FILE"
 fi
 
 if [ ! -f "$ENV_FILE" ]; then
@@ -55,6 +61,7 @@ else
   echo "INFO: GHCR_TOKEN not set — assuming public GHCR packages"
 fi
 
+# .env lives beside compose file (docker/.env); compose loads it automatically
 docker compose -f "$COMPOSE_FILE" pull
 docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
 docker image prune -f

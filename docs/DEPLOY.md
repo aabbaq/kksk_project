@@ -52,7 +52,16 @@ Internet :80
 | `DEPLOY_PATH` | `/opt/app` | 服务器部署目录（Secret 未设置时生效） |
 | `DEPLOY_COMPOSE_FILE` | `docker/docker-compose.prod.yml` | 服务器上的 compose 文件路径（相对部署目录） |
 
-### 服务器 `.env`（`docker/deploy.env.example`）
+### 服务器 `.env`（`docker/.env`）
+
+与 `docker-compose.prod.yml` 同目录，Compose 会自动加载：
+
+```
+$DEPLOY_PATH/docker/.env
+$DEPLOY_PATH/docker/docker-compose.prod.yml
+```
+
+模板：`docker/deploy.env.example` → 复制为 `docker/.env`
 
 | 变量 | 必填 | 说明 |
 |------|------|------|
@@ -94,9 +103,9 @@ git clone https://github.com/<owner>/<repo>.git /opt/app-src
 # 可自定义部署目录和端口
 DEPLOY_PATH=/opt/app bash /opt/app-src/docker/scripts/server-init.sh
 
-# 创建环境变量文件
-cp /opt/app-src/docker/deploy.env.example /opt/app/.env
-nano /opt/app/.env
+# 创建环境变量文件（与 compose 文件同目录）
+cp /opt/app-src/docker/deploy.env.example /opt/app/docker/.env
+nano /opt/app/docker/.env
 ```
 
 **必须修改 `.env`：**
@@ -198,9 +207,21 @@ sudo -u "$SSH_USER" rm "$DEPLOY_PATH/.write-test"
 
 拷贝已成功，但执行脚本时工作目录不对。部署脚本位于 `$DEPLOY_PATH/docker/scripts/`，需先 `cd "$DEPLOY_PATH"` 再执行。
 
+### `JWT_SECRET` / `IMAGE_REGISTRY is required`（但 `.env` 里明明有值）
+
+`.env` 必须放在 **`$DEPLOY_PATH/docker/.env`**（与 compose 文件同目录），不是部署根目录。
+
+```bash
+ls -la /path/to/deploy/docker/.env   # 应存在
+# 若误放在根目录，迁移：
+mv /path/to/deploy/.env /path/to/deploy/docker/.env
+```
+
+`deploy-remote.sh` 会自动把根目录遗留的 `.env` 迁移到 `docker/.env`。
+
 ### `IMAGE_REGISTRY is required`
 
-服务器 `.env` 缺少 `IMAGE_REGISTRY`。手动添加或重新触发 CI 部署（`deploy-remote.sh` 会自动写入）。
+`docker/.env` 缺少 `IMAGE_REGISTRY`。手动添加或重新触发 CI（`deploy-remote.sh` 会自动写入）。
 
 ---
 
@@ -235,7 +256,7 @@ docker exec -it app-mongodb-1 mongosh blog --eval \
 
 ## 七、图片存储（可选：阿里云 OSS）
 
-在服务器 `.env` 中追加 OSS 相关变量，详见 `docker/deploy.env.example`。
+在服务器 `docker/.env` 中追加 OSS 相关变量，详见 `docker/deploy.env.example`。
 
 ---
 
