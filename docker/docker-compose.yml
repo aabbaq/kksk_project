@@ -1,3 +1,7 @@
+# Local development — MongoDB only.
+# Full stack: docker compose -f docker/docker-compose.prod.yml up -d
+# (requires built images or GHCR pull)
+
 services:
   mongodb:
     image: mongo:7

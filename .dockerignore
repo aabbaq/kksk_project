@@ -1,0 +1,15 @@
+node_modules
+**/node_modules
+**/dist
+.git
+.github
+.cursor
+legacy
+docs
+uploads
+**/.env
+**/.env.local
+*.md
+!docker/**
+.DS_Store
+*.log
