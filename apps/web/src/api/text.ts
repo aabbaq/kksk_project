@@ -42,8 +42,7 @@ export async function deleteText (id: string) {
 export async function uploadImage (file: File) {
   const form = new FormData()
   form.append('image', file)
-  const { data } = await client.post('/upload/image', form, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  // Do not set Content-Type — browser must add multipart boundary
+  const { data } = await client.post('/upload/image', form)
   return data
 }

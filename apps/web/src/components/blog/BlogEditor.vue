@@ -154,6 +154,9 @@
       </div>
     </v-container>
     </LothricPage>
+    <v-snackbar v-model="snackbar.show" :color="snackbar.color" location="bottom">
+      {{ snackbar.text }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -180,6 +183,11 @@ const maxWritableLevel = computed(() => Math.min(authStore.userRole, 3))
 
 const dialog = ref(false)
 const isUpdate = ref(false)
+const snackbar = reactive({
+  show: false,
+  text: '',
+  color: 'success' as 'success' | 'error'
+})
 
 const blogTextInfo = reactive({
   id: '',
@@ -256,9 +264,18 @@ async function loadText () {
 async function onImageUpload (files: File | File[] | null) {
   const file = Array.isArray(files) ? files[0] : files
   if (!file) return
-  const res = await uploadImage(file)
-  if (res.status === 200) {
-    blogTextInfo.picture = res.picture ?? res.filename
+  try {
+    const res = await uploadImage(file)
+    if (res.status === 200) {
+      blogTextInfo.picture = res.url ?? res.picture ?? res.filename
+      snackbar.text = t.value.editor.uploadCoverOk
+      snackbar.color = 'success'
+      snackbar.show = true
+    }
+  } catch {
+    snackbar.text = t.value.editor.uploadCoverError
+    snackbar.color = 'error'
+    snackbar.show = true
   }
 }
 
