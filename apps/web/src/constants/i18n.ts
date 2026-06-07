@@ -95,6 +95,8 @@ type MessageTree = {
     picture: string
     pictureHint: string
     uploadCover: string
+    uploadCoverOk: string
+    uploadCoverError: string
     secretLevel: string
     secretLevelCap: string
     secretPublic: string
@@ -239,6 +241,8 @@ export const messages: Record<Locale, MessageTree> = {
       picture: '封面图',
       pictureHint: '图片文件名，或在下方上传',
       uploadCover: '上传封面',
+      uploadCoverOk: '封面上传成功，请记得发布或保存草稿',
+      uploadCoverError: '封面上传失败，请重试',
       secretLevel: '保密等级',
       secretLevelCap: '你的账号等级最高支持保密等级 {max}',
       secretPublic: '公开',
@@ -396,6 +400,8 @@ export const messages: Record<Locale, MessageTree> = {
       picture: 'Blog Picture',
       pictureHint: 'Image name or upload below',
       uploadCover: 'Upload cover image',
+      uploadCoverOk: 'Cover uploaded — publish or save draft to apply',
+      uploadCoverError: 'Cover upload failed — please try again',
       secretLevel: 'Secret Level',
       secretLevelCap: 'Your account level allows up to secret level {max}',
       secretPublic: 'Public',
