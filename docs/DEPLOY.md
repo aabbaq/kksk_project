@@ -198,9 +198,18 @@ sudo -u "$SSH_USER" rm "$DEPLOY_PATH/.write-test"
 
 拷贝已成功，但执行脚本时工作目录不对。部署脚本位于 `$DEPLOY_PATH/docker/scripts/`，需先 `cd "$DEPLOY_PATH"` 再执行。
 
-### `IMAGE_REGISTRY is required`
+### `JWT_SECRET` / `IMAGE_REGISTRY is required`（但 `.env` 里明明有值）
 
-服务器 `.env` 缺少 `IMAGE_REGISTRY`。手动添加或重新触发 CI 部署（`deploy-remote.sh` 会自动写入）。
+compose 文件在 `docker/` 子目录，Docker Compose 默认从 **compose 文件所在目录** 找 `.env`，而不是部署根目录。
+
+`.env` 应位于 `$DEPLOY_PATH/.env`（与 `docker/` 同级），执行时需加 `--env-file`：
+
+```bash
+cd /path/to/deploy
+docker compose --env-file .env -f docker/docker-compose.prod.yml config
+```
+
+`deploy-remote.sh` 已自动传入 `--env-file`；手动运维命令也需带上。
 
 ---
 
@@ -209,15 +218,16 @@ sudo -u "$SSH_USER" rm "$DEPLOY_PATH/.write-test"
 ```bash
 cd "${DEPLOY_PATH:-/opt/app}"
 
-docker compose -f docker/docker-compose.prod.yml ps
-docker compose -f docker/docker-compose.prod.yml logs -f api
+# .env 在部署目录根（与 docker/ 同级），需 --env-file 显式指定
+docker compose --env-file .env -f docker/docker-compose.prod.yml ps
+docker compose --env-file .env -f docker/docker-compose.prod.yml logs -f api
 
 # 手动拉取最新镜像并重启
-docker compose -f docker/docker-compose.prod.yml pull
-docker compose -f docker/docker-compose.prod.yml up -d
+docker compose --env-file .env -f docker/docker-compose.prod.yml pull
+docker compose --env-file .env -f docker/docker-compose.prod.yml up -d
 
 # 停止
-docker compose -f docker/docker-compose.prod.yml down
+docker compose --env-file .env -f docker/docker-compose.prod.yml down
 ```
 
 容器名前缀由 `COMPOSE_PROJECT_NAME` 决定（默认 `app-api-1`、`app-mongodb-1` 等）。

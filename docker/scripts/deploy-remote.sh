@@ -55,9 +55,10 @@ else
   echo "INFO: GHCR_TOKEN not set — assuming public GHCR packages"
 fi
 
-docker compose -f "$COMPOSE_FILE" pull
-docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
+# --env-file: compose file lives under docker/, but .env lives in DEPLOY_PATH root
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --remove-orphans
 docker image prune -f
 
 echo "Deploy complete. Running containers:"
-docker compose -f "$COMPOSE_FILE" ps
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps
