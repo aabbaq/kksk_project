@@ -168,6 +168,33 @@ git push origin master
 
 更新后（本 PR）工作流会在 deploy 前校验 Secrets，并在 `DEPLOY_ENABLED != true` 时跳过部署。
 
+### `error copy file to dest`（文件拷贝失败）
+
+**原因：** SSH 已连通，但部署用户对目标目录**没有写权限**，或父目录不可进入。
+
+常见场景：`DEPLOY_PATH=/home/work/kksk`，但 `DEPLOY_USER=deploy`：
+
+```bash
+# 在服务器检查
+ls -la /home/work          # 若是 drwx------ work work，deploy 用户进不去
+ls -la /home/work/kksk/docker   # 若属主不是 DEPLOY_USER，无法写入
+namei -l /home/work/kksk/docker # 查看整条路径权限
+```
+
+**修复（任选其一）：**
+
+```bash
+# 方案 A：把目录交给 deploy 用户，并允许进入 /home/work
+sudo chmod 711 /home/work
+sudo chown -R deploy:deploy /home/work/kksk
+
+# 方案 B（推荐）：把 DEPLOY_PATH 改到 SSH 用户自己的 home
+# GitHub Variable DEPLOY_PATH=/home/deploy/kksk
+mkdir -p /home/deploy/kksk/docker/scripts
+```
+
+工作流会在拷贝前执行 **Write test**；若失败，日志会显示 `SSH user:` 和 `ls -la` 输出，便于定位权限问题。
+
 ### `IMAGE_REGISTRY is required`
 
 服务器 `.env` 缺少 `IMAGE_REGISTRY`。手动添加或重新触发 CI 部署（`deploy-remote.sh` 会自动写入）。
