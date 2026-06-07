@@ -1,0 +1,81 @@
+# Build images locally on the server (fallback when GHCR is unavailable).
+# Usage:
+#   docker compose -f docker/docker-compose.build.yml build
+#   docker compose -f docker/docker-compose.build.yml up -d
+#
+# Warning: building on 2 GiB ECS may OOM. Prefer GitHub Actions CI builds.
+
+name: lothric
+
+services:
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    command: mongod --wiredTigerCacheSizeGB 0.25
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongodb:27017/blog
+    volumes:
+      - uploads_data:/app/apps/api/uploads
+    depends_on:
+      - mongodb
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: docker/nginx/Dockerfile
+    restart: unless-stopped
+    ports:
+      - '${HTTP_PORT:-80}:80'
+    depends_on:
+      - web
+      - api
+    networks:
+      - internal
+    deploy:
+      resources:
+        limits:
+          memory: 48M
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  uploads_data:
