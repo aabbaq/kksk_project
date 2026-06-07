@@ -31,7 +31,7 @@ export const env = {
       || (nodeEnv === 'production' && isS3Configured()),
     s3: {
       bucket: s3Bucket,
-      region: process.env.S3_REGION ?? 'us-east-1',
+      region: process.env.S3_REGION || 'us-east-1',
       endpoint: process.env.S3_ENDPOINT ?? '',
       accessKeyId: s3AccessKey,
       secretAccessKey: s3SecretKey,

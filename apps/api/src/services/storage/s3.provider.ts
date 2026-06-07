@@ -11,22 +11,33 @@ function buildPublicUrl (key: string) {
   return `https://${env.storage.s3.bucket}.s3.${env.storage.s3.region}.amazonaws.com/${key}`
 }
 
-const client = new S3Client({
-  region: env.storage.s3.region,
-  endpoint: env.storage.s3.endpoint || undefined,
-  forcePathStyle: env.storage.s3.forcePathStyle,
-  credentials: {
-    accessKeyId: env.storage.s3.accessKeyId,
-    secretAccessKey: env.storage.s3.secretAccessKey
+let client: S3Client | undefined
+
+function getS3Client (): S3Client {
+  if (!client) {
+    const region = env.storage.s3.region
+    if (!region) {
+      throw new Error('S3_REGION is required when object storage is enabled')
+    }
+    client = new S3Client({
+      region,
+      endpoint: env.storage.s3.endpoint || undefined,
+      forcePathStyle: env.storage.s3.forcePathStyle,
+      credentials: {
+        accessKeyId: env.storage.s3.accessKeyId,
+        secretAccessKey: env.storage.s3.secretAccessKey
+      }
+    })
   }
-})
+  return client
+}
 
 export const s3StorageProvider: StorageProvider = {
   async upload (file) {
     const ext = path.extname(file.originalname) || '.jpg'
     const key = `${env.storage.s3.keyPrefix.replace(/\/?$/, '/')}${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`
 
-    await client.send(new PutObjectCommand({
+    await getS3Client().send(new PutObjectCommand({
       Bucket: env.storage.s3.bucket,
       Key: key,
       Body: file.buffer,
