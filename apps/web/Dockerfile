@@ -5,20 +5,22 @@ RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
 
+ENV NODE_ENV=development
+
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
-COPY packages/shared/package.json packages/shared/
-COPY apps/web/package.json apps/web/
+COPY packages/shared/package.json packages/shared/tsconfig.json packages/shared/
+COPY apps/web/package.json apps/web/tsconfig.json apps/web/
 
 RUN pnpm install --frozen-lockfile
 
-COPY packages/shared packages/shared
+COPY packages/shared/src packages/shared/src
 COPY apps/web apps/web
 
 # Production build: API requests go through gateway nginx at /api
 ENV VITE_API_BASE_URL=/api
 
-RUN pnpm --filter @kksk/shared build
-RUN pnpm --filter @kksk/web build
+RUN pnpm --filter @kksk/web... build \
+  && test -f packages/shared/dist/index.d.ts
 
 # ── Runtime: internal nginx serving static SPA ──
 FROM nginx:1.27-alpine AS runtime

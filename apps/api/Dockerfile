@@ -9,17 +9,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends python3 make g+
 
 WORKDIR /app
 
+# devDependencies (typescript) must be installed for tsc
+ENV NODE_ENV=development
+
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
-COPY packages/shared/package.json packages/shared/
-COPY apps/api/package.json apps/api/
+COPY packages/shared/package.json packages/shared/tsconfig.json packages/shared/
+COPY apps/api/package.json apps/api/tsconfig.json apps/api/
 
 RUN pnpm install --frozen-lockfile
 
-COPY packages/shared packages/shared
-COPY apps/api apps/api
+COPY packages/shared/src packages/shared/src
+COPY apps/api/src apps/api/src
 
-RUN pnpm --filter @kksk/shared build
-RUN pnpm --filter @kksk/api build
+# "... " builds workspace deps (@kksk/shared) before @kksk/api
+RUN pnpm --filter @kksk/api... build \
+  && test -f packages/shared/dist/index.d.ts
 
 # ── Production image ──
 FROM node:22-bookworm-slim AS runtime
