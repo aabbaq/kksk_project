@@ -5,7 +5,7 @@
 #
 # Warning: building on 2 GiB ECS may OOM. Prefer GitHub Actions CI builds.
 
-name: lothric
+name: ${COMPOSE_PROJECT_NAME:-app}
 
 services:
   mongodb:

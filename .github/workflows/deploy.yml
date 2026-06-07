@@ -8,6 +8,9 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository }}
+  # Server deploy directory: secret DEPLOY_PATH > variable DEPLOY_PATH > default
+  DEPLOY_REMOTE_PATH: ${{ secrets.DEPLOY_PATH || vars.DEPLOY_PATH || '/opt/app' }}
+  DEPLOY_COMPOSE_FILE: ${{ vars.DEPLOY_COMPOSE_FILE || 'docker/docker-compose.prod.yml' }}
 
 jobs:
   build-and-push:
@@ -53,58 +56,66 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
+  # Fork-friendly: build images only until DEPLOY_ENABLED=true and SSH secrets are set.
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' && vars.DEPLOY_ENABLED == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Copy compose file to server
+      - name: Validate deploy secrets
+        run: |
+          missing=0
+          if [ -z "${{ secrets.DEPLOY_HOST }}" ]; then
+            echo "::error::DEPLOY_HOST secret is required when DEPLOY_ENABLED=true"
+            missing=1
+          fi
+          if [ -z "${{ secrets.DEPLOY_SSH_KEY }}" ]; then
+            echo "::error::DEPLOY_SSH_KEY secret is required when DEPLOY_ENABLED=true"
+            missing=1
+          fi
+          if [ -z "${{ secrets.DEPLOY_USER }}" ]; then
+            echo "::error::DEPLOY_USER secret is required when DEPLOY_ENABLED=true"
+            missing=1
+          fi
+          exit $missing
+
+      - name: Copy deploy files to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.DEPLOY_PORT || 22 }}
-          source: 'docker/docker-compose.prod.yml,docker/deploy.env.example'
-          target: ${{ secrets.DEPLOY_PATH }}
+          source: 'docker/docker-compose.prod.yml,docker/deploy.env.example,docker/scripts/deploy-remote.sh'
+          target: ${{ env.DEPLOY_REMOTE_PATH }}
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          DEPLOY_PATH: ${{ env.DEPLOY_REMOTE_PATH }}
+          COMPOSE_FILE: ${{ env.DEPLOY_COMPOSE_FILE }}
+          IMAGE_REGISTRY: ghcr.io/${{ github.repository }}
+          IMAGE_TAG: ${{ github.sha }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.DEPLOY_PORT || 22 }}
           script_stop: true
-          script: |
-            set -euo pipefail
-            cd ${{ secrets.DEPLOY_PATH }}
+          envs: DEPLOY_PATH,COMPOSE_FILE,IMAGE_REGISTRY,IMAGE_TAG,GHCR_USER,GHCR_TOKEN
+          script: bash docker/scripts/deploy-remote.sh
 
-            # Create .env on first deploy if missing
-            if [ ! -f .env ]; then
-              cp docker/deploy.env.example .env
-              echo "WARN: .env created from template — edit JWT_SECRET and CORS_ORIGIN on the server!"
-            fi
-
-            # Inject image tag for this deployment
-            if grep -q '^IMAGE_TAG=' .env; then
-              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${{ github.sha }}/" .env
-            else
-              echo "IMAGE_TAG=${{ github.sha }}" >> .env
-            fi
-
-            if [ -n "${{ secrets.GHCR_TOKEN }}" ]; then
-              echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            else
-              echo "GHCR_TOKEN not set — assuming public packages"
-            fi
-
-            docker compose -f docker/docker-compose.prod.yml pull
-            docker compose -f docker/docker-compose.prod.yml up -d --remove-orphans
-            docker image prune -f
-
-            echo "Deploy complete. Running containers:"
-            docker compose -f docker/docker-compose.prod.yml ps
+  deploy-skipped-notice:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && vars.DEPLOY_ENABLED != 'true'
+    steps:
+      - name: Deploy skipped
+        run: |
+          echo "::notice::Deploy stage skipped. Images were pushed to GHCR."
+          echo "::notice::To enable SSH deploy: configure secrets (see docs/DEPLOY.md) and set repository variable DEPLOY_ENABLED=true."

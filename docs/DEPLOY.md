@@ -1,6 +1,6 @@
 # Lothric Castle — 容器化部署方案
 
-适用于阿里云 ECS：**Ubuntu 22.04 / 2 vCPU / 2 GiB / Docker 29.x**
+适用于任意 Linux VPS（文档以阿里云 ECS Ubuntu 22.04 / 2 vCPU / 2 GiB 为例）。
 
 ## 架构
 
@@ -18,68 +18,128 @@ Internet :80
 
 | 容器 | 镜像 | 内存上限 | 职责 |
 |------|------|---------|------|
-| `nginx` | `ghcr.io/.../nginx` | 48 MB | 公网入口，反向代理 |
-| `web` | `ghcr.io/.../web` | 64 MB | Vue 静态资源（内网） |
-| `api` | `ghcr.io/.../api` | 384 MB | Express API |
-| `mongodb` | `mongo:7` | 512 MB | 数据库（WiredTiger 缓存 256 MB） |
+| `nginx` | `ghcr.io/<owner>/<repo>/nginx` | 48 MB | 公网入口，反向代理 |
+| `web` | `ghcr.io/<owner>/<repo>/web` | 64 MB | Vue 静态资源（内网） |
+| `api` | `ghcr.io/<owner>/<repo>/api` | 384 MB | Express API |
+| `mongodb` | `mongo:7` | 512 MB | 数据库 |
 
-合计约 **1 GB** 容器内存 + 系统预留，适配 2 GiB 机器。
+---
+
+## 可配置项一览
+
+本方案**没有写死**仓库名或服务器路径，所有关键项均可配置。
+
+### GitHub Actions — Secrets（敏感信息）
+
+在仓库 **Settings → Secrets and variables → Actions → Secrets** 中配置：
+
+| Secret | 必填 | 说明 | 示例 |
+|--------|------|------|------|
+| `DEPLOY_HOST` | 启用部署时必填 | 服务器 IP 或域名 | `47.xxx.xxx.xxx` |
+| `DEPLOY_USER` | 启用部署时必填 | SSH 用户名 | `root` / `ubuntu` |
+| `DEPLOY_SSH_KEY` | 启用部署时必填 | SSH **私钥**完整内容 | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
+| `DEPLOY_PATH` | 可选 | 服务器部署目录（优先级最高） | `/opt/myapp` |
+| `DEPLOY_PORT` | 可选 | SSH 端口，默认 22 | `22` |
+| `GHCR_TOKEN` | 可选 | 拉取私有镜像的 PAT（`read:packages`） | `ghp_...` |
+
+### GitHub Actions — Variables（非敏感，可公开）
+
+在 **Settings → Secrets and variables → Actions → Variables** 中配置：
+
+| Variable | 默认值 | 说明 |
+|----------|--------|------|
+| `DEPLOY_ENABLED` | （未设置 = 不部署） | 设为 `true` 才执行 SSH 部署阶段 |
+| `DEPLOY_PATH` | `/opt/app` | 服务器部署目录（Secret 未设置时生效） |
+| `DEPLOY_COMPOSE_FILE` | `docker/docker-compose.prod.yml` | 服务器上的 compose 文件路径（相对部署目录） |
+
+### 服务器 `.env`（`docker/deploy.env.example`）
+
+| 变量 | 必填 | 说明 |
+|------|------|------|
+| `JWT_SECRET` | 是 | JWT 签名密钥（≥32 字符随机串） |
+| `CORS_ORIGIN` | 是 | 用户访问的公网 URL（无尾斜杠） |
+| `IMAGE_REGISTRY` | 是 | 镜像仓库前缀，CI 每次部署自动写入 | `ghcr.io/owner/repo` |
+| `IMAGE_TAG` | 是 | 镜像标签，CI 自动写入 commit SHA | `latest` |
+| `COMPOSE_PROJECT_NAME` | 可选 | Docker Compose 项目名（容器前缀） | `app` |
+| `HTTP_PORT` | 可选 | 宿主机 HTTP 端口 | `80` |
+
+### 初始化脚本环境变量
+
+```bash
+DEPLOY_PATH=/opt/myapp HTTP_PORT=8080 bash docker/scripts/server-init.sh
+```
+
+---
 
 ## 部署流程概览
 
 ```
-push master → GitHub Actions 构建 3 个镜像 → 推送到 GHCR
-           → SSH 登录 ECS → docker compose pull → up -d
+push master
+  → GitHub Actions 并行构建 api / web / nginx
+  → 推送到 ghcr.io/<owner>/<repo>/{api,web,nginx}
+  → （仅当 DEPLOY_ENABLED=true 且 Secrets 齐全）
+      SSH 登录服务器 → deploy-remote.sh → compose pull && up -d
 ```
+
+**Fork 复用说明：** 默认只构建并推送镜像到 **你自己的** GHCR（`${{ github.repository }}` 自动适配）。不配置 SSH 时不会部署，避免报错。
 
 ---
 
 ## 一、服务器首次初始化
 
-SSH 登录阿里云 ECS 后执行：
-
 ```bash
-# 克隆仓库（仅首次，用于获取初始化脚本；后续由 CI 自动部署）
-git clone https://github.com/aabbaq/kksk_project.git /opt/lothric-src
-bash /opt/lothric-src/docker/scripts/server-init.sh
+# 克隆仓库（仅首次，获取脚本；后续由 CI 自动同步 compose/env）
+git clone https://github.com/<owner>/<repo>.git /opt/app-src
 
-# 创建部署目录和环境变量
-mkdir -p /opt/lothric/docker
-cp /opt/lothric-src/docker/deploy.env.example /opt/lothric/.env
-nano /opt/lothric/.env
+# 可自定义部署目录和端口
+DEPLOY_PATH=/opt/app bash /opt/app-src/docker/scripts/server-init.sh
+
+# 创建环境变量文件
+cp /opt/app-src/docker/deploy.env.example /opt/app/.env
+nano /opt/app/.env
 ```
 
-**必须修改 `.env` 中的两项：**
+**必须修改 `.env`：**
 
 ```env
 JWT_SECRET=你的随机长字符串至少32位
 CORS_ORIGIN=http://你的公网IP或域名
+IMAGE_REGISTRY=ghcr.io/你的用户名/你的仓库名
 ```
 
 ---
 
-## 二、配置 GitHub Actions Secrets
+## 二、配置 GitHub Actions
 
-在 GitHub 仓库 **Settings → Secrets and variables → Actions** 中添加：
+### 1. 添加 Secrets
 
-| Secret | 说明 | 示例 |
-|--------|------|------|
-| `DEPLOY_HOST` | ECS 公网 IP | `47.xxx.xxx.xxx` |
-| `DEPLOY_USER` | SSH 用户名 | `root` 或 `ubuntu` |
-| `DEPLOY_SSH_KEY` | SSH 私钥（完整 PEM） | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
-| `DEPLOY_PATH` | 服务器部署目录 | `/opt/lothric` |
-| `DEPLOY_PORT` | SSH 端口（可选） | `22` |
-| `GHCR_TOKEN` | 拉取私有镜像用 | 使用 GitHub PAT，`read:packages` 权限 |
+见上方「Secrets」表格。`DEPLOY_SSH_KEY` 为登录服务器的私钥，**不是**公钥。
 
-### 生成 GHCR_TOKEN
+生成密钥对示例：
 
-1. GitHub → Settings → Developer settings → Personal access tokens
-2. 勾选 `read:packages`（若仓库私有还需 `repo`）
-3. 复制 token 填入 `GHCR_TOKEN` secret
+```bash
+ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/deploy_key -N ""
+# 公钥写入服务器 ~/.ssh/authorized_keys
+# 私钥完整内容填入 GitHub Secret DEPLOY_SSH_KEY
+```
 
-### 配置 GHCR 包可见性
+### 2. 添加 Variables
 
-首次 push 后，在 GitHub → Packages 中将 `api`/`web`/`nginx` 包设为 **Public**（或确保 `GHCR_TOKEN` 有权限拉取私有包）。
+**必须**设置：
+
+```
+DEPLOY_ENABLED = true
+```
+
+可选覆盖默认路径：
+
+```
+DEPLOY_PATH = /opt/app
+```
+
+### 3. GHCR 包可见性
+
+首次构建后，在 GitHub → Packages 中将 `api` / `web` / `nginx` 设为 **Public**，或配置 `GHCR_TOKEN`。
 
 ---
 
@@ -89,91 +149,73 @@ CORS_ORIGIN=http://你的公网IP或域名
 git push origin master
 ```
 
-GitHub Actions 工作流 `.github/workflows/deploy.yml` 将：
-
-1. 并行构建 `api`、`web`、`nginx` 三个镜像
-2. 推送到 `ghcr.io/aabbaq/kksk_project/{api,web,nginx}:latest`
-3. SSH 到 ECS，执行 `docker compose pull && up -d`
-
 查看进度：GitHub → Actions → **Build and Deploy**
 
 ---
 
-## 四、服务器手动运维命令
+## 四、常见错误
+
+### `can't connect without a private SSH key or password`
+
+**原因：** deploy 阶段已执行，但 SSH 凭证未配置完整。
+
+| 检查项 | 处理 |
+|--------|------|
+| 未设置 `DEPLOY_ENABLED` | 若暂不部署，**不要**设 `DEPLOY_ENABLED=true`；工作流将只构建镜像 |
+| 缺少 `DEPLOY_SSH_KEY` | 在 Secrets 中添加 SSH 私钥 |
+| 缺少 `DEPLOY_HOST` / `DEPLOY_USER` | 补全服务器地址和用户名 |
+| 私钥格式错误 | 粘贴完整 PEM，含首尾行 |
+
+更新后（本 PR）工作流会在 deploy 前校验 Secrets，并在 `DEPLOY_ENABLED != true` 时跳过部署。
+
+### `IMAGE_REGISTRY is required`
+
+服务器 `.env` 缺少 `IMAGE_REGISTRY`。手动添加或重新触发 CI 部署（`deploy-remote.sh` 会自动写入）。
+
+---
+
+## 五、服务器手动运维
 
 ```bash
-cd /opt/lothric
+cd "${DEPLOY_PATH:-/opt/app}"
 
-# 查看状态
 docker compose -f docker/docker-compose.prod.yml ps
-
-# 查看日志
 docker compose -f docker/docker-compose.prod.yml logs -f api
-docker compose -f docker/docker-compose.prod.yml logs -f nginx
 
 # 手动拉取最新镜像并重启
 docker compose -f docker/docker-compose.prod.yml pull
 docker compose -f docker/docker-compose.prod.yml up -d
 
-# 停止所有服务
+# 停止
 docker compose -f docker/docker-compose.prod.yml down
-
-# 备份 MongoDB
-docker exec lothric-mongodb-1 mongodump --db blog --out /data/db/backup
-docker cp lothric-mongodb-1:/data/db/backup ./backup-$(date +%Y%m%d)
 ```
+
+容器名前缀由 `COMPOSE_PROJECT_NAME` 决定（默认 `app-api-1`、`app-mongodb-1` 等）。
 
 ---
 
-## 五、设置管理员账号
-
-部署完成后，在服务器上执行：
+## 六、设置管理员账号
 
 ```bash
-docker exec -it lothric-mongodb-1 mongosh blog --eval \
+docker exec -it app-mongodb-1 mongosh blog --eval \
   'db.users.updateOne({username:"你的用户名"},{$set:{userrole:7}})'
 ```
 
 ---
 
-## 六、图片存储（可选：阿里云 OSS）
+## 七、图片存储（可选：阿里云 OSS）
 
-在 `/opt/lothric/.env` 中追加：
-
-```env
-STORAGE_USE_OBJECT_STORE=true
-S3_BUCKET=your-bucket
-S3_REGION=oss-cn-hangzhou
-S3_ENDPOINT=https://oss-cn-hangzhou.aliyuncs.com
-S3_ACCESS_KEY_ID=你的AccessKey
-S3_SECRET_ACCESS_KEY=你的SecretKey
-S3_PUBLIC_BASE_URL=https://your-bucket.oss-cn-hangzhou.aliyuncs.com
-```
-
-然后在管理员设置页开启「对象存储」开关。
+在服务器 `.env` 中追加 OSS 相关变量，详见 `docker/deploy.env.example`。
 
 ---
 
-## 七、本地验证构建（开发机）
+## 八、本地验证构建
 
 ```bash
-# 构建三个镜像
-docker build -f apps/api/Dockerfile -t lothric-api:local .
-docker build -f apps/web/Dockerfile -t lothric-web:local .
-docker build -f docker/nginx/Dockerfile -t lothric-nginx:local .
-
-# 本地启动（使用 dev compose + 构建的镜像需改 compose）
-docker compose -f docker/docker-compose.prod.yml up -d
+docker build -f apps/api/Dockerfile -t my-api:local .
+docker build -f apps/web/Dockerfile -t my-web:local .
+docker build -f docker/nginx/Dockerfile -t my-nginx:local .
 ```
-
----
-
-## 八、HTTPS（后续扩展）
-
-2 GiB 机器建议先用 HTTP（80 端口）。需要 HTTPS 时：
-
-- 方案 A：阿里云 SLB / CDN 终止 SSL，后端仍走 80
-- 方案 B：在 `nginx` 容器挂载 certbot 证书，修改 `gateway.conf` 监听 443
 
 ---
 
@@ -181,12 +223,8 @@ docker compose -f docker/docker-compose.prod.yml up -d
 
 | 文件 | 用途 |
 |------|------|
-| `apps/api/Dockerfile` | API 多阶段构建 |
-| `apps/web/Dockerfile` | 前端构建 + 内网 nginx |
-| `docker/nginx/Dockerfile` | 公网入口 nginx |
-| `docker/nginx/gateway.conf` | 反向代理规则 |
-| `docker/nginx/web.conf` | SPA 静态资源配置 |
-| `docker/docker-compose.prod.yml` | 生产编排 |
-| `docker/deploy.env.example` | 服务器环境变量模板 |
-| `.github/workflows/deploy.yml` | CI/CD 流水线 |
+| `.github/workflows/deploy.yml` | CI/CD 流水线（可配置路径与开关） |
+| `docker/scripts/deploy-remote.sh` | 服务器端部署脚本 |
 | `docker/scripts/server-init.sh` | 服务器首次初始化 |
+| `docker/docker-compose.prod.yml` | 生产编排 |
+| `docker/deploy.env.example` | 服务器 `.env` 模板 |
