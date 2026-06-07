@@ -194,6 +194,10 @@ sudo -u "$SSH_USER" rm "$DEPLOY_PATH/.write-test"
 
 工作流拷贝前会执行 **Write test**；失败时日志会打印 `SSH user:` 和目录列表，便于排查。
 
+### `deploy-remote.sh: No such file or directory`
+
+拷贝已成功，但执行脚本时工作目录不对。部署脚本位于 `$DEPLOY_PATH/docker/scripts/`，需先 `cd "$DEPLOY_PATH"` 再执行。
+
 ### `IMAGE_REGISTRY is required`
 
 服务器 `.env` 缺少 `IMAGE_REGISTRY`。手动添加或重新触发 CI 部署（`deploy-remote.sh` 会自动写入）。
