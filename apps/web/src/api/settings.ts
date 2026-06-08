@@ -3,7 +3,7 @@ import client from './client'
 export interface SiteSettingsResponse {
   status: number
   imageStorageObjectStore: boolean
-  effectiveDriver: 'local' | 's3'
+  effectiveDriver: 'local' | 'oss'
   capabilities: {
     local: boolean
     objectStore: boolean

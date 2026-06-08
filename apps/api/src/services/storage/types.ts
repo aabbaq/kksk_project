@@ -1,9 +1,7 @@
-export type StorageDriver = 'local' | 's3'
+export type StorageDriver = 'local' | 'oss'
 
 export interface StorageUploadResult {
-  /** Value stored in text.picture */
   picture: string
-  /** Resolved URL for immediate preview */
   url: string
   driver: StorageDriver
 }

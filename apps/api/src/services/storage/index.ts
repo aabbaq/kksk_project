@@ -1,24 +1,24 @@
-import { env, isS3Configured } from '../../config/env.js'
+import { env, isOssConfigured } from '../../config/env.js'
 import { getSiteSettings } from '../../modules/settings/settings.service.js'
 import { localStorageProvider } from './local.provider.js'
-import { s3StorageProvider } from './s3.provider.js'
+import { ossStorageProvider } from './oss.provider.js'
 import type { StorageDriver, StorageProvider } from './types.js'
 
 export async function getEffectiveStorageDriver (): Promise<StorageDriver> {
   const settings = await getSiteSettings()
-  if (settings.imageStorageObjectStore && isS3Configured()) return 's3'
+  if (settings.imageStorageObjectStore && isOssConfigured()) return 'oss'
   return 'local'
 }
 
 export async function getStorageProvider (): Promise<StorageProvider> {
   const driver = await getEffectiveStorageDriver()
-  return driver === 's3' ? s3StorageProvider : localStorageProvider
+  return driver === 'oss' ? ossStorageProvider : localStorageProvider
 }
 
 export function getStorageCapabilities () {
   return {
     local: true,
-    objectStore: isS3Configured(),
+    objectStore: isOssConfigured(),
     environment: env.nodeEnv,
     defaultObjectStore: env.storage.defaultObjectStore
   }

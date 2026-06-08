@@ -272,8 +272,11 @@ async function onImageUpload (files: File | File[] | null) {
       snackbar.color = 'success'
       snackbar.show = true
     }
-  } catch {
-    snackbar.text = t.value.editor.uploadCoverError
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status
+    snackbar.text = status === 413
+      ? t.value.editor.uploadCoverTooLarge
+      : t.value.editor.uploadCoverError
     snackbar.color = 'error'
     snackbar.show = true
   }
