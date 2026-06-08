@@ -41,6 +41,8 @@ Internet :80
 | `DEPLOY_PATH` | 可选 | 服务器部署目录（优先级最高） | `/opt/myapp` |
 | `DEPLOY_PORT` | 可选 | SSH 端口，默认 22 | `22` |
 | `GHCR_TOKEN` | 可选 | 拉取私有镜像的 PAT（`read:packages`） | `ghp_...` |
+| `OSS_ACCESS_KEY_ID` | 可选 | 阿里云 OSS AccessKey ID | `LTAI...` |
+| `OSS_SECRET_ACCESS_KEY` | 可选 | 阿里云 OSS AccessKey Secret | `...` |
 
 ### GitHub Actions — Variables（非敏感，可公开）
 
@@ -51,6 +53,15 @@ Internet :80
 | `DEPLOY_ENABLED` | （未设置 = 不部署） | 设为 `true` 才执行 SSH 部署阶段 |
 | `DEPLOY_PATH` | `/opt/app` | 服务器部署目录（Secret 未设置时生效） |
 | `DEPLOY_COMPOSE_FILE` | `docker/docker-compose.prod.yml` | 服务器上的 compose 文件路径（相对部署目录） |
+| `STORAGE_USE_OBJECT_STORE` | （未设置） | 设为 `true` 时默认启用对象存储（仍须在管理后台确认开关） |
+| `OSS_BUCKET` | （未设置） | OSS Bucket 名称 |
+| `OSS_REGION` | （未设置） | OSS 区域，如 `oss-cn-beijing`（华北2 北京） |
+| `OSS_ENDPOINT` | （未设置） | OSS Endpoint，如 `https://oss-cn-beijing.aliyuncs.com` |
+| `OSS_PUBLIC_BASE_URL` | （未设置） | 公共读访问前缀，如 `https://<bucket>.oss-cn-beijing.aliyuncs.com` |
+| `OSS_KEY_PREFIX` | `uploads/` | 对象键前缀 |
+| `OSS_FORCE_PATH_STYLE` | `false` | 路径风格访问（阿里云 OSS 一般为 `false`） |
+
+启用 OSS 时，CI 部署阶段会把上述变量与 Secrets 写入服务器 `docker/.env`（与 `IMAGE_REGISTRY` 相同机制）。
 
 ### 服务器 `.env`（`docker/.env`）
 
@@ -256,7 +267,27 @@ docker exec -it app-mongodb-1 mongosh blog --eval \
 
 ## 七、图片存储（可选：阿里云 OSS）
 
-在服务器 `docker/.env` 中追加 OSS 相关变量，详见 `docker/deploy.env.example`。
+推荐在 **GitHub Secrets / Variables** 中配置（见上文「可配置项一览」），由 CI 自动写入服务器 `docker/.env`。也可在服务器上手动编辑 `docker/.env`，模板见 `docker/deploy.env.example`。
+
+**华北2（北京）示例：**
+
+```env
+STORAGE_USE_OBJECT_STORE=true
+OSS_BUCKET=your-bucket
+OSS_REGION=oss-cn-beijing
+OSS_ENDPOINT=https://oss-cn-beijing.aliyuncs.com
+OSS_ACCESS_KEY_ID=...
+OSS_SECRET_ACCESS_KEY=...
+OSS_PUBLIC_BASE_URL=https://your-bucket.oss-cn-beijing.aliyuncs.com
+OSS_KEY_PREFIX=uploads/
+OSS_FORCE_PATH_STYLE=false
+```
+
+部署完成后：
+
+1. 使用管理员账号登录（见「六、设置管理员」）
+2. 进入 **用户中心 → 设置**，打开「对象存储」开关
+3. 发布或编辑文章，上传封面图验证 OSS URL 是否正常显示
 
 ---
 
