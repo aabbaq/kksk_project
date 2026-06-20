@@ -37,17 +37,25 @@
           />
           <v-row>
             <v-col cols="12" sm="6">
-              <v-text-field v-model="userInfo.alias" :label="t.profile.alias" />
+              <v-text-field
+                v-model="userInfo.alias"
+                :label="t.profile.alias"
+                prepend-inner-icon="mdi-card-account-details-outline"
+              />
             </v-col>
             <v-col cols="12" sm="6">
-              <v-text-field v-model="userInfo.emoji" :label="t.profile.emoji" />
+              <v-text-field
+                v-model="userInfo.emoji"
+                :label="t.profile.emoji"
+                prepend-inner-icon="mdi-emoticon-outline"
+              />
             </v-col>
           </v-row>
         </div>
       </v-col>
 
       <v-col cols="12" lg="5">
-        <v-card class="lothric-card lothric-profile-card mx-auto" max-width="420">
+        <v-card class="lothric-card lothric-profile-card mx-auto mx-lg-0" max-width="420">
           <v-img id="UserBanner" aspect-ratio="2.618" src="/images/pic1.jpg" cover>
             <div class="pa-4 d-flex flex-column justify-end fill-height">
               <v-avatar color="grey-darken-3" size="96" rounded="lg" class="mb-3">
@@ -68,28 +76,33 @@
       </v-col>
     </v-row>
 
-    <v-row v-if="quotas" class="mt-2">
-      <v-col cols="12" lg="7">
+    <v-row v-if="quotas" class="mt-6">
+      <v-col cols="12">
         <v-card class="lothric-card lothric-quota-panel pa-5">
-          <v-card-title class="px-0 pt-0 pb-1 text-subtitle-1">{{ t.profile.quotasTitle }}</v-card-title>
+          <v-card-title class="px-0 pt-0 pb-4 text-subtitle-1">{{ t.profile.quotasTitle }}</v-card-title>
           <v-card-text class="px-0 pb-0">
             <div class="lothric-quota-grid">
-              <div v-for="item in quotaItems" :key="item.key" class="lothric-quota-row">
-                <div class="lothric-quota-row__head">
-                  <span class="text-body-medium">{{ item.label }}</span>
-                  <span class="text-body-small text-medium-emphasis">
-                    {{ item.usage }} / {{ formatLimit(item.limit) }}
-                  </span>
+              <div v-for="item in quotaItems" :key="item.key" class="lothric-quota-cell">
+                <div class="lothric-quota-cell__icon">
+                  <v-icon :icon="item.icon" size="22" color="secondary" />
                 </div>
-                <v-progress-linear
-                  v-if="item.limit !== -1"
-                  :model-value="quotaPercent(item.usage, item.limit)"
-                  :color="quotaColor(item.usage, item.limit)"
-                  height="6"
-                  rounded
-                />
-                <div v-else class="lothric-quota-unlimited text-body-small text-medium-emphasis">
-                  {{ t.profile.quotasUnlimited }}
+                <div class="lothric-quota-cell__body">
+                  <div class="lothric-quota-row__head">
+                    <span class="text-body-medium">{{ item.label }}</span>
+                    <span class="text-body-small text-medium-emphasis">
+                      {{ item.usage }} / {{ formatLimit(item.limit) }}
+                    </span>
+                  </div>
+                  <v-progress-linear
+                    v-if="item.limit !== -1"
+                    :model-value="quotaPercent(item.usage, item.limit)"
+                    :color="quotaColor(item.usage, item.limit)"
+                    height="6"
+                    rounded
+                  />
+                  <div v-else class="lothric-quota-unlimited text-body-small text-medium-emphasis">
+                    {{ t.profile.quotasUnlimited }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -99,15 +112,15 @@
     </v-row>
 
     <v-row class="mt-4">
-      <v-col cols="12" lg="7">
+      <v-col cols="12">
         <v-btn variant="text" class="lothric-btn-blend" width="200" :loading="saving" @click="saveProfile">
           {{ t.profile.save }}
         </v-btn>
       </v-col>
     </v-row>
 
-    <v-row justify="center" class="mt-6">
-      <v-col cols="12" sm="8" md="6">
+    <v-row class="mt-6">
+      <v-col cols="12">
         <v-card class="lothric-card">
           <v-card-title>{{ t.logout.title }}</v-card-title>
           <v-card-actions class="px-4 pb-4">
@@ -182,18 +195,21 @@ const quotaItems = computed(() => {
   return [
     {
       key: 'articles',
+      icon: 'mdi-file-document-outline',
       label: t.value.profile.quotasArticles,
       usage: quotas.value.usage.articles,
       limit: quotas.value.limits.maxArticles
     },
     {
       key: 'drafts',
+      icon: 'mdi-file-edit-outline',
       label: t.value.profile.quotasDrafts,
       usage: quotas.value.usage.drafts,
       limit: quotas.value.limits.maxDrafts
     },
     {
       key: 'covers',
+      icon: 'mdi-image-outline',
       label: t.value.profile.quotasCoverImages,
       usage: quotas.value.usage.coverImages,
       limit: quotas.value.limits.maxCoverImages
@@ -298,7 +314,33 @@ onMounted(async () => {
 .lothric-quota-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px 24px;
+  gap: 24px;
+}
+
+.lothric-quota-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--lothric-border);
+  background: color-mix(in srgb, var(--lothric-surface) 72%, transparent);
+}
+
+.lothric-quota-cell__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--lothric-primary) 35%, transparent);
+}
+
+.lothric-quota-cell__body {
+  flex: 1;
+  min-width: 0;
 }
 
 .lothric-quota-row__head {
@@ -306,7 +348,7 @@ onMounted(async () => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .lothric-quota-unlimited {
