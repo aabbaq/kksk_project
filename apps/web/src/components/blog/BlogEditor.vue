@@ -323,6 +323,11 @@ onMounted(loadText)
   border-radius: var(--lothric-card-radius);
   overflow: hidden;
   border: 1px solid var(--lothric-border);
+  width: 100%;
+}
+
+.lothric-editor :deep(.md-editor) {
+  min-height: 560px;
 }
 
 .lothric-secret-legend {

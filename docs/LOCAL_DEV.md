@@ -261,18 +261,18 @@ console.log('访问地址: https://' + bucket + '.oss-cn-beijing.aliyuncs.com/' 
 |------|------|------|
 | `Cannot find package '@aws-sdk/client-s3'` | 在错误目录执行了 `node` | 进入 `apps/api` 或用 `pnpm --filter @kksk/api exec` |
 | `AccessDenied` / 403 | AK/SK 错误或 RAM 无写权限 | 检查密钥与 OSS 授权策略 |
-| `AccessDenied` + `bucket acl` | Bucket 私有且对象未设公共读 | 见下方「OSS 公共读配置」 |
+| `AccessDenied` + `bucket acl` | Bucket 私有，需通过 API 签名 URL 访问 | 见下方「OSS 访问说明」 |
 | `NoSuchBucket` / 404 | Bucket 名称错误 | 核对 `OSS_BUCKET` |
-| URL 打不开 | Bucket 非公共读 | 在阿里云控制台开启公共读，或检查 `OSS_PUBLIC_BASE_URL` |
+| URL 打不开 | 签名 URL 已过期 | 刷新页面重新获取；公开文 24h、保密文 1h |
 
-#### OSS 公共读配置（解决 `bucket acl` AccessDenied）
+#### OSS 访问说明
 
-上传成功后返回的 URL 形如 `https://<bucket>.oss-cn-beijing.aliyuncs.com/uploads/...`，需要允许匿名读取。按顺序检查：
-
-1. **关闭阻止公共访问**：阿里云 OSS 控制台 → `kksk-blog`（你的 Bucket）→ **权限管理** → **阻止公共访问** → 关闭（账号级与 Bucket 级均需关闭）。
-2. **确认 RAM 权限**：上传用的 AccessKey 需包含 `oss:PutObject` 与 `oss:PutObjectAcl`。
-3. **重新上传图片**：代码会在上传时设置对象 ACL 为 `public-read`；已上传的旧文件需重新上传，或在控制台批量修改对象 ACL。
-4. **（可选）Bucket 级公共读**：权限管理 → **读写权限** → 设为「公共读」，则整个 Bucket 内对象默认可读。
+- 对象在 OSS 中保持**私有**，不依赖随机文件名做安全保护。
+- API 返回图片地址时会生成**临时签名 URL**：
+  - 公开文章（保密等级 0）：有效期 24 小时
+  - 保密文章（保密等级 > 0）：有效期 1 小时
+- RAM 用户需包含 `oss:GetObject` 权限；**不需要**开启 Bucket 公共读或关闭阻止公共访问。
+- 上传接口返回的 `picture` 为持久化地址（存库用），`url` 为可预览的签名地址。
 
 ---
 

@@ -17,7 +17,7 @@
     72vw,
     var(--lothric-article-max)
   );
-  --lothric-form-max: 880px;
+  --lothric-form-max: clamp(960px, 88vw, 1200px);
   --lothric-footer-bg: #2d0425;
   --lothric-button-bg: rgba(255, 255, 255, 0.06);
   --lothric-section-y: 32px;
@@ -188,6 +188,8 @@ a {
 }
 
 .lothric-stack--loose {
+  display: flex;
+  flex-direction: column;
   gap: 28px;
 }
 
@@ -241,6 +243,17 @@ a {
   display: flex;
   flex-direction: column;
   gap: 28px;
+}
+
+.lothric-auth__body--fields :deep(input:-webkit-autofill),
+.lothric-auth__body--fields :deep(input:-webkit-autofill:hover),
+.lothric-auth__body--fields :deep(input:-webkit-autofill:focus),
+.lothric-auth__body--fields :deep(input:-webkit-autofill:active) {
+  -webkit-box-shadow: 0 0 0 1000px var(--lothric-surface-elevated) inset !important;
+  box-shadow: 0 0 0 1000px var(--lothric-surface-elevated) inset !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+  caret-color: rgba(255, 255, 255, 0.92);
+  transition: background-color 99999s ease-in-out 0s;
 }
 
 /* Homepage: footer sticks to viewport bottom when content is short */
