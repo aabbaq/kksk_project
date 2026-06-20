@@ -11,9 +11,46 @@
           <span class="text-h5">{{ t.auth.registerTitle }}</span>
         </v-card-title>
         <div class="lothric-auth__body lothric-auth__body--fields">
-          <v-text-field v-model="username" class="lothric-auth-field" :label="t.auth.username" variant="underlined" autocomplete="username" clearable />
-          <v-text-field v-model="nickname" class="lothric-auth-field" :label="t.auth.nickname" variant="underlined" autocomplete="nickname" clearable />
-          <v-text-field v-model="password" class="lothric-auth-field" :label="t.auth.password" variant="underlined" type="password" autocomplete="new-password" clearable />
+          <v-text-field
+            v-model="username"
+            class="lothric-auth-field"
+            :label="t.auth.username"
+            :hint="t.auth.usernameHint"
+            variant="underlined"
+            autocomplete="username"
+            maxlength="20"
+            counter="20"
+            clearable
+          />
+          <v-text-field
+            v-model="nickname"
+            class="lothric-auth-field"
+            :label="t.auth.nickname"
+            variant="underlined"
+            autocomplete="nickname"
+            clearable
+          />
+          <v-text-field
+            v-model="password"
+            class="lothric-auth-field"
+            :label="t.auth.password"
+            variant="underlined"
+            type="password"
+            autocomplete="new-password"
+            maxlength="20"
+            counter="20"
+            clearable
+          />
+          <v-text-field
+            v-if="requireInviteCode"
+            v-model="inviteCode"
+            class="lothric-auth-field"
+            :label="t.auth.inviteCode"
+            :hint="t.auth.inviteCodeHint"
+            variant="underlined"
+            maxlength="32"
+            clearable
+          />
           <v-alert
             type="error"
             density="compact"
@@ -39,12 +76,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import TopBar from '@/components/layout/TopBar.vue'
 import LothricPage from '@/components/layout/LothricPage.vue'
 import { register } from '@/api/user'
+import { getSiteSettings } from '@/api/settings'
 import { useAuthStore } from '@/stores/auth'
 import { useLocaleStore } from '@/stores/locale'
 
@@ -56,13 +94,27 @@ const router = useRouter()
 const username = ref('')
 const nickname = ref('')
 const password = ref('')
+const inviteCode = ref('')
+const requireInviteCode = ref(false)
 const inputError = ref(false)
 const errorMsg = ref('')
+
+onMounted(async () => {
+  try {
+    const res = await getSiteSettings()
+    if (res.status === 200) requireInviteCode.value = res.requireInviteCode
+  } catch { /* optional */ }
+})
 
 async function submit () {
   inputError.value = false
   try {
-    const res = await register(username.value, password.value, nickname.value || undefined)
+    const res = await register(
+      username.value,
+      password.value,
+      nickname.value || undefined,
+      inviteCode.value || undefined
+    )
     if (res.status === 200) {
       auth.changeLogin({
         token: res.token,
@@ -80,3 +132,20 @@ async function submit () {
   }
 }
 </script>
+
+<style scoped>
+.lothric-auth-field :deep(input:-webkit-autofill),
+.lothric-auth-field :deep(input:-webkit-autofill:hover),
+.lothric-auth-field :deep(input:-webkit-autofill:focus),
+.lothric-auth-field :deep(input:-webkit-autofill:active) {
+  -webkit-box-shadow: 0 0 0 1000px #2a0f24 inset !important;
+  box-shadow: 0 0 0 1000px #2a0f24 inset !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+  caret-color: rgba(255, 255, 255, 0.92);
+  transition: background-color 99999s ease-in-out 0s;
+}
+
+.lothric-auth-field :deep(.v-field__input) {
+  background-color: transparent;
+}
+</style>

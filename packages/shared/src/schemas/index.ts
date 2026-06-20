@@ -1,14 +1,16 @@
 import { z } from 'zod'
+import { USERNAME_PATTERN } from '../constants/index.js'
 
 export const loginSchema = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1)
+  username: z.string().min(1).max(20),
+  password: z.string().min(1).max(20)
 })
 
 export const registerSchema = z.object({
-  username: z.string().min(2).max(32),
-  password: z.string().min(6).max(128),
-  nickname: z.string().min(1).max(64).optional()
+  username: z.string().min(2).max(20).regex(USERNAME_PATTERN),
+  password: z.string().min(6).max(20),
+  nickname: z.string().min(1).max(64).optional(),
+  inviteCode: z.string().min(1).max(32).optional()
 })
 
 export const updateProfileSchema = z.object({
@@ -20,7 +22,7 @@ export const updateProfileSchema = z.object({
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(6).max(128)
+  newPassword: z.string().min(6).max(20)
 })
 
 export const textListQuerySchema = z.object({
@@ -51,10 +53,31 @@ export const verifyPasswordSchema = z.object({
   password: z.string().min(1)
 })
 
-export const updateSettingsSchema = z.object({
-  imageStorageObjectStore: z.boolean()
+export const quotaLimitsSchema = z.object({
+  maxArticles: z.coerce.number().int().min(-1),
+  maxDrafts: z.coerce.number().int().min(-1),
+  maxCoverImages: z.coerce.number().int().min(-1)
 })
+
+export const updateSettingsSchema = z.object({
+  imageStorageObjectStore: z.boolean().optional(),
+  requireInviteCode: z.boolean().optional(),
+  defaultQuotas: quotaLimitsSchema.optional()
+}).refine(
+  data => data.imageStorageObjectStore !== undefined
+    || data.requireInviteCode !== undefined
+    || data.defaultQuotas !== undefined,
+  { message: 'At least one setting field is required' }
+)
 
 export const updateUserRoleSchema = z.object({
   role: z.coerce.number().int().min(1).max(6)
+})
+
+export const updateUserQuotasSchema = quotaLimitsSchema
+
+export const createInviteSchema = z.object({
+  maxUses: z.coerce.number().int().min(1).max(1000).default(1),
+  expiresInDays: z.coerce.number().int().min(1).max(365).optional(),
+  note: z.string().max(200).optional()
 })

@@ -2,8 +2,10 @@ import { UserModel } from '../../models/user.model.js'
 import { hashPassword, upgradePasswordIfLegacy, verifyPassword } from '../../utils/hash.js'
 import { encryptToken } from '../../utils/token.js'
 import { dateToString } from '../../utils/response.js'
+import { getQuotaSnapshot } from '../../services/quota.service.js'
+import { consumeInviteCode, isInviteRequired } from '../../services/invite.service.js'
 
-function toUserInfo (doc: InstanceType<typeof UserModel>, token?: string) {
+function toUserInfo (doc: InstanceType<typeof UserModel>, token?: string, quotas?: Awaited<ReturnType<typeof getQuotaSnapshot>>) {
   return {
     id: doc._id.toString(),
     username: doc.username,
@@ -12,11 +14,27 @@ function toUserInfo (doc: InstanceType<typeof UserModel>, token?: string) {
     biography: doc.biography ?? '',
     alias: doc.alias ?? '',
     emoji: doc.emoji ?? '',
+    ...(quotas ? { quotas } : {}),
     ...(token ? { token } : {})
   }
 }
 
-export async function registerUser (username: string, password: string, nickname?: string) {
+export async function registerUser (
+  username: string,
+  password: string,
+  nickname?: string,
+  inviteCode?: string
+) {
+  const inviteRequired = await isInviteRequired()
+  if (inviteRequired) {
+    if (!inviteCode?.trim()) return { error: 111 as const }
+    const inviteResult = await consumeInviteCode(inviteCode)
+    if ('error' in inviteResult) return { error: inviteResult.error }
+  } else if (inviteCode?.trim()) {
+    const inviteResult = await consumeInviteCode(inviteCode)
+    if ('error' in inviteResult) return { error: inviteResult.error }
+  }
+
   const exists = await UserModel.findOne({ username })
   if (exists) return { error: 109 as const }
 
@@ -66,7 +84,8 @@ export async function loginUser (username: string, password: string) {
 export async function getUserById (id: string) {
   const user = await UserModel.findById(id)
   if (!user) return { error: 101 as const }
-  return { userInfo: toUserInfo(user) }
+  const quotas = await getQuotaSnapshot(id, user.userrole ?? 1)
+  return { userInfo: toUserInfo(user, undefined, quotas) }
 }
 
 export async function updateProfile (id: string, data: {
@@ -114,4 +133,38 @@ export async function setUserRole (id: string, role: number) {
   )
   if (!user) return { error: 101 as const }
   return { userInfo: toUserInfo(user) }
+}
+
+export async function getUserQuotasAdmin (id: string) {
+  const user = await UserModel.findById(id)
+  if (!user) return { error: 101 as const }
+  const quotas = await getQuotaSnapshot(id, user.userrole ?? 1)
+  return {
+    user: {
+      id: user._id.toString(),
+      username: user.username,
+      nickname: user.nickname ?? user.username,
+      userrole: user.userrole ?? 1
+    },
+    quotas,
+    overrides: {
+      maxArticles: user.quotas?.maxArticles ?? null,
+      maxDrafts: user.quotas?.maxDrafts ?? null,
+      maxCoverImages: user.quotas?.maxCoverImages ?? null
+    }
+  }
+}
+
+export async function setUserQuotas (
+  id: string,
+  data: { maxArticles: number, maxDrafts: number, maxCoverImages: number }
+) {
+  const user = await UserModel.findByIdAndUpdate(
+    id,
+    { quotas: data },
+    { new: true }
+  )
+  if (!user) return { error: 101 as const }
+  const quotas = await getQuotaSnapshot(id, user.userrole ?? 1)
+  return { quotas }
 }

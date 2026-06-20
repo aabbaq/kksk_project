@@ -4,11 +4,14 @@ import {
   registerSchema,
   updateProfileSchema,
   changePasswordSchema,
-  updateUserRoleSchema
+  updateUserRoleSchema,
+  updateUserQuotasSchema,
+  createInviteSchema
 } from '@kksk/shared'
 import type { AuthRequest } from '../../middleware/auth.js'
 import { sendError, sendSuccess, appErrorToHttp } from '../../utils/response.js'
 import * as userService from './user.service.js'
+import * as inviteService from '../../services/invite.service.js'
 
 export async function register (req: AuthRequest, res: Response) {
   const parsed = registerSchema.safeParse(req.body)
@@ -19,7 +22,8 @@ export async function register (req: AuthRequest, res: Response) {
   const result = await userService.registerUser(
     parsed.data.username,
     parsed.data.password,
-    parsed.data.nickname
+    parsed.data.nickname,
+    parsed.data.inviteCode
   )
   if ('error' in result && result.error) {
     sendError(res, result.error, appErrorToHttp(result.error))
@@ -105,4 +109,51 @@ export async function updateUserRole (req: AuthRequest, res: Response) {
     return
   }
   sendSuccess(res, { userInfo: result.userInfo })
+}
+
+export async function getUserQuotas (req: AuthRequest, res: Response) {
+  const result = await userService.getUserQuotasAdmin(req.params.id)
+  if ('error' in result && result.error) {
+    sendError(res, result.error, appErrorToHttp(result.error))
+    return
+  }
+  sendSuccess(res, result)
+}
+
+export async function updateUserQuotas (req: AuthRequest, res: Response) {
+  const parsed = updateUserQuotasSchema.safeParse(req.body)
+  if (!parsed.success) {
+    sendError(res, 102, 400)
+    return
+  }
+  const result = await userService.setUserQuotas(req.params.id, parsed.data)
+  if ('error' in result && result.error) {
+    sendError(res, result.error, appErrorToHttp(result.error))
+    return
+  }
+  sendSuccess(res, result)
+}
+
+export async function listInvites (_req: AuthRequest, res: Response) {
+  const invites = await inviteService.listInvites()
+  sendSuccess(res, { invites })
+}
+
+export async function createInvite (req: AuthRequest, res: Response) {
+  const parsed = createInviteSchema.safeParse(req.body)
+  if (!parsed.success) {
+    sendError(res, 102, 400)
+    return
+  }
+  const invite = await inviteService.createInvite(req.auth!.id!, parsed.data)
+  sendSuccess(res, { invite })
+}
+
+export async function removeInvite (req: AuthRequest, res: Response) {
+  const result = await inviteService.deleteInvite(req.params.code)
+  if ('error' in result && result.error) {
+    sendError(res, result.error, appErrorToHttp(result.error))
+    return
+  }
+  sendSuccess(res, { ok: true })
 }

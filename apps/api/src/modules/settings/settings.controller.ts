@@ -12,6 +12,12 @@ export async function getSettings (_req: AuthRequest, res: Response) {
 
   sendSuccess(res, {
     imageStorageObjectStore: settings.imageStorageObjectStore,
+    requireInviteCode: settings.requireInviteCode ?? false,
+    defaultQuotas: {
+      maxArticles: settings.defaultQuotas?.maxArticles ?? 10,
+      maxDrafts: settings.defaultQuotas?.maxDrafts ?? 5,
+      maxCoverImages: settings.defaultQuotas?.maxCoverImages ?? 20
+    },
     effectiveDriver,
     capabilities
   })
@@ -35,6 +41,12 @@ export async function updateSettings (req: AuthRequest, res: Response) {
 
   sendSuccess(res, {
     imageStorageObjectStore: settings.imageStorageObjectStore,
+    requireInviteCode: settings.requireInviteCode ?? false,
+    defaultQuotas: {
+      maxArticles: settings.defaultQuotas?.maxArticles ?? 10,
+      maxDrafts: settings.defaultQuotas?.maxDrafts ?? 5,
+      maxCoverImages: settings.defaultQuotas?.maxCoverImages ?? 20
+    },
     effectiveDriver,
     capabilities
   })

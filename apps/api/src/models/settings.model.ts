@@ -2,7 +2,13 @@ import mongoose, { Schema, type InferSchemaType } from 'mongoose'
 
 const siteSettingsSchema = new Schema({
   key: { type: String, required: true, unique: true, default: 'global' },
-  imageStorageObjectStore: { type: Boolean, default: false }
+  imageStorageObjectStore: { type: Boolean, default: false },
+  requireInviteCode: { type: Boolean, default: false },
+  defaultQuotas: {
+    maxArticles: { type: Number, default: 10 },
+    maxDrafts: { type: Number, default: 5 },
+    maxCoverImages: { type: Number, default: 20 }
+  }
 }, {
   timestamps: true,
   collection: 'site_settings'
