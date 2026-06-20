@@ -38,6 +38,8 @@ pnpm dev:api
 
 ## 文档
 
+- [本地开发与测试（macOS / Windows）](docs/LOCAL_DEV.md)
+- [容器化部署](docs/DEPLOY.md)
 - [重构方案](docs/REFACTOR_PLAN.md)
 - [执行计划](docs/EXECUTION_PLAN.md)
 - [业务分析](docs/BUSINESS_ANALYSIS.md)
