@@ -12,6 +12,24 @@
         </v-card-title>
         <div class="lothric-auth__body lothric-auth__body--fields">
           <v-text-field
+            v-model="nickname"
+            class="lothric-auth-field"
+            :label="t.auth.nickname"
+            variant="underlined"
+            autocomplete="nickname"
+            clearable
+          />
+          <v-text-field
+            v-if="requireInviteCode"
+            v-model="inviteCode"
+            class="lothric-auth-field"
+            :label="t.auth.inviteCode"
+            :hint="t.auth.inviteCodeHint"
+            variant="underlined"
+            maxlength="32"
+            clearable
+          />
+          <v-text-field
             v-model="username"
             class="lothric-auth-field"
             :label="t.auth.username"
@@ -23,14 +41,6 @@
             clearable
           />
           <v-text-field
-            v-model="nickname"
-            class="lothric-auth-field"
-            :label="t.auth.nickname"
-            variant="underlined"
-            autocomplete="nickname"
-            clearable
-          />
-          <v-text-field
             v-model="password"
             class="lothric-auth-field"
             :label="t.auth.password"
@@ -39,16 +49,6 @@
             autocomplete="new-password"
             maxlength="20"
             counter="20"
-            clearable
-          />
-          <v-text-field
-            v-if="requireInviteCode"
-            v-model="inviteCode"
-            class="lothric-auth-field"
-            :label="t.auth.inviteCode"
-            :hint="t.auth.inviteCodeHint"
-            variant="underlined"
-            maxlength="32"
             clearable
           />
           <v-alert

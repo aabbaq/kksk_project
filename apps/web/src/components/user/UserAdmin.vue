@@ -92,6 +92,40 @@ function formatLimit (value: number) {
   return value === -1 ? t.value.admin.unlimited : String(value)
 }
 
+function quotaPercent (usage: number, limit: number) {
+  if (limit <= 0) return usage > 0 ? 100 : 0
+  return Math.min(100, Math.round((usage / limit) * 100))
+}
+
+function quotaColor (usage: number, limit: number) {
+  if (limit === -1) return 'secondary'
+  const ratio = limit > 0 ? usage / limit : 1
+  if (ratio >= 1) return 'error'
+  if (ratio >= 0.8) return 'warning'
+  return 'secondary'
+}
+
+const quotaRows = computed(() => [
+  {
+    key: 'articles',
+    label: t.value.admin.maxArticles,
+    usage: quotaUsage.articles,
+    limit: quotaDraft.maxArticles
+  },
+  {
+    key: 'drafts',
+    label: t.value.admin.maxDrafts,
+    usage: quotaUsage.drafts,
+    limit: quotaDraft.maxDrafts
+  },
+  {
+    key: 'covers',
+    label: t.value.admin.maxCoverImages,
+    usage: quotaUsage.coverImages,
+    limit: quotaDraft.maxCoverImages
+  }
+])
+
 async function loadSiteSettings () {
   const res = await getSiteSettings()
   if (res.status === 200) {
@@ -379,28 +413,101 @@ onMounted(async () => {
       </div>
     </div>
 
-    <v-dialog v-model="userDialog" max-width="520">
-      <v-card v-if="selectedUser" class="lothric-card pa-4">
-        <v-card-title class="px-0 pt-0">{{ t.admin.userQuotas }} — {{ selectedUser.nickname }}</v-card-title>
-        <v-card-text class="px-0">
-          <p class="text-body-small text-medium-emphasis mb-4">{{ t.admin.userQuotasHint }}</p>
-          <v-progress-linear v-if="quotaLoading" indeterminate color="secondary" class="mb-4" />
+    <v-dialog v-model="userDialog" max-width="680" scrollable>
+      <v-card v-if="selectedUser" class="lothric-card lothric-quota-dialog">
+        <v-card-title class="lothric-quota-dialog__header px-6 pt-6 pb-4">
+          <div class="lothric-quota-dialog__identity">
+            <v-avatar color="secondary" variant="tonal" size="48" rounded="lg">
+              <span class="text-h6">{{ selectedUser.nickname.slice(0, 1).toUpperCase() }}</span>
+            </v-avatar>
+            <div>
+              <div class="text-h6 font-weight-medium">{{ selectedUser.nickname }}</div>
+              <div class="text-body-small text-medium-emphasis">@{{ selectedUser.username }}</div>
+            </div>
+          </div>
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="px-6 py-5">
+          <p class="text-body-small text-medium-emphasis mb-5">{{ t.admin.userQuotasHint }}</p>
+
+          <v-progress-linear v-if="quotaLoading" indeterminate color="secondary" class="mb-2" />
+
           <template v-else>
-            <p class="text-body-small mb-3">
-              {{ t.admin.quotaUsage }}:
-              {{ quotaUsage.articles }}/{{ formatLimit(quotaDraft.maxArticles) }} ·
-              {{ quotaUsage.drafts }}/{{ formatLimit(quotaDraft.maxDrafts) }} ·
-              {{ quotaUsage.coverImages }}/{{ formatLimit(quotaDraft.maxCoverImages) }}
-            </p>
-            <v-text-field v-model.number="quotaDraft.maxArticles" type="number" :label="t.admin.maxArticles" density="compact" class="mb-2" />
-            <v-text-field v-model.number="quotaDraft.maxDrafts" type="number" :label="t.admin.maxDrafts" density="compact" class="mb-2" />
-            <v-text-field v-model.number="quotaDraft.maxCoverImages" type="number" :label="t.admin.maxCoverImages" density="compact" />
+            <section class="lothric-quota-dialog__section">
+              <h4 class="text-body-large font-weight-medium mb-4">{{ t.admin.quotaUsageSection }}</h4>
+              <div class="lothric-quota-dialog__usage">
+                <div v-for="row in quotaRows" :key="row.key" class="lothric-quota-dialog__usage-row">
+                  <div class="lothric-quota-dialog__usage-head">
+                    <span class="text-body-medium">{{ row.label }}</span>
+                    <span class="text-body-small text-medium-emphasis">
+                      {{ row.usage }} / {{ formatLimit(row.limit) }}
+                    </span>
+                  </div>
+                  <v-progress-linear
+                    v-if="row.limit !== -1"
+                    :model-value="quotaPercent(row.usage, row.limit)"
+                    :color="quotaColor(row.usage, row.limit)"
+                    height="8"
+                    rounded
+                  />
+                  <div v-else class="text-body-small text-medium-emphasis">{{ t.admin.unlimited }}</div>
+                </div>
+              </div>
+            </section>
+
+            <v-divider class="my-6" />
+
+            <section class="lothric-quota-dialog__section">
+              <h4 class="text-body-large font-weight-medium mb-4">{{ t.admin.quotaLimitsSection }}</h4>
+              <v-row>
+                <v-col cols="12" sm="4">
+                  <v-text-field
+                    v-model.number="quotaDraft.maxArticles"
+                    type="number"
+                    :label="t.admin.maxArticles"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="4">
+                  <v-text-field
+                    v-model.number="quotaDraft.maxDrafts"
+                    type="number"
+                    :label="t.admin.maxDrafts"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="4">
+                  <v-text-field
+                    v-model.number="quotaDraft.maxCoverImages"
+                    type="number"
+                    :label="t.admin.maxCoverImages"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                  />
+                </v-col>
+              </v-row>
+            </section>
           </template>
         </v-card-text>
-        <v-card-actions class="px-0 pb-0">
+
+        <v-divider />
+
+        <v-card-actions class="px-6 py-4">
           <v-spacer />
-          <v-btn variant="text" @click="userDialog = false">Cancel</v-btn>
-          <v-btn class="lothric-btn-action" :loading="savingId === selectedUser.id" @click="saveUserQuotas">
+          <v-btn variant="text" @click="userDialog = false">{{ t.admin.cancel }}</v-btn>
+          <v-btn
+            class="lothric-btn-action"
+            :loading="savingId === selectedUser.id"
+            :disabled="quotaLoading"
+            @click="saveUserQuotas"
+          >
             {{ t.admin.saveQuotas }}
           </v-btn>
         </v-card-actions>
@@ -478,6 +585,31 @@ onMounted(async () => {
 }
 
 .lothric-admin-role-select { min-width: 160px; }
+
+.lothric-quota-dialog__header {
+  display: flex;
+  align-items: center;
+}
+
+.lothric-quota-dialog__identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.lothric-quota-dialog__usage {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.lothric-quota-dialog__usage-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
 
 @media (max-width: 900px) {
   .lothric-admin-row {
