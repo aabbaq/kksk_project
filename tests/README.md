@@ -27,11 +27,17 @@ pnpm test:watch
 
 ## CI (GitHub Actions)
 
-Workflow: `.github/workflows/test.yml` (runs on push/PR to `master`).
+Workflow: `.github/workflows/deploy.yml` (single CI/CD pipeline).
+
+| Stage | When | Notes |
+|-------|------|-------|
+| Tests | push/PR to `master` | Runs before build on push |
+| Build & push | push to `master` only | Blocked if tests fail |
+| Deploy | `DEPLOY_ENABLED=true` | Runs after build succeeds |
 
 | Variable | Default | Effect |
 |----------|---------|--------|
-| `TESTS_ENABLED` | run tests | Set to `false` in **Settings → Secrets and variables → Actions → Variables** to skip the test job |
+| `TESTS_ENABLED` | run tests | Set to `false` to skip tests (build/deploy still run) |
 
 ## Notes
 

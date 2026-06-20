@@ -50,6 +50,7 @@ Internet :80 / :443
 
 | Variable | 默认值 | 说明 |
 |----------|--------|------|
+| `TESTS_ENABLED` | （未设置 = 运行测试） | 设为 `false` 跳过测试阶段（构建/部署仍会执行） |
 | `DEPLOY_ENABLED` | （未设置 = 不部署） | 设为 `true` 才执行 SSH 部署阶段 |
 | `CORS_ORIGIN` | （启用部署时必填） | 用户访问的公网 URL（无尾斜杠），CI 每次部署写入服务器 `docker/.env` |
 | `DEPLOY_PATH` | `/opt/app` | 服务器部署目录（Secret 未设置时生效） |
@@ -104,11 +105,16 @@ DEPLOY_PATH=/opt/myapp HTTP_PORT=80 HTTPS_PORT=443 bash docker/scripts/server-in
 
 ```
 push master
-  → GitHub Actions 并行构建 api / web / nginx
+  → 运行单元/集成测试（可通过 TESTS_ENABLED=false 跳过）
+  → 测试通过后构建 api / web / nginx 镜像
   → 推送到 ghcr.io/<owner>/<repo>/{api,web,nginx}
   → （仅当 DEPLOY_ENABLED=true 且 Secrets 齐全）
       SSH 登录服务器 → deploy-remote.sh → compose pull && up -d
+
+pull request → 仅运行测试，不构建/部署
 ```
+
+测试失败时，构建与部署阶段不会执行。
 
 **Fork 复用说明：** 默认只构建并推送镜像到 **你自己的** GHCR（`${{ github.repository }}` 自动适配）。不配置 SSH 时不会部署，避免报错。
 
