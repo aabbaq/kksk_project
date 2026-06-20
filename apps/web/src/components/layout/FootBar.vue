@@ -1,7 +1,7 @@
 <template>
   <v-footer class="lothric-footer" :style="{ backgroundColor: colors.footbarBg }">
     <v-container class="lothric-footer__inner text-center">
-      <span class="lothric-footer__text">Lothric Castle — KKSK</span>
+      <span class="lothric-footer__text">LothricCastle</span>
     </v-container>
   </v-footer>
 </template>
