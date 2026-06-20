@@ -4,7 +4,10 @@ node_modules
 apps/*/dist
 packages/*/dist
 uploads
+uploads-test
+apps/api/uploads-test
 legacy/node_modules
+.test-mongo-uri
 
 
 # local env files

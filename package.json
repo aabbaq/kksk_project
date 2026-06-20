@@ -9,7 +9,10 @@
     "dev:web": "pnpm --filter @kksk/web dev",
     "dev:api": "pnpm --filter @kksk/api dev",
     "build": "pnpm -r build",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "pretest": "rm -f packages/shared/tsconfig.tsbuildinfo && pnpm --filter @kksk/shared build",
+    "test": "pnpm --filter @kksk/tests test",
+    "test:watch": "pnpm --filter @kksk/tests test:watch"
   },
   "engines": {
     "node": ">=20"
