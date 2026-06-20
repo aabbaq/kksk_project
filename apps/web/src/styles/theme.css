@@ -374,10 +374,22 @@ a {
 .lothric-markdown h5,
 .lothric-markdown h6,
 .lothric-markdown p,
-.lothric-markdown li,
-.lothric-markdown td,
-.lothric-markdown th {
+.lothric-markdown li {
   color: rgba(255, 255, 255, 0.92);
+}
+
+/* Tables keep github-markdown light zebra rows — use dark cell text */
+.lothric-markdown table th,
+.lothric-markdown table td {
+  color: #24292e !important;
+}
+
+.lothric-markdown table tr {
+  background-color: #fff;
+}
+
+.lothric-markdown table tr:nth-child(2n) {
+  background-color: #f6f8fa;
 }
 
 .lothric-markdown h1 {
@@ -421,6 +433,14 @@ a {
 
 .lothric-markdown hr {
   background-color: var(--lothric-border);
+}
+
+.lothric-markdown .katex,
+.lothric-markdown .katex-display {
+  color: rgba(255, 255, 255, 0.92);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
 }
 
 .transition-swing {

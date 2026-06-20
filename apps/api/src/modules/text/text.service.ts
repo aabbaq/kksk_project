@@ -226,10 +226,11 @@ function toDetail (
     lastDateInString: doc.lastDateInString ?? ''
   }
   if (!includeContent) return base
+  const markdown = doc.content ?? ''
   return {
     ...base,
-    content: doc.content ?? '',
-    htmlContent: doc.htmlContent ?? ''
+    content: markdown,
+    htmlContent: markdown ? renderMarkdown(markdown) : (doc.htmlContent ?? '')
   }
 }
 
