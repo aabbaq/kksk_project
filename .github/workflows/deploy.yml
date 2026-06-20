@@ -20,57 +20,43 @@ env:
 
 jobs:
   unit-and-integration:
-    if: vars.TESTS_ENABLED != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Tests skipped notice
+        if: vars.TESTS_ENABLED == 'false'
+        run: |
+          echo "::notice::Unit/integration tests skipped (TESTS_ENABLED=false)."
+          echo "::notice::Set repository variable TESTS_ENABLED=true (or remove it) to run tests in CI."
+
       - name: Checkout
+        if: vars.TESTS_ENABLED != 'false'
         uses: actions/checkout@v4
 
       - name: Setup pnpm
+        if: vars.TESTS_ENABLED != 'false'
         uses: pnpm/action-setup@v4
         with:
           version: 9.15.0
 
       - name: Setup Node.js
+        if: vars.TESTS_ENABLED != 'false'
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
 
       - name: Install dependencies
+        if: vars.TESTS_ENABLED != 'false'
         run: pnpm install --frozen-lockfile
 
       - name: Run backend tests
+        if: vars.TESTS_ENABLED != 'false'
         run: pnpm test
 
-  tests-skipped-notice:
-    if: vars.TESTS_ENABLED == 'false'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Tests skipped
-        run: |
-          echo "::notice::Unit/integration tests skipped (TESTS_ENABLED=false)."
-          echo "::notice::Set repository variable TESTS_ENABLED=true (or remove it) to run tests in CI."
-
-  test-gate:
-    name: Test gate
-    needs: [unit-and-integration, tests-skipped-notice]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Verify tests passed or were explicitly skipped
-        run: |
-          if [ "${{ needs.unit-and-integration.result }}" = "success" ] || [ "${{ needs.tests-skipped-notice.result }}" = "success" ]; then
-            echo "Tests passed or were explicitly skipped."
-            exit 0
-          fi
-          echo "::error::Tests failed. Build and deploy will not run."
-          exit 1
-
   build-and-push:
-    needs: test-gate
-    if: github.event_name != 'pull_request'
+    needs: unit-and-integration
+    if: ${{ always() && needs.unit-and-integration.result == 'success' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -118,7 +104,7 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.DEPLOY_ENABLED == 'true'
+    if: ${{ always() && needs.build-and-push.result == 'success' && github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.DEPLOY_ENABLED == 'true' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -225,7 +211,7 @@ jobs:
   deploy-skipped-notice:
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.DEPLOY_ENABLED != 'true'
+    if: ${{ always() && needs.build-and-push.result == 'success' && github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.DEPLOY_ENABLED != 'true' }}
     steps:
       - name: Deploy skipped
         run: |

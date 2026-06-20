@@ -116,6 +116,8 @@ pull request → 仅运行测试，不构建/部署
 
 测试失败时，构建与部署阶段不会执行。
 
+> **注意：** 测试跳过逻辑在 job 内用 step 条件实现，避免 GitHub Actions「依赖链中有 skipped job 会导致后续 job 也被跳过」的已知行为。
+
 **Fork 复用说明：** 默认只构建并推送镜像到 **你自己的** GHCR（`${{ github.repository }}` 自动适配）。不配置 SSH 时不会部署，避免报错。
 
 ---
