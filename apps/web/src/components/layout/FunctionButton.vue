@@ -6,6 +6,7 @@
         color="primary"
         icon="mdi-navigation"
         size="large"
+        rounded="circle"
         class="function-button-root__toggle"
         @click="flyToTheSky"
       />
@@ -15,7 +16,8 @@
       <v-btn
         color="primary"
         icon="mdi-cards"
-        size="default"
+        size="large"
+        rounded="circle"
         class="function-button-root__toggle"
         @click.stop="showBtns = !showBtns"
       />
@@ -24,20 +26,22 @@
     <v-scale-transition v-if="!showUpBtn" origin="bottom right">
       <v-btn
         v-if="showBtns"
-        icon="mdi-trash-can"
-        size="default"
-        class="function-button-root__item function-button-root__item--delete lothric-btn-icon-delete"
-        @click.stop="btnDialog = true"
+        icon="mdi-pencil"
+        size="large"
+        rounded="circle"
+        class="function-button-root__item function-button-root__item--edit lothric-btn-icon-edit"
+        @click.stop="goToEditPage"
       />
     </v-scale-transition>
 
     <v-scale-transition v-if="!showUpBtn" origin="bottom right">
       <v-btn
         v-if="showBtns"
-        icon="mdi-pencil"
-        size="default"
-        class="function-button-root__item function-button-root__item--edit lothric-btn-icon-edit"
-        @click.stop="goToEditPage"
+        icon="mdi-trash-can"
+        size="large"
+        rounded="circle"
+        class="function-button-root__item function-button-root__item--delete lothric-btn-icon-delete"
+        @click.stop="btnDialog = true"
       />
     </v-scale-transition>
 
@@ -46,7 +50,8 @@
         v-if="showBtns && needGoUp"
         color="primary"
         icon="mdi-navigation"
-        size="default"
+        size="large"
+        rounded="circle"
         class="function-button-root__item function-button-root__item--up"
         @click.stop="flyToTheSky"
       />
@@ -138,11 +143,11 @@ async function deleteCurrentText () {
 <style scoped>
 .function-button-root {
   position: fixed;
-  right: 64px;
-  bottom: 64px;
+  right: 96px;
+  bottom: 96px;
   z-index: 1000;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
 }
 
 .function-button-root__toggle {
@@ -153,20 +158,18 @@ async function deleteCurrentText () {
 
 .function-button-root__item {
   position: absolute;
-}
-
-.function-button-root__item--delete {
-  right: 52px;
-  bottom: 0;
+  right: 0;
 }
 
 .function-button-root__item--edit {
-  right: 0;
-  bottom: 56px;
+  bottom: 72px;
+}
+
+.function-button-root__item--delete {
+  bottom: 144px;
 }
 
 .function-button-root__item--up {
-  right: 52px;
-  bottom: 112px;
+  bottom: 216px;
 }
 </style>

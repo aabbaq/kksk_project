@@ -97,6 +97,7 @@ type MessageTree = {
     uploadCover: string
     uploadCoverOk: string
     uploadCoverError: string
+    uploadCoverTooLarge: string
     secretLevel: string
     secretLevelCap: string
     secretPublic: string
@@ -225,7 +226,7 @@ export const messages: Record<Locale, MessageTree> = {
       imageStorageLocal: '本地存储',
       imageStorageLocalDesc: '图片写入服务器 uploads 目录',
       imageStorageObject: '对象存储',
-      imageStorageObjectDesc: '图片上传到 S3 兼容对象存储，数据库只保存 URL',
+      imageStorageObjectDesc: '图片上传到阿里云 OSS，数据库只保存 URL',
       imageStorageUnavailable: '当前环境未配置对象存储凭证，无法开启。',
       imageStorageEffective: '当前生效：{driver}',
       imageStorageSaved: '图片存储设置已保存',
@@ -243,6 +244,7 @@ export const messages: Record<Locale, MessageTree> = {
       uploadCover: '上传封面',
       uploadCoverOk: '封面上传成功，请记得发布或保存草稿',
       uploadCoverError: '封面上传失败，请重试',
+      uploadCoverTooLarge: '图片超过 10MB，请压缩后重试',
       secretLevel: '保密等级',
       secretLevelCap: '你的账号等级最高支持保密等级 {max}',
       secretPublic: '公开',
@@ -384,7 +386,7 @@ export const messages: Record<Locale, MessageTree> = {
       imageStorageLocal: 'Local storage',
       imageStorageLocalDesc: 'Save images to the server uploads directory',
       imageStorageObject: 'Object storage',
-      imageStorageObjectDesc: 'Upload to S3-compatible storage; only the URL is stored in the database',
+      imageStorageObjectDesc: 'Upload to Alibaba Cloud OSS; only the URL is stored in the database',
       imageStorageUnavailable: 'Object storage credentials are not configured in this environment.',
       imageStorageEffective: 'Active driver: {driver}',
       imageStorageSaved: 'Image storage settings saved',
@@ -402,6 +404,7 @@ export const messages: Record<Locale, MessageTree> = {
       uploadCover: 'Upload cover image',
       uploadCoverOk: 'Cover uploaded — publish or save draft to apply',
       uploadCoverError: 'Cover upload failed — please try again',
+      uploadCoverTooLarge: 'Image exceeds 10MB — please compress and retry',
       secretLevel: 'Secret Level',
       secretLevelCap: 'Your account level allows up to secret level {max}',
       secretPublic: 'Public',

@@ -7,12 +7,12 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') })
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
 const nodeEnv = process.env.NODE_ENV ?? 'development'
-const s3Bucket = process.env.S3_BUCKET ?? ''
-const s3AccessKey = process.env.S3_ACCESS_KEY_ID ?? ''
-const s3SecretKey = process.env.S3_SECRET_ACCESS_KEY ?? ''
+const ossBucket = process.env.OSS_BUCKET ?? ''
+const ossAccessKey = process.env.OSS_ACCESS_KEY_ID ?? ''
+const ossSecretKey = process.env.OSS_SECRET_ACCESS_KEY ?? ''
 
-export function isS3Configured () {
-  return Boolean(s3Bucket && s3AccessKey && s3SecretKey)
+export function isOssConfigured () {
+  return Boolean(ossBucket && ossAccessKey && ossSecretKey)
 }
 
 export const env = {
@@ -28,16 +28,16 @@ export const env = {
   storage: {
     /** Default for new installs when no DB settings exist yet */
     defaultObjectStore: process.env.STORAGE_USE_OBJECT_STORE === 'true'
-      || (nodeEnv === 'production' && isS3Configured()),
-    s3: {
-      bucket: s3Bucket,
-      region: process.env.S3_REGION || 'us-east-1',
-      endpoint: process.env.S3_ENDPOINT ?? '',
-      accessKeyId: s3AccessKey,
-      secretAccessKey: s3SecretKey,
-      publicBaseUrl: process.env.S3_PUBLIC_BASE_URL ?? '',
-      keyPrefix: process.env.S3_KEY_PREFIX ?? 'uploads/',
-      forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true'
+      || (nodeEnv === 'production' && isOssConfigured()),
+    oss: {
+      bucket: ossBucket,
+      region: process.env.OSS_REGION || 'oss-cn-beijing',
+      endpoint: process.env.OSS_ENDPOINT ?? '',
+      accessKeyId: ossAccessKey,
+      secretAccessKey: ossSecretKey,
+      publicBaseUrl: process.env.OSS_PUBLIC_BASE_URL ?? '',
+      keyPrefix: process.env.OSS_KEY_PREFIX ?? 'uploads/',
+      forcePathStyle: process.env.OSS_FORCE_PATH_STYLE === 'true'
     }
   }
 }

@@ -58,6 +58,23 @@ if [ -n "$CORS_ORIGIN" ]; then
   update_env_var CORS_ORIGIN "$CORS_ORIGIN"
 fi
 
+update_env_var_if_set() {
+  local key="$1" val="${2:-}"
+  if [ -n "$val" ]; then
+    update_env_var "$key" "$val"
+  fi
+}
+
+update_env_var_if_set STORAGE_USE_OBJECT_STORE "${STORAGE_USE_OBJECT_STORE:-}"
+update_env_var_if_set OSS_BUCKET "${OSS_BUCKET:-}"
+update_env_var_if_set OSS_REGION "${OSS_REGION:-}"
+update_env_var_if_set OSS_ENDPOINT "${OSS_ENDPOINT:-}"
+update_env_var_if_set OSS_ACCESS_KEY_ID "${OSS_ACCESS_KEY_ID:-}"
+update_env_var_if_set OSS_SECRET_ACCESS_KEY "${OSS_SECRET_ACCESS_KEY:-}"
+update_env_var_if_set OSS_PUBLIC_BASE_URL "${OSS_PUBLIC_BASE_URL:-}"
+update_env_var_if_set OSS_KEY_PREFIX "${OSS_KEY_PREFIX:-}"
+update_env_var_if_set OSS_FORCE_PATH_STYLE "${OSS_FORCE_PATH_STYLE:-}"
+
 if [ -n "$GHCR_TOKEN" ] && [ -n "$GHCR_USER" ]; then
   echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 elif [ -n "$GHCR_TOKEN" ]; then

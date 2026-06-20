@@ -142,6 +142,15 @@ jobs:
           CORS_ORIGIN: ${{ vars.CORS_ORIGIN }}
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          STORAGE_USE_OBJECT_STORE: ${{ vars.STORAGE_USE_OBJECT_STORE }}
+          OSS_BUCKET: ${{ vars.OSS_BUCKET }}
+          OSS_REGION: ${{ vars.OSS_REGION }}
+          OSS_ENDPOINT: ${{ vars.OSS_ENDPOINT }}
+          OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
+          OSS_SECRET_ACCESS_KEY: ${{ secrets.OSS_SECRET_ACCESS_KEY }}
+          OSS_PUBLIC_BASE_URL: ${{ vars.OSS_PUBLIC_BASE_URL }}
+          OSS_KEY_PREFIX: ${{ vars.OSS_KEY_PREFIX }}
+          OSS_FORCE_PATH_STYLE: ${{ vars.OSS_FORCE_PATH_STYLE }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
@@ -150,7 +159,7 @@ jobs:
           # First deploy can spend >10m pulling the api image from GHCR on a slow link.
           command_timeout: 30m
           script_stop: true
-          envs: DEPLOY_PATH,COMPOSE_FILE,IMAGE_REGISTRY,IMAGE_TAG,CORS_ORIGIN,GHCR_USER,GHCR_TOKEN
+          envs: DEPLOY_PATH,COMPOSE_FILE,IMAGE_REGISTRY,IMAGE_TAG,CORS_ORIGIN,GHCR_USER,GHCR_TOKEN,STORAGE_USE_OBJECT_STORE,OSS_BUCKET,OSS_REGION,OSS_ENDPOINT,OSS_ACCESS_KEY_ID,OSS_SECRET_ACCESS_KEY,OSS_PUBLIC_BASE_URL,OSS_KEY_PREFIX,OSS_FORCE_PATH_STYLE
           script: |
             set -euo pipefail
             cd "$DEPLOY_PATH"

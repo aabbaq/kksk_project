@@ -27,7 +27,7 @@ const snackbar = reactive({
 })
 const serverDraft = reactive({
   imageStorageObjectStore: false,
-  effectiveDriver: 'local' as 'local' | 's3',
+  effectiveDriver: 'local' as 'local' | 'oss',
   objectStoreAvailable: false,
   environment: 'development'
 })
@@ -87,7 +87,7 @@ function onColorInput (key: keyof AppearanceColors, value: string) {
 }
 
 const effectiveDriverLabel = computed(() => (
-  serverDraft.effectiveDriver === 's3'
+  serverDraft.effectiveDriver === 'oss'
     ? t.value.settings.imageStorageObject
     : t.value.settings.imageStorageLocal
 ))

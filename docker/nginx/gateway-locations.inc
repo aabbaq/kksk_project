@@ -1,4 +1,4 @@
-client_max_body_size 6m;
+client_max_body_size 12m;
 
 # API
 location /api/ {

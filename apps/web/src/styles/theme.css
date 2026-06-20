@@ -163,7 +163,7 @@ a {
 .lothric-container {
   max-width: var(--lothric-content-max) !important;
   padding-top: var(--lothric-section-y) !important;
-  padding-bottom: calc(var(--lothric-section-y) + 16px) !important;
+  padding-bottom: calc(var(--lothric-section-y) + 96px) !important;
   padding-left: 24px !important;
   padding-right: 24px !important;
 }
@@ -364,6 +364,30 @@ a {
 .lothric-markdown td,
 .lothric-markdown th {
   color: rgba(255, 255, 255, 0.92);
+}
+
+.lothric-markdown h1 {
+  font-size: 1.75rem !important;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.lothric-markdown h2 {
+  font-size: 1.5rem !important;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.lothric-markdown h3 {
+  font-size: 1.25rem !important;
+}
+
+.lothric-markdown p {
+  font-size: 1rem !important;
 }
 
 .lothric-markdown a {
