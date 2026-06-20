@@ -1,6 +1,6 @@
 <template>
   <v-container class="lothric-container py-6">
-    <v-row>
+    <v-row align="start">
       <v-col cols="12" lg="7">
         <div class="lothric-stack">
           <v-text-field
@@ -43,63 +43,70 @@
               <v-text-field v-model="userInfo.emoji" :label="t.profile.emoji" />
             </v-col>
           </v-row>
-          <v-btn variant="text" class="lothric-btn-blend" width="200" :loading="saving" @click="saveProfile">
-            {{ t.profile.save }}
-          </v-btn>
         </div>
       </v-col>
 
       <v-col cols="12" lg="5">
-        <div class="lothric-profile-sidebar">
-          <v-card v-if="quotas" class="lothric-card lothric-quota-panel pa-5 mb-4">
-            <v-card-title class="px-0 pt-0 pb-1 text-subtitle-1">{{ t.profile.quotasTitle }}</v-card-title>
-            <v-card-text class="px-0 pb-0">
-              <div class="lothric-quota-stack">
-                <div v-for="item in quotaItems" :key="item.key" class="lothric-quota-row">
-                  <div class="lothric-quota-row__head">
-                    <span class="text-body-medium">{{ item.label }}</span>
-                    <span class="text-body-small text-medium-emphasis">
-                      {{ item.usage }} / {{ formatLimit(item.limit) }}
-                    </span>
-                  </div>
-                  <v-progress-linear
-                    v-if="item.limit !== -1"
-                    :model-value="quotaPercent(item.usage, item.limit)"
-                    :color="quotaColor(item.usage, item.limit)"
-                    height="6"
-                    rounded
-                  />
-                  <div v-else class="lothric-quota-unlimited text-body-small text-medium-emphasis">
-                    {{ t.profile.quotasUnlimited }}
-                  </div>
-                </div>
+        <v-card class="lothric-card lothric-profile-card mx-auto" max-width="420">
+          <v-img id="UserBanner" aspect-ratio="2.618" src="/images/pic1.jpg" cover>
+            <div class="pa-4 d-flex flex-column justify-end fill-height">
+              <v-avatar color="grey-darken-3" size="96" rounded="lg" class="mb-3">
+                <v-img src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg" />
+              </v-avatar>
+              <div class="text-h6">
+                {{ userInfo.nickname }}
+                <span v-if="userInfo.emoji">{{ userInfo.emoji }}</span>
+                <span v-if="userInfo.alias" class="ml-1">{{ userInfo.alias }}</span>
               </div>
-            </v-card-text>
-          </v-card>
-
-          <v-card class="lothric-card mx-auto" max-width="420">
-            <v-img id="UserBanner" aspect-ratio="2.618" src="/images/pic1.jpg" cover>
-              <div class="pa-4 d-flex flex-column justify-end fill-height">
-                <v-avatar color="grey-darken-3" size="96" rounded="lg" class="mb-3">
-                  <v-img src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg" />
-                </v-avatar>
-                <div class="text-h6">
-                  {{ userInfo.nickname }}
-                  <span v-if="userInfo.emoji">{{ userInfo.emoji }}</span>
-                  <span v-if="userInfo.alias" class="ml-1">{{ userInfo.alias }}</span>
-                </div>
-                <div id="UsernameInCard" class="text-body-medium">@{{ userInfo.username }}</div>
-              </div>
-            </v-img>
-            <v-card-text class="pt-4">
-              {{ userInfo.biography || t.profile.showYourself }}
-            </v-card-text>
-          </v-card>
-        </div>
+              <div id="UsernameInCard" class="text-body-medium">@{{ userInfo.username }}</div>
+            </div>
+          </v-img>
+          <v-card-text class="pt-4">
+            {{ userInfo.biography || t.profile.showYourself }}
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
 
-    <v-row justify="center" class="mt-8">
+    <v-row v-if="quotas" class="mt-2">
+      <v-col cols="12" lg="7">
+        <v-card class="lothric-card lothric-quota-panel pa-5">
+          <v-card-title class="px-0 pt-0 pb-1 text-subtitle-1">{{ t.profile.quotasTitle }}</v-card-title>
+          <v-card-text class="px-0 pb-0">
+            <div class="lothric-quota-grid">
+              <div v-for="item in quotaItems" :key="item.key" class="lothric-quota-row">
+                <div class="lothric-quota-row__head">
+                  <span class="text-body-medium">{{ item.label }}</span>
+                  <span class="text-body-small text-medium-emphasis">
+                    {{ item.usage }} / {{ formatLimit(item.limit) }}
+                  </span>
+                </div>
+                <v-progress-linear
+                  v-if="item.limit !== -1"
+                  :model-value="quotaPercent(item.usage, item.limit)"
+                  :color="quotaColor(item.usage, item.limit)"
+                  height="6"
+                  rounded
+                />
+                <div v-else class="lothric-quota-unlimited text-body-small text-medium-emphasis">
+                  {{ t.profile.quotasUnlimited }}
+                </div>
+              </div>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-row class="mt-4">
+      <v-col cols="12" lg="7">
+        <v-btn variant="text" class="lothric-btn-blend" width="200" :loading="saving" @click="saveProfile">
+          {{ t.profile.save }}
+        </v-btn>
+      </v-col>
+    </v-row>
+
+    <v-row justify="center" class="mt-6">
       <v-col cols="12" sm="8" md="6">
         <v-card class="lothric-card">
           <v-card-title>{{ t.logout.title }}</v-card-title>
@@ -283,15 +290,15 @@ onMounted(async () => {
   font-weight: 300;
 }
 
-.lothric-profile-sidebar {
-  display: flex;
-  flex-direction: column;
+.lothric-profile-card {
+  position: sticky;
+  top: 24px;
 }
 
-.lothric-quota-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.lothric-quota-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px 24px;
 }
 
 .lothric-quota-row__head {
@@ -304,5 +311,15 @@ onMounted(async () => {
 
 .lothric-quota-unlimited {
   padding-top: 2px;
+}
+
+@media (max-width: 960px) {
+  .lothric-profile-card {
+    position: static;
+  }
+
+  .lothric-quota-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
