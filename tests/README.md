@@ -25,6 +25,14 @@ pnpm test:watch
 | `helpers/api.ts` | App factory, user seeding, auth headers |
 | `setup/` | Mongo memory server + per-test DB reset |
 
+## CI (GitHub Actions)
+
+Workflow: `.github/workflows/test.yml` (runs on push/PR to `master`).
+
+| Variable | Default | Effect |
+|----------|---------|--------|
+| `TESTS_ENABLED` | run tests | Set to `false` in **Settings → Secrets and variables → Actions → Variables** to skip the test job |
+
 ## Notes
 
 - Tests use `NODE_ENV=test` and an isolated upload dir (`uploads-test`).

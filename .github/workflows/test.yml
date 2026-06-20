@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   unit-and-integration:
+    if: vars.TESTS_ENABLED != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -34,3 +35,12 @@ jobs:
 
       - name: Run backend tests
         run: pnpm test
+
+  tests-skipped-notice:
+    if: vars.TESTS_ENABLED == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tests skipped
+        run: |
+          echo "::notice::Unit/integration tests skipped (TESTS_ENABLED=false)."
+          echo "::notice::Set repository variable TESTS_ENABLED=true (or remove it) to run tests in CI."
