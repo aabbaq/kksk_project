@@ -16,6 +16,7 @@ ENV_FILE="${ENV_FILE:-docker/.env}"
 ENV_TEMPLATE="${ENV_TEMPLATE:-docker/deploy.env.example}"
 IMAGE_REGISTRY="${IMAGE_REGISTRY:?IMAGE_REGISTRY is required}"
 IMAGE_TAG="${IMAGE_TAG:?IMAGE_TAG is required}"
+CORS_ORIGIN="${CORS_ORIGIN:-}"
 GHCR_USER="${GHCR_USER:-}"
 GHCR_TOKEN="${GHCR_TOKEN:-}"
 
@@ -38,7 +39,7 @@ if [ ! -f "$ENV_FILE" ]; then
     exit 1
   fi
   cp "$ENV_TEMPLATE" "$ENV_FILE"
-  echo "WARN: $ENV_FILE created from template — edit JWT_SECRET and CORS_ORIGIN on the server!"
+  echo "WARN: $ENV_FILE created from template — edit JWT_SECRET on the server (or set GitHub variable CORS_ORIGIN for CI deploy)!"
 fi
 
 update_env_var() {
@@ -52,6 +53,10 @@ update_env_var() {
 
 update_env_var IMAGE_REGISTRY "$IMAGE_REGISTRY"
 update_env_var IMAGE_TAG "$IMAGE_TAG"
+
+if [ -n "$CORS_ORIGIN" ]; then
+  update_env_var CORS_ORIGIN "$CORS_ORIGIN"
+fi
 
 update_env_var_if_set() {
   local key="$1" val="${2:-}"
@@ -78,8 +83,14 @@ else
   echo "INFO: GHCR_TOKEN not set — assuming public GHCR packages"
 fi
 
-# .env lives beside compose file (docker/.env); compose loads it automatically
-docker compose -f "$COMPOSE_FILE" pull
+# Pull one service at a time so CI logs show progress (api is the largest layer set).
+echo "==> Pulling images (first deploy may take several minutes)..."
+for service in mongodb web api nginx; do
+  echo "==> Pulling $service..."
+  docker compose -f "$COMPOSE_FILE" pull "$service"
+done
+
+echo "==> Starting containers..."
 docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
 docker image prune -f
 
