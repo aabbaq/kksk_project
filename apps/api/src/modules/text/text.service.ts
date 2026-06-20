@@ -61,6 +61,7 @@ function buildPeekText (
     subtitle: doc.subtitle ?? '',
     number: doc.number,
     id: doc._id.toString(),
+    owner: doc.owner?.toString() ?? '',
     author: resolveAuthor(doc),
     date: dateToString(doc.date ?? new Date()),
     picture: doc.picture ?? 'default',

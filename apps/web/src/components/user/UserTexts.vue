@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia'
 import { deleteText, getBlogTexts } from '@/api/text'
 import { imageSrc } from '@/utils/image'
 import { useLocaleStore } from '@/stores/locale'
+import { canManageArticle } from '@/utils/articleAccess'
 
 interface TextMode {
   needShow: boolean
@@ -19,6 +20,7 @@ interface PeekText {
   title: string
   subtitle: string
   author: string
+  owner: string
   date: string
   picture: string
   mode?: TextMode
@@ -34,11 +36,16 @@ const peekTexts = ref<PeekText[]>([])
 const loading = ref(false)
 const loadError = ref('')
 
-const btnList = computed(() => [
-  { key: 'View', label: t.value.texts.view, btnClass: 'lothric-btn-blend' },
-  { key: 'Edit', label: t.value.texts.edit, btnClass: 'lothric-btn-edit' },
-  { key: 'Delete', label: t.value.texts.delete, btnClass: 'lothric-btn-delete' }
-])
+const btnList = computed(() => {
+  const selected = model.value !== null ? peekTexts.value[model.value] : null
+  const canManage = selected ? canManageArticle(selected.owner) : false
+  const buttons = [
+    { key: 'View', label: t.value.texts.view, btnClass: 'lothric-btn-blend' },
+    { key: 'Edit', label: t.value.texts.edit, btnClass: 'lothric-btn-edit' },
+    { key: 'Delete', label: t.value.texts.delete, btnClass: 'lothric-btn-delete' }
+  ]
+  return canManage ? buttons : buttons.filter(btn => btn.key === 'View')
+})
 
 async function loadTexts () {
   loading.value = true

@@ -122,7 +122,7 @@
 
         <v-row class="mt-2">
           <v-col cols="12" sm="6">
-            <v-dialog v-model="dialog" max-width="480">
+            <v-dialog v-model="dialog" max-width="480" :z-index="24000">
               <template #activator="{ props }">
                 <v-btn v-bind="props" class="lothric-btn-action" block size="large">
                   {{ btnName }}
@@ -171,6 +171,7 @@ import LothricPage from '@/components/layout/LothricPage.vue'
 import { getOneText, uploadBlog as uploadBlogApi, uploadImage } from '@/api/text'
 import { useLocaleStore } from '@/stores/locale'
 import { useAuthStore } from '@/stores/auth'
+import { canManageArticle } from '@/utils/articleAccess'
 
 const route = useRoute()
 const router = useRouter()
@@ -246,6 +247,10 @@ async function loadText () {
   const res = await getOneText(params)
   if (res.status === 200 && res.docs?.[0]) {
     const docs = res.docs[0]
+    if (!canManageArticle(docs.owner)) {
+      router.replace('/homepage')
+      return
+    }
     blogTextInfo.id = docs.id
     blogTextInfo.number = docs.number
     blogTextInfo.content = docs.content
@@ -328,6 +333,16 @@ onMounted(loadText)
 
 .lothric-editor :deep(.md-editor) {
   min-height: 560px;
+  position: relative;
+  z-index: 0;
+}
+
+.lothric-editor :deep(.md-editor-preview),
+.lothric-editor :deep(.md-editor-code-block),
+.lothric-editor :deep(.md-editor-code-head),
+.lothric-editor :deep(.md-editor-copy-button),
+.lothric-editor :deep(.copy-button) {
+  z-index: 1 !important;
 }
 
 .lothric-secret-legend {

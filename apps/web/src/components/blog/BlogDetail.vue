@@ -69,16 +69,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import TopBar from '@/components/layout/TopBar.vue'
 import LothricPage from '@/components/layout/LothricPage.vue'
 import { getOneText, verifyTextPassword } from '@/api/text'
 import { imageSrc } from '@/utils/image'
 import { useAuthStore } from '@/stores/auth'
+import { useContentStore } from '@/stores/content'
 
 const route = useRoute()
 const auth = useAuthStore()
+const contentStore = useContentStore()
 
 const textInfo = ref<Record<string, string>>({})
 const picture = ref('')
@@ -108,6 +110,7 @@ function applyText (docs: Record<string, string>) {
   textInfo.value = docs
   textInfo.value.dateInString = (docs.dateInString ?? '').split(' ')[0]
   picture.value = docs.picture ?? route.query.picture?.toString() ?? ''
+  contentStore.setArticle({ id: docs.id ?? textId.value, ownerId: docs.owner })
   needsPassword.value = false
   loaded.value = true
   loadError.value = ''
@@ -157,6 +160,7 @@ async function submitPassword () {
 }
 
 onMounted(() => loadText())
+onUnmounted(() => contentStore.clear())
 
 watch(() => route.fullPath, () => loadText())
 watch(() => auth.isLoggedIn, () => loadText())

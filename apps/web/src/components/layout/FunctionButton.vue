@@ -25,7 +25,7 @@
 
     <v-scale-transition v-if="!showUpBtn" origin="bottom right">
       <v-btn
-        v-if="showBtns"
+        v-if="showBtns && canManageCurrent"
         icon="mdi-pencil"
         size="large"
         rounded="circle"
@@ -36,7 +36,7 @@
 
     <v-scale-transition v-if="!showUpBtn" origin="bottom right">
       <v-btn
-        v-if="showBtns"
+        v-if="showBtns && canManageCurrent"
         icon="mdi-trash-can"
         size="large"
         rounded="circle"
@@ -57,7 +57,7 @@
       />
     </v-scale-transition>
 
-    <v-dialog v-model="btnDialog" width="500">
+    <v-dialog v-model="btnDialog" width="500" :z-index="24000">
       <v-card class="lothric-card pa-2">
         <v-card-title>Delete The Text</v-card-title>
         <v-card-text>Be Sure Nothing Wrong!</v-card-text>
@@ -75,9 +75,12 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useContentStore } from '@/stores/content'
 import { deleteText } from '@/api/text'
+import { canManageArticle } from '@/utils/articleAccess'
 
 const auth = useAuthStore()
+const contentStore = useContentStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -116,7 +119,12 @@ onUnmounted(() => {
 })
 
 const needGoUp = computed(() => scrollDistance.value >= windowHeight.value - 50)
-const showUpBtn = computed(() => !auth.isLoggedIn || route.name !== 'content')
+const canManageCurrent = computed(() => canManageArticle(contentStore.ownerId))
+const showUpBtn = computed(() => {
+  if (!auth.isLoggedIn) return true
+  if (route.name !== 'content') return true
+  return !canManageCurrent.value
+})
 
 function flyToTheSky () {
   window.scrollTo({ top: 0, behavior: 'smooth' })
