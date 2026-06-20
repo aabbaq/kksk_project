@@ -80,6 +80,10 @@ jobs:
             echo "::error::DEPLOY_USER secret is required when DEPLOY_ENABLED=true"
             missing=1
           fi
+          if [ -z "${{ vars.CORS_ORIGIN }}" ]; then
+            echo "::error::CORS_ORIGIN variable is required when DEPLOY_ENABLED=true"
+            missing=1
+          fi
           exit $missing
 
       - name: Show resolved deploy config
@@ -87,6 +91,7 @@ jobs:
           echo "DEPLOY_REMOTE_PATH=${{ env.DEPLOY_REMOTE_PATH }}"
           echo "DEPLOY_COMPOSE_FILE=${{ env.DEPLOY_COMPOSE_FILE }}"
           echo "IMAGE_PREFIX=${{ env.IMAGE_PREFIX }}"
+          echo "CORS_ORIGIN=${{ vars.CORS_ORIGIN }}"
 
       - name: Setup SSH key
         run: |
@@ -133,6 +138,7 @@ jobs:
           COMPOSE_FILE: ${{ env.DEPLOY_COMPOSE_FILE }}
           IMAGE_REGISTRY: ghcr.io/${{ github.repository }}
           IMAGE_TAG: ${{ github.sha }}
+          CORS_ORIGIN: ${{ vars.CORS_ORIGIN }}
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         with:
@@ -141,7 +147,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.DEPLOY_PORT || 22 }}
           script_stop: true
-          envs: DEPLOY_PATH,COMPOSE_FILE,IMAGE_REGISTRY,IMAGE_TAG,GHCR_USER,GHCR_TOKEN
+          envs: DEPLOY_PATH,COMPOSE_FILE,IMAGE_REGISTRY,IMAGE_TAG,CORS_ORIGIN,GHCR_USER,GHCR_TOKEN
           script: |
             set -euo pipefail
             cd "$DEPLOY_PATH"

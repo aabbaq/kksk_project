@@ -49,6 +49,7 @@ Internet :80 / :443
 | Variable | 默认值 | 说明 |
 |----------|--------|------|
 | `DEPLOY_ENABLED` | （未设置 = 不部署） | 设为 `true` 才执行 SSH 部署阶段 |
+| `CORS_ORIGIN` | （启用部署时必填） | 用户访问的公网 URL（无尾斜杠），CI 每次部署写入服务器 `docker/.env` |
 | `DEPLOY_PATH` | `/opt/app` | 服务器部署目录（Secret 未设置时生效） |
 | `DEPLOY_COMPOSE_FILE` | `docker/docker-compose.prod.yml` | 服务器上的 compose 文件路径（相对部署目录） |
 
@@ -65,8 +66,8 @@ $DEPLOY_PATH/docker/docker-compose.prod.yml
 
 | 变量 | 必填 | 说明 |
 |------|------|------|
-| `JWT_SECRET` | 是 | JWT 签名密钥（≥32 字符随机串） |
-| `CORS_ORIGIN` | 是 | 用户访问的公网 URL（无尾斜杠） |
+| `JWT_SECRET` | 是 | JWT 签名密钥（≥32 字符随机串），需在服务器手动配置 |
+| `CORS_ORIGIN` | 是 | 用户访问的公网 URL（无尾斜杠）；**启用 CI 部署时由 GitHub Variable 自动写入** |
 | `IMAGE_REGISTRY` | 是 | 镜像仓库前缀，CI 每次部署自动写入 | `ghcr.io/owner/repo` |
 | `IMAGE_TAG` | 是 | 镜像标签，CI 自动写入 commit SHA | `latest` |
 | `COMPOSE_PROJECT_NAME` | 可选 | Docker Compose 项目名（容器前缀） | `app` |
@@ -116,12 +117,17 @@ cp /opt/app-src/docker/deploy.env.example /opt/app/docker/.env
 nano /opt/app/docker/.env
 ```
 
-**必须修改 `.env`：**
+**必须修改 `.env`（或依赖 CI 自动写入）：**
 
 ```env
 JWT_SECRET=你的随机长字符串至少32位
-CORS_ORIGIN=https://你的域名
 IMAGE_REGISTRY=ghcr.io/你的用户名/你的仓库名
+```
+
+`CORS_ORIGIN` 在启用 CI 部署时由 GitHub Variable 自动写入（见下方 Variables 配置）。若手动部署，在 `docker/.env` 中设置：
+
+```env
+CORS_ORIGIN=https://你的域名
 ```
 
 **启用 HTTPS 前，先在服务器放置证书（见 [六、HTTPS 证书（手动部署）](#六https-证书手动部署)）。**
@@ -148,7 +154,10 @@ ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/deploy_key -N ""
 
 ```
 DEPLOY_ENABLED = true
+CORS_ORIGIN = https://你的域名
 ```
+
+`CORS_ORIGIN` 无尾斜杠；启用 HTTPS 时使用 `https://`。每次 CI 部署会自动同步到服务器 `docker/.env` 并重启 api 容器。
 
 可选覆盖默认路径：
 
@@ -294,12 +303,15 @@ chmod 600 "$DEPLOY_PATH/certs/privkey.pem"
 cat domain.crt intermediate.crt > fullchain.pem
 ```
 
-**2. 修改 `docker/.env`**
+**2. 配置 GitHub Variable `CORS_ORIGIN`**
 
-```env
-CORS_ORIGIN=https://你的域名    # 必须与浏览器访问地址一致，含 https://，无尾斜杠
-HTTPS_PORT=443
+在仓库 **Settings → Secrets and variables → Actions → Variables** 中设置：
+
 ```
+CORS_ORIGIN = https://你的域名
+```
+
+CI 部署时会自动写入服务器 `docker/.env`。若你已在服务器手动配置过，下次部署会被 Variable 覆盖。
 
 **3. 放行端口**
 
@@ -376,7 +388,7 @@ docker compose -f docker/docker-compose.prod.yml logs nginx
 
 **浏览器提示证书有效，但 API 报 CORS 错误**
 
-`CORS_ORIGIN` 仍为 `http://`，需改为 `https://你的域名` 后重启 api：
+检查 GitHub Variable `CORS_ORIGIN` 是否为 `https://你的域名`（无尾斜杠），重新触发部署；或手动修改 `docker/.env` 后重启 api：
 
 ```bash
 docker compose -f docker/docker-compose.prod.yml up -d api
