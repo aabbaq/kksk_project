@@ -16,6 +16,7 @@ ENV_FILE="${ENV_FILE:-docker/.env}"
 ENV_TEMPLATE="${ENV_TEMPLATE:-docker/deploy.env.example}"
 IMAGE_REGISTRY="${IMAGE_REGISTRY:?IMAGE_REGISTRY is required}"
 IMAGE_TAG="${IMAGE_TAG:?IMAGE_TAG is required}"
+CORS_ORIGIN="${CORS_ORIGIN:-}"
 GHCR_USER="${GHCR_USER:-}"
 GHCR_TOKEN="${GHCR_TOKEN:-}"
 
@@ -38,7 +39,7 @@ if [ ! -f "$ENV_FILE" ]; then
     exit 1
   fi
   cp "$ENV_TEMPLATE" "$ENV_FILE"
-  echo "WARN: $ENV_FILE created from template — edit JWT_SECRET and CORS_ORIGIN on the server!"
+  echo "WARN: $ENV_FILE created from template — edit JWT_SECRET on the server (or set GitHub variable CORS_ORIGIN for CI deploy)!"
 fi
 
 update_env_var() {
@@ -52,6 +53,10 @@ update_env_var() {
 
 update_env_var IMAGE_REGISTRY "$IMAGE_REGISTRY"
 update_env_var IMAGE_TAG "$IMAGE_TAG"
+
+if [ -n "$CORS_ORIGIN" ]; then
+  update_env_var CORS_ORIGIN "$CORS_ORIGIN"
+fi
 
 if [ -n "$GHCR_TOKEN" ] && [ -n "$GHCR_USER" ]; then
   echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
