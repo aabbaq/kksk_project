@@ -118,6 +118,7 @@ jobs:
             docker/docker-compose.prod.yml \
             docker/deploy.env.example \
             docker/scripts/deploy-remote.sh \
+            docker/scripts/reload-nginx.sh \
           | ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p "${{ secrets.DEPLOY_PORT || 22 }}" \
               "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
               "tar xzf - -C '${{ env.DEPLOY_REMOTE_PATH }}'"

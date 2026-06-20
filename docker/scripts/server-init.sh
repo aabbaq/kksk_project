@@ -9,17 +9,19 @@ set -euo pipefail
 
 DEPLOY_PATH="${DEPLOY_PATH:-/opt/app}"
 HTTP_PORT="${HTTP_PORT:-80}"
+HTTPS_PORT="${HTTPS_PORT:-443}"
 
 echo "==> Creating deploy directory: $DEPLOY_PATH"
-mkdir -p "$DEPLOY_PATH/docker"
+mkdir -p "$DEPLOY_PATH/docker" "$DEPLOY_PATH/certs"
 
 echo "==> Ensuring Docker Compose plugin is available"
 docker compose version
 
-echo "==> Opening HTTP port $HTTP_PORT (ufw, if enabled)"
+echo "==> Opening HTTP/HTTPS ports (ufw, if enabled)"
 if command -v ufw &>/dev/null && ufw status | grep -q 'Status: active'; then
   ufw allow "${HTTP_PORT}/tcp"
-  echo "    ufw: allowed ${HTTP_PORT}/tcp"
+  ufw allow "${HTTPS_PORT}/tcp"
+  echo "    ufw: allowed ${HTTP_PORT}/tcp and ${HTTPS_PORT}/tcp"
 fi
 
 echo ""
@@ -29,7 +31,10 @@ echo "  2. Copy env template:"
 echo "       cp $DEPLOY_PATH/docker/deploy.env.example $DEPLOY_PATH/docker/.env"
 echo "  3. Edit secrets:"
 echo "       nano $DEPLOY_PATH/docker/.env"
-echo "       # Set JWT_SECRET, CORS_ORIGIN, IMAGE_REGISTRY"
-echo "  4. Set repository variable DEPLOY_ENABLED=true, then push to master"
+echo "       # Set JWT_SECRET, CORS_ORIGIN (https://...), IMAGE_REGISTRY"
+echo "  4. Upload TLS certs before first HTTPS deploy (see docs/DEPLOY.md):"
+echo "       $DEPLOY_PATH/certs/fullchain.pem"
+echo "       $DEPLOY_PATH/certs/privkey.pem"
+echo "  5. Set repository variable DEPLOY_ENABLED=true, then push to master"
 echo ""
 echo "Done."
