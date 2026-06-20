@@ -233,6 +233,7 @@ a {
   max-width: 440px;
   border-radius: var(--lothric-card-radius);
   border: 1px solid var(--lothric-border);
+  color-scheme: dark;
 }
 
 .lothric-auth__body {
@@ -243,17 +244,6 @@ a {
   display: flex;
   flex-direction: column;
   gap: 28px;
-}
-
-.lothric-auth__body--fields :deep(input:-webkit-autofill),
-.lothric-auth__body--fields :deep(input:-webkit-autofill:hover),
-.lothric-auth__body--fields :deep(input:-webkit-autofill:focus),
-.lothric-auth__body--fields :deep(input:-webkit-autofill:active) {
-  -webkit-box-shadow: 0 0 0 1000px var(--lothric-surface-elevated) inset !important;
-  box-shadow: 0 0 0 1000px var(--lothric-surface-elevated) inset !important;
-  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
-  caret-color: rgba(255, 255, 255, 0.92);
-  transition: background-color 99999s ease-in-out 0s;
 }
 
 /* Homepage: footer sticks to viewport bottom when content is short */

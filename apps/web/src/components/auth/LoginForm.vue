@@ -13,21 +13,25 @@
         <div class="lothric-auth__body lothric-auth__body--fields">
           <v-text-field
             v-model="userName"
+            class="lothric-auth-field"
             :rules="rules.username"
             :label="t.auth.name"
             color="secondary"
             variant="underlined"
+            autocomplete="username"
             clearable
             @click="inputError = false"
             @keydown.enter="userSignIn"
           />
           <v-text-field
             v-model="userPassword"
+            class="lothric-auth-field"
             :rules="rules.password"
             :label="t.auth.password"
             color="secondary"
             variant="underlined"
             type="password"
+            autocomplete="current-password"
             clearable
             @click="inputError = false"
             @keydown.enter="userSignIn"
@@ -114,3 +118,20 @@ async function userSignIn () {
   }
 }
 </script>
+
+<style scoped>
+.lothric-auth-field :deep(input:-webkit-autofill),
+.lothric-auth-field :deep(input:-webkit-autofill:hover),
+.lothric-auth-field :deep(input:-webkit-autofill:focus),
+.lothric-auth-field :deep(input:-webkit-autofill:active) {
+  -webkit-box-shadow: 0 0 0 1000px #2a0f24 inset !important;
+  box-shadow: 0 0 0 1000px #2a0f24 inset !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+  caret-color: rgba(255, 255, 255, 0.92);
+  transition: background-color 99999s ease-in-out 0s;
+}
+
+.lothric-auth-field :deep(.v-field__input) {
+  background-color: transparent;
+}
+</style>

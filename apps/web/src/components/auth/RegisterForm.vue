@@ -11,9 +11,9 @@
           <span class="text-h5">{{ t.auth.registerTitle }}</span>
         </v-card-title>
         <div class="lothric-auth__body lothric-auth__body--fields">
-          <v-text-field v-model="username" :label="t.auth.username" variant="underlined" clearable />
-          <v-text-field v-model="nickname" :label="t.auth.nickname" variant="underlined" clearable />
-          <v-text-field v-model="password" :label="t.auth.password" variant="underlined" type="password" clearable />
+          <v-text-field v-model="username" class="lothric-auth-field" :label="t.auth.username" variant="underlined" autocomplete="username" clearable />
+          <v-text-field v-model="nickname" class="lothric-auth-field" :label="t.auth.nickname" variant="underlined" autocomplete="nickname" clearable />
+          <v-text-field v-model="password" class="lothric-auth-field" :label="t.auth.password" variant="underlined" type="password" autocomplete="new-password" clearable />
           <v-alert
             type="error"
             density="compact"
