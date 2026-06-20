@@ -171,6 +171,9 @@ type MessageTree = {
     userQuotas: string
     userQuotasHint: string
     quotaUsage: string
+    quotaUsageSection: string
+    quotaLimitsSection: string
+    cancel: string
     saveQuotas: string
     quotasUpdated: string
     quotasUpdateError: string
@@ -365,6 +368,9 @@ export const messages: Record<Locale, MessageTree> = {
       userQuotas: '用户配额',
       userQuotasHint: '覆盖该用户的文章、草稿与封面图上限（-1 表示无限）。',
       quotaUsage: '当前用量',
+      quotaUsageSection: '当前用量',
+      quotaLimitsSection: '配额上限',
+      cancel: '取消',
       saveQuotas: '保存配额',
       quotasUpdated: '配额已更新',
       quotasUpdateError: '配额更新失败',
@@ -565,6 +571,9 @@ export const messages: Record<Locale, MessageTree> = {
       userQuotas: 'User quotas',
       userQuotasHint: 'Override article, draft, and cover limits for this user (-1 = unlimited).',
       quotaUsage: 'Current usage',
+      quotaUsageSection: 'Current usage',
+      quotaLimitsSection: 'Quota limits',
+      cancel: 'Cancel',
       saveQuotas: 'Save quotas',
       quotasUpdated: 'Quotas updated',
       quotasUpdateError: 'Failed to update quotas',

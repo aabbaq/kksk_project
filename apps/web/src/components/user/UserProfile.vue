@@ -3,26 +3,6 @@
     <v-row>
       <v-col cols="12" lg="7">
         <div class="lothric-stack">
-          <v-card v-if="quotas" class="lothric-card pa-4 mb-2">
-            <v-card-title class="px-0 pt-0 text-subtitle-1">{{ t.profile.quotasTitle }}</v-card-title>
-            <v-card-text class="px-0 pb-0">
-              <div class="lothric-quota-grid">
-                <div class="lothric-quota-item">
-                  <span class="text-body-small text-medium-emphasis">{{ t.profile.quotasArticles }}</span>
-                  <span class="text-body-large">{{ quotas.usage.articles }} / {{ formatLimit(quotas.limits.maxArticles) }}</span>
-                </div>
-                <div class="lothric-quota-item">
-                  <span class="text-body-small text-medium-emphasis">{{ t.profile.quotasDrafts }}</span>
-                  <span class="text-body-large">{{ quotas.usage.drafts }} / {{ formatLimit(quotas.limits.maxDrafts) }}</span>
-                </div>
-                <div class="lothric-quota-item">
-                  <span class="text-body-small text-medium-emphasis">{{ t.profile.quotasCoverImages }}</span>
-                  <span class="text-body-large">{{ quotas.usage.coverImages }} / {{ formatLimit(quotas.limits.maxCoverImages) }}</span>
-                </div>
-              </div>
-            </v-card-text>
-          </v-card>
-
           <v-text-field
             :label="t.profile.username"
             :model-value="userInfo.username"
@@ -70,24 +50,52 @@
       </v-col>
 
       <v-col cols="12" lg="5">
-        <v-card class="lothric-card mx-auto" max-width="420">
-          <v-img id="UserBanner" aspect-ratio="2.618" src="/images/pic1.jpg" cover>
-            <div class="pa-4 d-flex flex-column justify-end fill-height">
-              <v-avatar color="grey-darken-3" size="96" rounded="lg" class="mb-3">
-                <v-img src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg" />
-              </v-avatar>
-              <div class="text-h6">
-                {{ userInfo.nickname }}
-                <span v-if="userInfo.emoji">{{ userInfo.emoji }}</span>
-                <span v-if="userInfo.alias" class="ml-1">{{ userInfo.alias }}</span>
+        <div class="lothric-profile-sidebar">
+          <v-card v-if="quotas" class="lothric-card lothric-quota-panel pa-5 mb-4">
+            <v-card-title class="px-0 pt-0 pb-1 text-subtitle-1">{{ t.profile.quotasTitle }}</v-card-title>
+            <v-card-text class="px-0 pb-0">
+              <div class="lothric-quota-stack">
+                <div v-for="item in quotaItems" :key="item.key" class="lothric-quota-row">
+                  <div class="lothric-quota-row__head">
+                    <span class="text-body-medium">{{ item.label }}</span>
+                    <span class="text-body-small text-medium-emphasis">
+                      {{ item.usage }} / {{ formatLimit(item.limit) }}
+                    </span>
+                  </div>
+                  <v-progress-linear
+                    v-if="item.limit !== -1"
+                    :model-value="quotaPercent(item.usage, item.limit)"
+                    :color="quotaColor(item.usage, item.limit)"
+                    height="6"
+                    rounded
+                  />
+                  <div v-else class="lothric-quota-unlimited text-body-small text-medium-emphasis">
+                    {{ t.profile.quotasUnlimited }}
+                  </div>
+                </div>
               </div>
-              <div id="UsernameInCard" class="text-body-medium">@{{ userInfo.username }}</div>
-            </div>
-          </v-img>
-          <v-card-text class="pt-4">
-            {{ userInfo.biography || t.profile.showYourself }}
-          </v-card-text>
-        </v-card>
+            </v-card-text>
+          </v-card>
+
+          <v-card class="lothric-card mx-auto" max-width="420">
+            <v-img id="UserBanner" aspect-ratio="2.618" src="/images/pic1.jpg" cover>
+              <div class="pa-4 d-flex flex-column justify-end fill-height">
+                <v-avatar color="grey-darken-3" size="96" rounded="lg" class="mb-3">
+                  <v-img src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg" />
+                </v-avatar>
+                <div class="text-h6">
+                  {{ userInfo.nickname }}
+                  <span v-if="userInfo.emoji">{{ userInfo.emoji }}</span>
+                  <span v-if="userInfo.alias" class="ml-1">{{ userInfo.alias }}</span>
+                </div>
+                <div id="UsernameInCard" class="text-body-medium">@{{ userInfo.username }}</div>
+              </div>
+            </v-img>
+            <v-card-text class="pt-4">
+              {{ userInfo.biography || t.profile.showYourself }}
+            </v-card-text>
+          </v-card>
+        </div>
       </v-col>
     </v-row>
 
@@ -129,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { changePassword as changePasswordApi, getUserInfo, updateProfile } from '@/api/user'
@@ -162,8 +170,45 @@ const quotas = ref<{
   usage: { articles: number, drafts: number, coverImages: number }
 } | null>(null)
 
+const quotaItems = computed(() => {
+  if (!quotas.value) return []
+  return [
+    {
+      key: 'articles',
+      label: t.value.profile.quotasArticles,
+      usage: quotas.value.usage.articles,
+      limit: quotas.value.limits.maxArticles
+    },
+    {
+      key: 'drafts',
+      label: t.value.profile.quotasDrafts,
+      usage: quotas.value.usage.drafts,
+      limit: quotas.value.limits.maxDrafts
+    },
+    {
+      key: 'covers',
+      label: t.value.profile.quotasCoverImages,
+      usage: quotas.value.usage.coverImages,
+      limit: quotas.value.limits.maxCoverImages
+    }
+  ]
+})
+
 function formatLimit (value: number) {
   return value === -1 ? t.value.profile.quotasUnlimited : String(value)
+}
+
+function quotaPercent (usage: number, limit: number) {
+  if (limit <= 0) return usage > 0 ? 100 : 0
+  return Math.min(100, Math.round((usage / limit) * 100))
+}
+
+function quotaColor (usage: number, limit: number) {
+  if (limit === -1) return 'secondary'
+  const ratio = limit > 0 ? usage / limit : 1
+  if (ratio >= 1) return 'error'
+  if (ratio >= 0.8) return 'warning'
+  return 'secondary'
 }
 
 function toggleNicknameEdit () {
@@ -238,21 +283,26 @@ onMounted(async () => {
   font-weight: 300;
 }
 
-.lothric-quota-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.lothric-quota-item {
+.lothric-profile-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
-@media (max-width: 600px) {
-  .lothric-quota-grid {
-    grid-template-columns: 1fr;
-  }
+.lothric-quota-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.lothric-quota-row__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.lothric-quota-unlimited {
+  padding-top: 2px;
 }
 </style>
