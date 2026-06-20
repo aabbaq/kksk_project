@@ -2,24 +2,31 @@
   <div>
     <TopBar />
     <LothricPage>
-      <v-parallax
+      <div
         v-if="picture"
-        class="lothric-detail-hero"
-        height="360"
-        :src="imageSrc(picture)"
+        class="lothric-detail-hero-wrap"
+        @mouseenter="heroHover = true"
+        @mouseleave="heroHover = false"
       >
-        <div class="lothric-detail-hero__overlay">
-          <h1 class="text-h4 text-md-h3 font-weight-light lothric-hero__line">
-            {{ textInfo.title }}
-          </h1>
-          <p class="text-body-medium font-italic lothric-hero__line mt-2">
-            {{ textInfo.dateInString }}
-          </p>
-          <p class="text-body-large lothric-hero__line mt-1">
-            {{ textInfo.author }}
-          </p>
-        </div>
-      </v-parallax>
+        <v-parallax
+          class="lothric-detail-hero"
+          :class="{ 'lothric-detail-hero--hover': heroHover }"
+          height="360"
+          :src="imageSrc(picture)"
+        >
+          <div class="lothric-detail-hero__overlay">
+            <h1 class="text-h4 text-md-h3 font-weight-light lothric-hero__line">
+              {{ textInfo.title }}
+            </h1>
+            <p class="text-body-medium font-italic lothric-hero__line mt-2">
+              {{ textInfo.dateInString }}
+            </p>
+            <p class="text-body-large lothric-hero__line mt-1">
+              {{ textInfo.author }}
+            </p>
+          </div>
+        </v-parallax>
+      </div>
 
       <v-container v-if="loading" class="lothric-container lothric-container--article">
         <v-progress-linear indeterminate color="secondary" class="mt-6" />
@@ -82,6 +89,7 @@ const textId = ref('')
 const loading = ref(true)
 const loaded = ref(false)
 const loadError = ref('')
+const heroHover = ref(false)
 
 function buildQueryParams () {
   const params: Record<string, string | number> = {}
@@ -155,6 +163,10 @@ watch(() => auth.isLoggedIn, () => loadText())
 </script>
 
 <style scoped>
+.lothric-detail-hero-wrap {
+  position: relative;
+}
+
 .lothric-detail-hero__overlay {
   display: flex;
   flex-direction: column;
@@ -165,14 +177,12 @@ watch(() => auth.isLoggedIn, () => loadText())
   text-align: center;
 }
 
-.lothric-detail-hero:not(:hover) :deep(.v-parallax__image-container),
-.lothric-detail-hero:not(:hover) :deep(.v-parallax__image) {
+.lothric-detail-hero:not(.lothric-detail-hero--hover) :deep(.v-img__img) {
   filter: blur(10px);
   transition: filter 0.5s ease-in-out;
 }
 
-.lothric-detail-hero:hover :deep(.v-parallax__image-container),
-.lothric-detail-hero:hover :deep(.v-parallax__image) {
+.lothric-detail-hero--hover :deep(.v-img__img) {
   filter: none;
   transition: filter 0.5s ease-in-out;
 }
