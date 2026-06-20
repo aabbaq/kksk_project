@@ -4,7 +4,13 @@ export const LOCALE_STORAGE_KEY = 'lothric_locale'
 
 type MessageTree = {
   tabs: Record<'myself' | 'texts' | 'drafts' | 'settings' | 'admin', string>
-  topbar: { post: string; welcome: string; guestDenied: string }
+  topbar: {
+    post: string
+    welcome: string
+    guestDenied: string
+    restAtBonfire: string
+    lightBonfire: string
+  }
   auth: {
     loginTitle: string
     registerTitle: string
@@ -193,7 +199,9 @@ export const messages: Record<Locale, MessageTree> = {
     topbar: {
       post: '写文章',
       welcome: '欢迎你！{name}！',
-      guestDenied: '你不属于这里！'
+      guestDenied: '你不属于这里！',
+      restAtBonfire: '在营火处休息',
+      lightBonfire: '点燃营火'
     },
     auth: {
       loginTitle: '登录',
@@ -203,7 +211,7 @@ export const messages: Record<Locale, MessageTree> = {
       username: '用户名',
       nickname: '昵称',
       loginError: '用户名或密码错误！',
-      loginSubmit: '点燃篝火',
+      loginSubmit: '登录',
       registerSubmit: '加入旅程',
       createAccount: '创建新账号',
       backToLogin: '返回登录',
@@ -396,7 +404,9 @@ export const messages: Record<Locale, MessageTree> = {
     topbar: {
       post: 'Post',
       welcome: 'Welcome, {name}!',
-      guestDenied: 'You do not belong here!'
+      guestDenied: 'You do not belong here!',
+      restAtBonfire: 'Rest at the Bonfire',
+      lightBonfire: 'Light the Bonfire'
     },
     auth: {
       loginTitle: 'Login',
@@ -406,7 +416,7 @@ export const messages: Record<Locale, MessageTree> = {
       username: 'Username',
       nickname: 'Nickname',
       loginError: 'Wrong Password or Username!',
-      loginSubmit: 'Light BonFire',
+      loginSubmit: 'Login',
       registerSubmit: 'Join Lothric',
       createAccount: 'Create a new account',
       backToLogin: 'Back to Login',

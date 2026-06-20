@@ -3,7 +3,7 @@
     <TopBar />
     <LothricPage>
     <div class="lothric-auth">
-      <v-img src="@/assets/logo.svg" class="mb-6" contain max-height="160" max-width="280" />
+      <v-img src="@/assets/logo.png" class="mb-6" contain max-height="160" max-width="160" />
       <h1 class="text-h4 font-weight-bold mb-6 text-center">Join Lothric</h1>
 
       <v-card class="lothric-auth__card" color="surface-bright">

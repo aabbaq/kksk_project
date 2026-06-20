@@ -20,10 +20,10 @@
       <template #activator="{ props }">
         <v-btn variant="text" class="lothric-btn-blend mr-2" v-bind="props">
           <router-link v-if="auth.isLoggedIn" :to="toWhere" id="Postbuttom">
-            下北沢に着きました
+            {{ t.topbar.restAtBonfire }}
           </router-link>
           <router-link v-else :to="toWhere" id="Loginbuttom">
-            下北沢に向かう
+            {{ t.topbar.lightBonfire }}
           </router-link>
         </v-btn>
       </template>
