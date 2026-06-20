@@ -60,6 +60,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     if: github.ref == 'refs/heads/master' && vars.DEPLOY_ENABLED == 'true'
     steps:
       - name: Checkout
@@ -146,6 +147,8 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.DEPLOY_PORT || 22 }}
+          # First deploy can spend >10m pulling the api image from GHCR on a slow link.
+          command_timeout: 30m
           script_stop: true
           envs: DEPLOY_PATH,COMPOSE_FILE,IMAGE_REGISTRY,IMAGE_TAG,CORS_ORIGIN,GHCR_USER,GHCR_TOKEN
           script: |

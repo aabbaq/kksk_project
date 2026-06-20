@@ -66,8 +66,14 @@ else
   echo "INFO: GHCR_TOKEN not set — assuming public GHCR packages"
 fi
 
-# .env lives beside compose file (docker/.env); compose loads it automatically
-docker compose -f "$COMPOSE_FILE" pull
+# Pull one service at a time so CI logs show progress (api is the largest layer set).
+echo "==> Pulling images (first deploy may take several minutes)..."
+for service in mongodb web api nginx; do
+  echo "==> Pulling $service..."
+  docker compose -f "$COMPOSE_FILE" pull "$service"
+done
+
+echo "==> Starting containers..."
 docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
 docker image prune -f
 
