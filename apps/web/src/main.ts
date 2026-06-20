@@ -5,6 +5,7 @@ import router from './router'
 import vuetify from './plugins/vuetify'
 import { useAppearanceStore } from './stores/appearance'
 import { useLocaleStore } from './stores/locale'
+import 'katex/dist/katex.min.css'
 import './styles/theme.css'
 
 const app = createApp(App)
