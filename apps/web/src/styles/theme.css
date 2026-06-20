@@ -23,6 +23,10 @@
   --lothric-section-y: 32px;
   --lothric-card-radius: 16px;
   --lothric-stack-gap: 20px;
+  --lothric-md-body: 1rem;
+  --lothric-md-list: 0.9375rem;
+  --lothric-md-code-inline: 0.875em;
+  --lothric-md-code-block: 0.8125rem;
 }
 
 a {
@@ -413,17 +417,66 @@ a {
 }
 
 .lothric-markdown p {
-  font-size: 1rem !important;
+  font-size: var(--lothric-md-body) !important;
+  line-height: 1.75;
+}
+
+.lothric-markdown ol,
+.lothric-markdown ul {
+  font-size: var(--lothric-md-list) !important;
+  padding-left: 1.5em;
+  line-height: 1.65;
+}
+
+.lothric-markdown li {
+  font-size: inherit;
+  word-wrap: break-word;
+}
+
+.lothric-markdown li > p {
+  font-size: inherit !important;
+  margin-top: 0.35em;
+  margin-bottom: 0.35em;
+}
+
+.lothric-markdown li + li {
+  margin-top: 0.2em;
 }
 
 .lothric-markdown a {
   color: var(--lothric-edit);
 }
 
-.lothric-markdown code,
-.lothric-markdown pre {
+.lothric-markdown :not(pre) > code {
+  font-size: var(--lothric-md-code-inline) !important;
   color: rgba(255, 255, 255, 0.9);
   background: rgba(0, 0, 0, 0.35);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+}
+
+.lothric-markdown pre,
+.lothric-markdown .highlight pre {
+  font-size: var(--lothric-md-code-block) !important;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+}
+
+.lothric-markdown pre > code,
+.lothric-markdown pre code,
+.lothric-markdown .highlight pre > code {
+  font-size: inherit !important;
+  background: transparent;
+  padding: 0;
+}
+
+.lothric-markdown .hljs {
+  font-size: inherit;
+  padding: 0.85em 1em;
+  background: #2b2b2b;
+  border-radius: 8px;
 }
 
 .lothric-markdown blockquote {
