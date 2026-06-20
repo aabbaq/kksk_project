@@ -58,6 +58,8 @@ jobs:
     needs: unit-and-integration
     if: ${{ always() && needs.unit-and-integration.result == 'success' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
+    env:
+      WEB_GITHUB_URL: ${{ vars.GITHUB_URL || 'https://github.com/aabbaq/kksk_project' }}
     permissions:
       contents: read
       packages: write
@@ -93,6 +95,7 @@ jobs:
           context: ${{ matrix.context }}
           file: ${{ matrix.file }}
           push: true
+          build-args: ${{ matrix.service == 'web' && format('VITE_GITHUB_URL={0}', env.WEB_GITHUB_URL) || '' }}
           tags: |
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest
             ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ github.sha }}

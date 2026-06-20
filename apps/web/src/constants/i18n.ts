@@ -10,6 +10,7 @@ type MessageTree = {
     guestDenied: string
     restAtBonfire: string
     lightBonfire: string
+    github: string
   }
   auth: {
     loginTitle: string
@@ -201,7 +202,8 @@ export const messages: Record<Locale, MessageTree> = {
       welcome: '欢迎你！{name}！',
       guestDenied: '你不属于这里！',
       restAtBonfire: '在营火处休息',
-      lightBonfire: '点燃营火'
+      lightBonfire: '点燃营火',
+      github: 'GitHub 仓库'
     },
     auth: {
       loginTitle: '登录',
@@ -406,7 +408,8 @@ export const messages: Record<Locale, MessageTree> = {
       welcome: 'Welcome, {name}!',
       guestDenied: 'You do not belong here!',
       restAtBonfire: 'Rest at the Bonfire',
-      lightBonfire: 'Light the Bonfire'
+      lightBonfire: 'Light the Bonfire',
+      github: 'GitHub repository'
     },
     auth: {
       loginTitle: 'Login',
