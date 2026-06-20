@@ -457,6 +457,8 @@ OSS_FORCE_PATH_STYLE=false
 2. 进入 **用户中心 → 设置**，打开「对象存储」开关
 3. 发布或编辑文章，上传封面图验证 OSS URL 是否正常显示
 
+若图片 URL 返回 `AccessDenied`（`bucket acl`），说明 Bucket 阻止了匿名读取。请在 OSS 控制台关闭 **阻止公共访问**，并确保 RAM 用户有 `oss:PutObjectAcl` 权限；上传代码会将对象 ACL 设为 `public-read`。
+
 ---
 
 ## 九、本地验证构建

@@ -41,7 +41,9 @@ export const ossStorageProvider: StorageProvider = {
       Bucket: env.storage.oss.bucket,
       Key: key,
       Body: file.buffer,
-      ContentType: file.mimetype
+      ContentType: file.mimetype,
+      // Public URL is returned after upload; object must allow anonymous read.
+      ACL: 'public-read'
     }))
 
     const url = buildPublicUrl(key)
