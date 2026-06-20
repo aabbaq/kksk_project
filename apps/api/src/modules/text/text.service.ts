@@ -4,6 +4,7 @@ import { UserModel } from '../../models/user.model.js'
 import { CounterModel } from '../../models/counter.model.js'
 import { dateToString } from '../../utils/response.js'
 import { renderMarkdown } from '../../utils/markdown.js'
+import { resolveOssPictureUrl } from '../../services/storage/oss-url.js'
 import type { AuthRequest } from '../../middleware/auth.js'
 
 interface ListQuery {
@@ -75,6 +76,17 @@ function buildPeekText (
   return peek
 }
 
+async function withSignedPicture<T extends { picture?: string }> (
+  item: T,
+  secretLevel = 0
+): Promise<T> {
+  if (!item.picture || item.picture === 'default') return item
+  return {
+    ...item,
+    picture: await resolveOssPictureUrl(item.picture, secretLevel)
+  }
+}
+
 function buildVisibilityFilter (auth?: AuthRequest['auth'], draft?: boolean) {
   const role = auth?.isTokenVerified ? (auth.userrole ?? 0) : 0
   const userId = auth?.id
@@ -141,7 +153,12 @@ export async function listTexts (auth: AuthRequest['auth'], query: ListQuery) {
   const resolveAuthor = await buildAuthorResolver(docs)
 
   return {
-    peekTexts: docs.map(d => buildPeekText(d, resolveAuthor, query.needCardsInfo)),
+    peekTexts: await Promise.all(
+      docs.map(async (d) => withSignedPicture(
+        buildPeekText(d, resolveAuthor, query.needCardsInfo),
+        d.secretLevel ?? 0
+      ))
+    ),
     textsCount: total,
     page: query.page,
     pageSize: query.pageSize,
@@ -228,7 +245,11 @@ export async function getTextDetail (
 
   const includeContent = access === true
   const resolveAuthor = await buildAuthorResolver([doc])
-  return { text: toDetail(doc, resolveAuthor, includeContent) }
+  const text = await withSignedPicture(
+    toDetail(doc, resolveAuthor, includeContent),
+    doc.secretLevel ?? 0
+  )
+  return { text }
 }
 
 export async function verifyTextPassword (id: string, password: string, auth?: AuthRequest['auth']) {
@@ -242,7 +263,11 @@ export async function verifyTextPassword (id: string, password: string, auth?: A
   const access = canViewText(doc, auth)
   if (access === 'password_required' || access === true) {
     const resolveAuthor = await buildAuthorResolver([doc])
-    return { text: toDetail(doc, resolveAuthor, true) }
+    const text = await withSignedPicture(
+      toDetail(doc, resolveAuthor, true),
+      doc.secretLevel ?? 0
+    )
+    return { text }
   }
   return { error: 105 as const }
 }
