@@ -118,6 +118,7 @@ async function submit () {
     if (res.status === 200) {
       auth.changeLogin({
         token: res.token,
+        id: res.id,
         username: res.username,
         nickname: res.nickname,
         userrole: res.userrole

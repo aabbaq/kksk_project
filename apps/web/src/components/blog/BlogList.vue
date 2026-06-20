@@ -67,7 +67,7 @@
                 {{ peekText.tag }}
               </v-chip>
               <v-spacer />
-              <template v-if="auth.isLoggedIn">
+              <template v-if="canManageArticle(peekText.owner)">
                 <v-btn
                   icon
                   size="small"
@@ -141,6 +141,7 @@ import { useAuthStore } from '@/stores/auth'
 import { tokenCheck } from '@/api/user'
 import { deleteText, getBlogTexts } from '@/api/text'
 import { imageSrc } from '@/utils/image'
+import { canManageArticle } from '@/utils/articleAccess'
 
 interface PeekText {
   id: string
@@ -148,6 +149,7 @@ interface PeekText {
   title: string
   subtitle: string
   author: string
+  owner: string
   date: string
   picture: string
   tag?: string
