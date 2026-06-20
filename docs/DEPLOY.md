@@ -183,6 +183,23 @@ git push origin master
 
 ## 四、常见错误
 
+### `Run Command Timeout` / deploy 阶段在 `docker compose pull` 超时
+
+**原因：** 首次部署从 GHCR 拉取 `api` 镜像较慢（层多、带宽有限），SSH 部署脚本默认 **10 分钟**超时。
+
+**处理：**
+
+1. 工作流已将 deploy 步骤 `command_timeout` 提高到 **30 分钟**；合并后重新触发 Actions 即可
+2. 或在服务器手动完成首次拉取后再走 CI：
+
+```bash
+cd /opt/app   # 你的 DEPLOY_PATH
+docker compose -f docker/docker-compose.prod.yml pull
+docker compose -f docker/docker-compose.prod.yml up -d
+```
+
+后续部署多为增量层，一般会快很多。
+
 ### `can't connect without a private SSH key or password`
 
 **原因：** deploy 阶段已执行，但 SSH 凭证未配置完整。
