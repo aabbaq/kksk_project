@@ -10,6 +10,10 @@ const HTTP_STATUS_MAP: Record<number, number> = {
   107: 403,  // password required
   108: 401,  // wrong protected password
   109: 409,  // duplicate username
+  110: 400,  // invalid username
+  111: 400,  // invite required
+  112: 400,  // invalid invite
+  113: 429,  // quota exceeded
   404: 404,  // generic not found (used directly as app code + http status)
   501: 404,  // text not found (legacy code, kept for compat)
   500: 500   // generic server error

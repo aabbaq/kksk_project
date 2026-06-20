@@ -3,6 +3,26 @@
     <v-row>
       <v-col cols="12" lg="7">
         <div class="lothric-stack">
+          <v-card v-if="quotas" class="lothric-card pa-4 mb-2">
+            <v-card-title class="px-0 pt-0 text-subtitle-1">{{ t.profile.quotasTitle }}</v-card-title>
+            <v-card-text class="px-0 pb-0">
+              <div class="lothric-quota-grid">
+                <div class="lothric-quota-item">
+                  <span class="text-body-small text-medium-emphasis">{{ t.profile.quotasArticles }}</span>
+                  <span class="text-body-large">{{ quotas.usage.articles }} / {{ formatLimit(quotas.limits.maxArticles) }}</span>
+                </div>
+                <div class="lothric-quota-item">
+                  <span class="text-body-small text-medium-emphasis">{{ t.profile.quotasDrafts }}</span>
+                  <span class="text-body-large">{{ quotas.usage.drafts }} / {{ formatLimit(quotas.limits.maxDrafts) }}</span>
+                </div>
+                <div class="lothric-quota-item">
+                  <span class="text-body-small text-medium-emphasis">{{ t.profile.quotasCoverImages }}</span>
+                  <span class="text-body-large">{{ quotas.usage.coverImages }} / {{ formatLimit(quotas.limits.maxCoverImages) }}</span>
+                </div>
+              </div>
+            </v-card-text>
+          </v-card>
+
           <v-text-field
             :label="t.profile.username"
             :model-value="userInfo.username"
@@ -137,6 +157,14 @@ const userInfo = reactive({
   alias: '',
   emoji: ''
 })
+const quotas = ref<{
+  limits: { maxArticles: number, maxDrafts: number, maxCoverImages: number }
+  usage: { articles: number, drafts: number, coverImages: number }
+} | null>(null)
+
+function formatLimit (value: number) {
+  return value === -1 ? t.value.profile.quotasUnlimited : String(value)
+}
 
 function toggleNicknameEdit () {
   canNicknameChange.value = !canNicknameChange.value
@@ -192,6 +220,7 @@ onMounted(async () => {
   const res = await getUserInfo()
   if (res.status === 200) {
     Object.assign(userInfo, res.userInfo)
+    if (res.userInfo?.quotas) quotas.value = res.userInfo.quotas
   }
 })
 </script>
@@ -207,5 +236,23 @@ onMounted(async () => {
 #UsernameInCard {
   color: rgba(255, 255, 255, 0.85);
   font-weight: 300;
+}
+
+.lothric-quota-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.lothric-quota-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (max-width: 600px) {
+  .lothric-quota-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

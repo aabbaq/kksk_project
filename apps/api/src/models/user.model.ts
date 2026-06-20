@@ -11,7 +11,12 @@ const userInfoSchema = new Schema({
   lastLoginDateInString: String,
   biography: String,
   alias: String,
-  emoji: String
+  emoji: String,
+  quotas: {
+    maxArticles: Number,
+    maxDrafts: Number,
+    maxCoverImages: Number
+  }
 })
 
 export type UserDocument = InferSchemaType<typeof userInfoSchema> & {

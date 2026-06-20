@@ -5,6 +5,7 @@ import { CounterModel } from '../../models/counter.model.js'
 import { dateToString } from '../../utils/response.js'
 import { renderMarkdown } from '../../utils/markdown.js'
 import { resolveOssPictureUrl } from '../../services/storage/oss-url.js'
+import { assertArticleQuota, assertDraftQuota } from '../../services/quota.service.js'
 import type { AuthRequest } from '../../middleware/auth.js'
 
 interface ListQuery {
@@ -330,6 +331,16 @@ export async function upsertText (
     if (!existing) return { error: 404 as const }
     if (role !== 7 && existing.owner?.toString() !== auth?.id) return { error: 105 as const }
 
+    const nextIsDraft = body.isDraft ?? existing.isDraft ?? false
+    if (existing.isDraft && !nextIsDraft) {
+      const quota = await assertArticleQuota(auth!.id!, role)
+      if ('error' in quota) return quota
+    }
+    if (!existing.isDraft && nextIsDraft) {
+      const quota = await assertDraftQuota(auth!.id!, role)
+      if ('error' in quota) return quota
+    }
+
     // BUG-6 fix: only update fields that were explicitly provided
     const updateFields: Record<string, unknown> = {
       title: body.blogtitle,
@@ -353,6 +364,11 @@ export async function upsertText (
   }
 
   // BUG-5 fix: use atomic counter for article number
+  const quota = body.isDraft
+    ? await assertDraftQuota(auth!.id!, role)
+    : await assertArticleQuota(auth!.id!, role)
+  if ('error' in quota) return quota
+
   const number = await getNextArticleNumber()
 
   await TextModel.create({

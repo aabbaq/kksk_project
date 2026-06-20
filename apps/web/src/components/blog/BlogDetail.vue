@@ -2,15 +2,20 @@
   <div>
     <TopBar />
     <LothricPage>
-      <v-parallax v-if="picture" id="textPic" height="360" :src="imageSrc(picture)">
-        <div class="lothric-hero__overlay">
-          <h1 class="text-h4 text-md-h3 font-weight-light lothric-hero__line">
+      <v-parallax
+        v-if="picture"
+        class="lothric-detail-hero"
+        height="360"
+        :src="imageSrc(picture)"
+      >
+        <div class="lothric-detail-hero__overlay lothric-hero__overlay">
+          <h1 class="text-h4 text-md-h3 font-weight-light lothric-hero__line lothric-detail-hero__line">
             {{ textInfo.title }}
           </h1>
-          <p class="text-body-medium font-italic lothric-hero__line mt-2">
+          <p class="text-body-medium font-italic lothric-hero__line lothric-detail-hero__line mt-2">
             {{ textInfo.dateInString }}
           </p>
-          <p class="text-body-large lothric-hero__line mt-1">
+          <p class="text-body-large lothric-hero__line lothric-detail-hero__line mt-1">
             {{ textInfo.author }}
           </p>
         </div>
@@ -150,11 +155,32 @@ watch(() => auth.isLoggedIn, () => loadText())
 </script>
 
 <style scoped>
-#textPic :deep(.v-parallax__image) {
-  filter: blur(8px);
-  transition: filter 0.5s ease-in-out;
+.lothric-detail-hero :deep(.v-parallax__image) {
+  filter: blur(12px);
+  transform: scale(1.06);
+  transition: filter 0.45s ease, transform 0.45s ease;
 }
-#textPic:hover :deep(.v-parallax__image) {
+
+.lothric-detail-hero:hover :deep(.v-parallax__image) {
   filter: none;
+  transform: scale(1);
+}
+
+.lothric-detail-hero__overlay {
+  transition: opacity 0.45s ease, filter 0.45s ease;
+}
+
+.lothric-detail-hero:hover .lothric-detail-hero__overlay {
+  opacity: 0.2;
+  filter: blur(6px);
+}
+
+.lothric-detail-hero__line {
+  transition: opacity 0.45s ease, text-shadow 0.45s ease;
+}
+
+.lothric-detail-hero:hover .lothric-detail-hero__line {
+  opacity: 0.35;
+  text-shadow: none;
 }
 </style>

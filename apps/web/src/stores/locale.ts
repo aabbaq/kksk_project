@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { LOCALE_STORAGE_KEY, messages, type Locale } from '@/constants/i18n'
 
 export const useLocaleStore = defineStore('locale', () => {
-  const locale = ref<Locale>('zh')
+  const locale = ref<Locale>('en')
 
   const t = computed(() => messages[locale.value])
 

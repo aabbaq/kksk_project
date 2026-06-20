@@ -14,10 +14,18 @@ export async function getSiteSettings () {
   return doc
 }
 
-export async function updateSiteSettings (data: { imageStorageObjectStore: boolean }) {
+export async function updateSiteSettings (data: {
+  imageStorageObjectStore?: boolean
+  requireInviteCode?: boolean
+  defaultQuotas?: {
+    maxArticles: number
+    maxDrafts: number
+    maxCoverImages: number
+  }
+}) {
   const doc = await SiteSettingsModel.findOneAndUpdate(
     { key: SETTINGS_KEY },
-    { imageStorageObjectStore: data.imageStorageObjectStore },
+    { $set: data },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   )
   return doc!

@@ -18,6 +18,9 @@ type MessageTree = {
     createAccount: string
     backToLogin: string
     registerError: string
+    inviteCode: string
+    inviteCodeHint: string
+    usernameHint: string
   }
   logout: {
     title: string
@@ -38,6 +41,11 @@ type MessageTree = {
     saveSuccess: string
     saveError: string
     showYourself: string
+    quotasTitle: string
+    quotasArticles: string
+    quotasDrafts: string
+    quotasCoverImages: string
+    quotasUnlimited: string
   }
   texts: {
     explore: string
@@ -135,6 +143,38 @@ type MessageTree = {
     noUsers: string
     roleLabels: Record<number, string>
     selfEditWarning: string
+    siteSettings: string
+    siteSettingsHint: string
+    inviteRequired: string
+    inviteRequiredDesc: string
+    defaultQuotas: string
+    defaultQuotasHint: string
+    maxArticles: string
+    maxDrafts: string
+    maxCoverImages: string
+    saveSiteSettings: string
+    siteSettingsSaved: string
+    siteSettingsError: string
+    invites: string
+    invitesHint: string
+    createInvite: string
+    inviteMaxUses: string
+    inviteExpiresDays: string
+    inviteNote: string
+    inviteCode: string
+    inviteUses: string
+    inviteExpires: string
+    inviteCreated: string
+    inviteDeleted: string
+    inviteDelete: string
+    manageUser: string
+    userQuotas: string
+    userQuotasHint: string
+    quotaUsage: string
+    saveQuotas: string
+    quotasUpdated: string
+    quotasUpdateError: string
+    unlimited: string
   }
 }
 
@@ -164,7 +204,10 @@ export const messages: Record<Locale, MessageTree> = {
       registerSubmit: '加入旅程',
       createAccount: '创建新账号',
       backToLogin: '返回登录',
-      registerError: '注册失败'
+      registerError: '注册失败',
+      inviteCode: '邀请码',
+      inviteCodeHint: '当前需要邀请码才能注册',
+      usernameHint: '仅英文字母、数字及 _ . - ，最多 20 位'
     },
     logout: {
       title: '退出登录',
@@ -184,7 +227,12 @@ export const messages: Record<Locale, MessageTree> = {
       save: '保存资料',
       saveSuccess: '资料已保存',
       saveError: '保存失败，请稍后重试',
-      showYourself: '展示你自己'
+      showYourself: '展示你自己',
+      quotasTitle: '账号配额',
+      quotasArticles: '已发布文章',
+      quotasDrafts: '草稿',
+      quotasCoverImages: '封面图上传',
+      quotasUnlimited: '无限制'
     },
     texts: {
       explore: '查看详情',
@@ -289,6 +337,38 @@ export const messages: Record<Locale, MessageTree> = {
       roleUpdateError: '更新失败，请稍后重试',
       noUsers: '未找到用户',
       selfEditWarning: '（当前账号）',
+      siteSettings: '站点设置',
+      siteSettingsHint: '图片存储、邀请码开关与默认配额。',
+      inviteRequired: '注册需邀请码',
+      inviteRequiredDesc: '开启后注册必须填写有效邀请码（不影响登录）',
+      defaultQuotas: '默认配额',
+      defaultQuotasHint: '新用户默认上限，可在用户管理中单独调整。',
+      maxArticles: '发布文章',
+      maxDrafts: '草稿',
+      maxCoverImages: '封面图',
+      saveSiteSettings: '保存站点设置',
+      siteSettingsSaved: '站点设置已保存',
+      siteSettingsError: '站点设置保存失败',
+      invites: '邀请码',
+      invitesHint: '生成邀请码供新用户注册使用。',
+      createInvite: '生成邀请码',
+      inviteMaxUses: '可用次数',
+      inviteExpiresDays: '有效天数（可选）',
+      inviteNote: '备注（可选）',
+      inviteCode: '邀请码',
+      inviteUses: '已用 / 总量',
+      inviteExpires: '过期时间',
+      inviteCreated: '邀请码已生成',
+      inviteDeleted: '邀请码已删除',
+      inviteDelete: '删除',
+      manageUser: '管理',
+      userQuotas: '用户配额',
+      userQuotasHint: '覆盖该用户的文章、草稿与封面图上限（-1 表示无限）。',
+      quotaUsage: '当前用量',
+      saveQuotas: '保存配额',
+      quotasUpdated: '配额已更新',
+      quotasUpdateError: '配额更新失败',
+      unlimited: '无限',
       roleLabels: {
         1: '1 — 普通用户',
         2: '2 — 可读秘密',
@@ -324,7 +404,10 @@ export const messages: Record<Locale, MessageTree> = {
       registerSubmit: 'Join Lothric',
       createAccount: 'Create a new account',
       backToLogin: 'Back to Login',
-      registerError: 'Registration failed'
+      registerError: 'Registration failed',
+      inviteCode: 'Invite code',
+      inviteCodeHint: 'An invite code is required to register',
+      usernameHint: 'Letters, numbers, and _ . - only; max 20 characters'
     },
     logout: {
       title: 'Log Out',
@@ -344,7 +427,12 @@ export const messages: Record<Locale, MessageTree> = {
       save: 'Save Profile',
       saveSuccess: 'Profile saved successfully',
       saveError: 'Failed to save profile. Please try again.',
-      showYourself: 'Show yourself'
+      showYourself: 'Show yourself',
+      quotasTitle: 'Account quotas',
+      quotasArticles: 'Published articles',
+      quotasDrafts: 'Drafts',
+      quotasCoverImages: 'Cover uploads',
+      quotasUnlimited: 'Unlimited'
     },
     texts: {
       explore: 'Explore',
@@ -449,6 +537,38 @@ export const messages: Record<Locale, MessageTree> = {
       roleUpdateError: 'Update failed. Please try again.',
       noUsers: 'No users found',
       selfEditWarning: '(current account)',
+      siteSettings: 'Site settings',
+      siteSettingsHint: 'Image storage, invite-only registration, and default quotas.',
+      inviteRequired: 'Require invite code',
+      inviteRequiredDesc: 'When enabled, registration requires a valid invite code (login unchanged).',
+      defaultQuotas: 'Default quotas',
+      defaultQuotasHint: 'Limits for new users; override per user below.',
+      maxArticles: 'Published articles',
+      maxDrafts: 'Drafts',
+      maxCoverImages: 'Cover images',
+      saveSiteSettings: 'Save site settings',
+      siteSettingsSaved: 'Site settings saved',
+      siteSettingsError: 'Failed to save site settings',
+      invites: 'Invite codes',
+      invitesHint: 'Generate codes for new user registration.',
+      createInvite: 'Generate invite',
+      inviteMaxUses: 'Max uses',
+      inviteExpiresDays: 'Expires in days (optional)',
+      inviteNote: 'Note (optional)',
+      inviteCode: 'Code',
+      inviteUses: 'Used / max',
+      inviteExpires: 'Expires',
+      inviteCreated: 'Invite code created',
+      inviteDeleted: 'Invite code deleted',
+      inviteDelete: 'Delete',
+      manageUser: 'Manage',
+      userQuotas: 'User quotas',
+      userQuotasHint: 'Override article, draft, and cover limits for this user (-1 = unlimited).',
+      quotaUsage: 'Current usage',
+      saveQuotas: 'Save quotas',
+      quotasUpdated: 'Quotas updated',
+      quotasUpdateError: 'Failed to update quotas',
+      unlimited: 'Unlimited',
       roleLabels: {
         1: '1 — Regular',
         2: '2 — Can read Secret',

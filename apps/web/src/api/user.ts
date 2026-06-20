@@ -5,8 +5,8 @@ export async function login (username: string, password: string) {
   return data
 }
 
-export async function register (username: string, password: string, nickname?: string) {
-  const { data } = await client.post('/user/register', { username, password, nickname })
+export async function register (username: string, password: string, nickname?: string, inviteCode?: string) {
+  const { data } = await client.post('/user/register', { username, password, nickname, inviteCode })
   return data
 }
 
@@ -42,5 +42,38 @@ export async function adminListUsers () {
 
 export async function adminUpdateUserRole (userId: string, role: number) {
   const { data } = await client.patch(`/user/admin/${userId}/role`, { role })
+  return data
+}
+
+export async function adminGetUserQuotas (userId: string) {
+  const { data } = await client.get(`/user/admin/${userId}/quotas`)
+  return data
+}
+
+export async function adminUpdateUserQuotas (userId: string, quotas: {
+  maxArticles: number
+  maxDrafts: number
+  maxCoverImages: number
+}) {
+  const { data } = await client.patch(`/user/admin/${userId}/quotas`, quotas)
+  return data
+}
+
+export async function adminListInvites () {
+  const { data } = await client.get('/user/admin/invites')
+  return data
+}
+
+export async function adminCreateInvite (payload: {
+  maxUses?: number
+  expiresInDays?: number
+  note?: string
+}) {
+  const { data } = await client.post('/user/admin/invites', payload)
+  return data
+}
+
+export async function adminDeleteInvite (code: string) {
+  const { data } = await client.delete(`/user/admin/invites/${code}`)
   return data
 }

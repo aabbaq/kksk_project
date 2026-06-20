@@ -233,6 +233,7 @@ a {
   max-width: 440px;
   border-radius: var(--lothric-card-radius);
   border: 1px solid var(--lothric-border);
+  color-scheme: dark;
 }
 
 .lothric-auth__body {
