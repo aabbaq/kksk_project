@@ -29,6 +29,21 @@
       </template>
       <span>{{ loginTip }}</span>
     </v-tooltip>
+    <v-tooltip location="bottom">
+      <template #activator="{ props }">
+        <v-btn
+          v-bind="props"
+          variant="text"
+          class="lothric-btn-blend mr-2"
+          icon="mdi-github"
+          :href="githubRepoUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub"
+        />
+      </template>
+      <span>{{ t.topbar.github }}</span>
+    </v-tooltip>
     <template v-if="isUserHome" #extension>
       <v-tabs v-model="tab" color="white" density="comfortable" class="lothric-user-tabs">
         <v-tab v-for="each in tabsInfo" :key="each.key" :to="each.to" id="Tabbuttom">
@@ -47,6 +62,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useAppearanceStore } from '@/stores/appearance'
 import { useLocaleStore } from '@/stores/locale'
 import { getUserInfo, tokenCheck } from '@/api/user'
+import { githubUrl } from '@/config/site'
 
 const auth = useAuthStore()
 const appearance = useAppearanceStore()
@@ -89,6 +105,7 @@ onMounted(async () => {
 })
 
 const toWhere = computed(() => (auth.isLoggedIn ? '/user' : '/login'))
+const githubRepoUrl = githubUrl()
 const loginTip = computed(() => {
   if (!auth.isLoggedIn) return t.value.topbar.guestDenied
   const name = auth.userNickname || auth.userName

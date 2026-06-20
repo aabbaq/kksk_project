@@ -17,7 +17,9 @@ COPY packages/shared/src packages/shared/src
 COPY apps/web apps/web
 
 # Production build: API requests go through gateway nginx at /api
+ARG VITE_GITHUB_URL=https://github.com/aabbaq/kksk_project
 ENV VITE_API_BASE_URL=/api
+ENV VITE_GITHUB_URL=$VITE_GITHUB_URL
 
 RUN pnpm --filter @kksk/web... build \
   && test -f packages/shared/dist/index.d.ts
